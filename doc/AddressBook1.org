@@ -1,0 +1,161 @@
+#+title: First sketch of an Alloy model in FOL
+#+author: CMSMcQ 
+#+date: 17 March 2024
+
+This document provides a first sketch of what an Alloy model might
+look like if re-expressed in standard first-order predicate calculus.
+It is intended to explore the space a little bit and learn more about
+what might be involved.
+
+We start by reproducing the model; it's the first example in Jackson's
+"Whirlwind tour" of Alloy, so it's not very complicated (but
+complicated enough for our purposes). We then work through the
+translation. 
+
+* The Alloy model
+
+The model appears on p. 6 of Jackson 2012:
+#+begin_src alloy
+module tour/addressBook1
+
+sig Name, Addr {}
+sig Book {
+    addr:  Name -> lone Addr
+}  
+#+end_src
+
+Readers familiar with Alloy will find this straightforward to read;
+for those unfamiliar with Alloy, it may be paraphrased very briefly as
+saying that names (atoms of class /Name/), addresses (/Addr/), and
+books (/Book/) exist (or: may exist), and that books have a property
+named /addr/, which maps names to addresses, with the constraint that
+any given name maps to at most one address.
+
+A fuller and more careful account is given in the next section.
+
+* The FOPC translation
+
+First, we enunciate the entailments of the three signature
+declarations for Name, Addr, and Book.
+
+First of all, signatures define classes or sets of atoms.  So we say:
+
+In the universe of discourse, a thing can be a Name, an Addr, a Book,
+or an individual automatically supplied by the system.  (In Alloy, the
+/Int/ signature is typically present whether declared or not.)
+
+We represent the set of all /Name/ atoms using the predicate /Name/,
+and more generally we take every signature name to be a predicate
+(true for members of the signature, false for others).  We assume a
+predicate /AUTO/ for all individuals automatically supplied by the
+system. (It should perhaps be /Int/, but until I'm clearer on what
+can be automatically included, I'll stick with /AUTO/.)
+
+#+begin_src fopc :tangle yes
+(all x)(Name(x) or Addr(x) or Book(x) or AUTO(x))
+#+end_src
+
+Second, top-level signatures are pairwise disjoint.
+
+#+begin_src fopc :tangle yes
+not(exists x)(Name(x) and Addr(x))
+not(exists x)(Name(x) and Book(x))
+not(exists x)(Name(x) and AUTO(x))
+not(exists x)(Addr(x) and Book(x))
+not(exists x)(Addr(x) and AUTO(x))
+not(exists x)(Book(x) and AUTO(x))
+#+end_src
+
+Note that these formulas also serve to show the reader that the
+predicates /Name/, /Addr/, and /Book/ are understood as being defined.
+
+We could also write this differently, as:
+
+#+begin_src fopc :tangle no
+(all x : Name)(not(Addr(x)) and not(Book(x)) and not(AUTO(x)))
+(all x : Addr)(not(Name(x)) and not(Book(x)) and not(AUTO(x)))
+(all x : Book)(not(Name(x)) and not(Addr(x)) and not(AUTO(x)))
+(all x : AUTO)(not(Name(x)) and not(Addr(x)) and not(Book(x)))
+#+end_src
+
+with one formula for each top-level signature, each naming all the
+other top-level signatures. 
+
+The declaration of /Book/ specifies that books contain a mapping from
+/Name/ to /Addr/.  The mapping is not assumed complete over all names:
+the declaration "~addr: Name -> lone Addr~" does specify with the
+keyword /lone/ that any given name maps to at most one address.  (The
+keyword /lone/ means one, or none -- Less than one, or ONE, in the
+mnemonic formulation.)
+
+The type information can be captured by a generalization over all
+tuples in the relation:
+#+begin_src fopc :tangle yes
+(all x, y, z)(address(x, y, z) 
+             implies
+             (Book(x) and Name(y) and Addr(z)))
+#+end_src
+
+The fact that no name maps to more than one address can be expressed
+by saying that for any book /x/ and name /y/, there are not two
+addresses /y/ and /z/ such that /address(x, y, z)/ and /address(x, y,
+w)/.  Using our usual short-hands, this is
+
+#+begin_src fopc :tangle no
+(all x : Book)(all y : Name)
+(not (some z, w: Addr)
+     (address(x, y, z)
+     and address(x, y, w)
+     and z ≠ w))
+#+end_src
+
+To get this into the target language, those typed quantifications must
+be rewritten:
+
+#+begin_src fopc :tangle no
+(all x)(Book(x) implies
+    (all y)(Name(y) implies
+        (not (exists z)
+             (Addr(z)
+             and (exists w)
+                 (Addr(w)
+                 and address(x, y, z)
+                 and address(x, y, w)
+                 and z ≠ w))))
+#+end_src
+
+Or, moving the quantifiers outward and rewriting to a formulation that
+seems simpler:
+
+#+begin_src fopc :tangle yes
+(all x)(all y)
+    ((Book(x) and Book(y))
+     implies
+     (not (exists z)
+          (exists w)
+          (Addr(z) and Addr(w)
+           and address(x, y, z)
+           and address(x, y, w)
+           and z ≠ w)))
+#+end_src
+
+At this point, I would really like to have a Begriffsschrift-style
+parse tree for the expression. Failing that, we can use indentation
+and nested lists to show the parse tree and with it the scope of
+declarations:
+
+- (all x)(all y)
+  + implies
+    - and
+      + Book(x)
+      + Book(x)
+    - not
+      + (exists y)(exists w)
+        - and
+          + Addr(y)
+          + Addr(w)
+          + address(x, y, z)
+          + address(x, y, w)
+          + z ≠ w
+
+
