@@ -29,19 +29,18 @@ Jackson writes (p. 264):
 > themselves relations).
 
 Our goal, at least initially, is to find a way to express our Alloy
-models in a first-order logic without relations, in which variables
-are bound to individuals (*atoms*, in the usage adopted by Jackson),
-not to relations.  If we succeed, we will have an additional account
-of Alloy semantics to put beside that offered by Jackson in Appendix C
-of his book (and doubtless in more detail in working papers and
-technical publications) -- perhaps of interest only to those whose
-preference for desert landscapes makes them leery of assuming the
-existence of things like sets and tuples, and perhaps mostly an
-exercise in changes of notation and wording.  If we fail, we will have
-learned something very important and helpful to us (although
-presumably not new to Jackson or to those who have worked on set
-theory and the differences between first- and higher-order logics in
-the last century or so).
+models in a first-order logic in which variables are bound only to
+individuals (*atoms*, in the usage adopted by Jackson), not to
+relations.  If we succeed, we will have an additional account of Alloy
+semantics to put beside that offered by Jackson in Appendix C of his
+book (and doubtless in more detail in working papers and technical
+publications) -- perhaps of interest only to those whose preference
+for desert landscapes makes them leery of assuming the existence of
+things like sets and tuples, and perhaps mostly an exercise in changes
+of notation and wording.  If we fail, we will have learned something
+very important and helpful to us (although presumably not new to
+Jackson or to those who have worked on set theory and the differences
+between first- and higher-order logics in the last century or so).
 
 For now, our target logic is defined informally as roughly what is
 covered in Jeffrey.  We may or may not need functions, but we do
