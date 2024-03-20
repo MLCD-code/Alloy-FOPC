@@ -26,32 +26,47 @@ sig Book {
 
 Readers familiar with Alloy will find this straightforward to read;
 for those unfamiliar with Alloy, it may be paraphrased very briefly as
-saying that names (atoms of class /Name/), addresses (/Addr/), and
-books (/Book/) exist (or: may exist), and that books have a property
-named /addr/, which maps names to addresses, with the constraint that
-any given name maps to at most one address.
+saying that names, address, and books (or more precisely atoms in the
+signatures /Name/, /Addr/, or /Book/) exist or may exist, and that
+books have a property named /addr/, which maps names to addresses,
+with the constraint that any given name maps to at most one address.
 
 A fuller and more careful account is given in the next section.
+
+It should probably be noted before we go any further that in this
+document the terms /atom/ and /individual/ will be used more or less
+interchangeably; Alloy uses the former, but we are more accustomed to
+the latter.
 
 * The FOPC translation
 
 ** Signatures as identifying groups of individuals
 
-First, we enunciate the entailments of the three signature
-declarations for Name, Addr, and Book.
+First, we enunciate the entailments of the three signatures declared
+in the model: /Name/, /Addr/, and /Book/.
 
-First of all, signatures define classes or sets of atoms.  So we say:
+Signatures define classes or sets of atoms.  So we say:
 
 In the universe of discourse, a thing can be a Name, an Addr, a Book,
 or an individual automatically supplied by the system.  (In Alloy, the
 /Int/ signature is typically present whether declared or not.)
 
-We represent the set of all /Name/ atoms using the predicate /Name/,
-and more generally we take every signature name to be a predicate
-(true for members of the signature, false for others).  We assume a
-predicate /AUTO/ for all individuals automatically supplied by the
-system. (It should perhaps be /Int/, but until I'm clearer on what
-can be automatically included, I'll stick with /AUTO/.)
+We might be inclined to say something like: the sets Name, Addr, and
+Book exist.  But since we assume a target language in which variables
+do not range over sets, and sets are not individuals, that formulation
+won't work.
+
+Instead of talking about individuals being members of the set /Name/,
+we will assume a predicate which is true of those individuals, and
+call it /Name/.  So where Alloy might say of some variable /x/ that
+"~x in Name~", we will say just "/Name(x)/".
+
+More generally, for every signature in the Alloy model, we will assume
+a predicate with the same name which will be true for individuals
+which are in the signature and false for others.  We will also assume
+a predicate /AUTO/ for all individuals automatically supplied by the
+system. (It should perhaps be /Int/, but until I'm clearer on what can
+be automatically included, I'll stick with /AUTO/.)
 
 #+begin_src fopc :tangle yes
 (all x)(Name(x) or Addr(x) or Book(x) or AUTO(x))
@@ -85,18 +100,34 @@ We could also write this differently, as:
 with one formula for each top-level signature, each naming all the
 other top-level signatures. 
 
+If we assume an exclusive-or operator (spelled perhaps /xor/ or /aut/
+or ⊗), both the formula in the preceding section and those in this
+section can be formulated more concisely as:
+
+#+begin_src fopc :tangle no
+(all x)(Name(x) aut Addr(x) aut Book(x) aut AUTO(x))
+#+end_src
+
+The target language we are aiming at is unlikely to have exclusive
+/or/, but we may well decide that the best way to produce FOL formulas
+is to translate from Alloy into an extended language that includes a
+number of constructs not always present in formalizations of FOL, and
+then expand those constructs automatically, just as we have done in
+the past with typed quantification and unique quantification
+(/exists-1/).
+
 ** The /addr/ field of /Book/
 
 The declaration of /Book/ specifies that books contain a mapping from
 /Name/ to /Addr/.  The mapping is not assumed complete over all names:
 the declaration "~addr: Name -> lone Addr~" does specify with the
 keyword /lone/ that any given name maps to at most one address.  (The
-keyword /lone/ means one, or none -- Less than one, or ONE, in the
-mnemonic formulation.)
+keyword /lone/ means one, or none -- Jackson offers the mnemonic that
+it means *L*[e‌ss than one, or else] *one*.)
 
 The declaration gives us information about the arguments of
 the individuals involved, and also about their number (in
-Alloy terms, their /multiplicity/.
+Alloy terms, their /multiplicity/).
 
 *** The type information for /addr/
 
@@ -117,7 +148,7 @@ w)/.  Using our usual short-hands, this is
 
 #+begin_src fopc :tangle no
 (all x : Book)(all y : Name)
-(not (some z, w: Addr)
+(not (exists z, w: Addr)
      (address(x, y, z)
      and address(x, y, w)
      and z ≠ w))
