@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-20 Wed 10:16 -->
+<!-- 2024-03-20 Wed 10:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>A second sketch of an Alloy model in FOL</title>
@@ -201,31 +201,35 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgfa6ab97">1. The top-level module declaration and import</a>
+<li><a href="#orgeec39e6">1. The top-level module declaration and import</a>
 <ul>
-<li><a href="#org8b58bdf">1.1. The model</a></li>
-<li><a href="#orga297b70">1.2. The logical formulas</a></li>
+<li><a href="#org4e15e85">1.1. The model</a></li>
+<li><a href="#org43e5cb4">1.2. The logical formulas</a></li>
 </ul>
 </li>
-<li><a href="#orgdfcceb2">2. Signatures</a>
+<li><a href="#orga466cf9">2. Signatures</a>
 <ul>
-<li><a href="#org514ed7a">2.1. The mnodel</a></li>
-<li><a href="#org720feeb">2.2. Top-level signatures partitioning the universe</a></li>
-<li><a href="#org05a9435">2.3. Nested signatures</a></li>
-<li><a href="#org7ed848e">2.4. Fields / relations</a></li>
+<li><a href="#orgbd7e8d9">2.1. The mnodel</a></li>
+<li><a href="#org7f8e724">2.2. Top-level signatures partitioning the universe</a></li>
+<li><a href="#org368d4e8">2.3. Nested signatures</a></li>
+<li><a href="#org16a60f7">2.4. Fields / relations</a>
+<ul>
+<li><a href="#org9c04ae5">2.4.1. <span class="todo TODO">TODO</span> Check the interpretation of <code>names -&gt; some Target</code> against Jackson.</a></li>
 </ul>
 </li>
-<li><a href="#org2063717">3. Actions <i>add</i> and <i>del</i></a></li>
-<li><a href="#org441f78d">4. Traces, and the ordering over all books</a></li>
-<li><a href="#orgf4e3780">5. Assertions</a>
-<ul>
-<li><a href="#orgffe0f00">5.1. <i>del</i> undoes <i>add</i></a></li>
-<li><a href="#org81bb75c">5.2. <i>add</i> is idempotent</a></li>
-<li><a href="#org5da1feb">5.3. <i>add</i> leaves lookup unaffected for other names</a></li>
-<li><a href="#org4898085">5.4. Lookup always produces some result</a></li>
 </ul>
 </li>
-<li><a href="#org26d61df">6. Check instructions</a></li>
+<li><a href="#org4575f02">3. Actions <i>add</i> and <i>del</i></a></li>
+<li><a href="#orgba7837c">4. Traces, and the ordering over all books</a></li>
+<li><a href="#org3267e3f">5. Assertions</a>
+<ul>
+<li><a href="#org90a65ed">5.1. <i>del</i> undoes <i>add</i></a></li>
+<li><a href="#orge5dd777">5.2. <i>add</i> is idempotent</a></li>
+<li><a href="#org1affc7d">5.3. <i>add</i> leaves lookup unaffected for other names</a></li>
+<li><a href="#orgdb9dbf4">5.4. Lookup always produces some result</a></li>
+</ul>
+</li>
+<li><a href="#orgcf0acdb">6. Check instructions</a></li>
 </ul>
 </div>
 </div>
@@ -246,12 +250,12 @@ To simplify the discussion, we will divide the model into parts, and
 for each part specify the corresponding FOPC formulas.
 </p>
 
-<div id="outline-container-orgfa6ab97" class="outline-2">
-<h2 id="orgfa6ab97"><span class="section-number-2">1.</span> The top-level module declaration and import</h2>
+<div id="outline-container-orgeec39e6" class="outline-2">
+<h2 id="orgeec39e6"><span class="section-number-2">1.</span> The top-level module declaration and import</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-org8b58bdf" class="outline-3">
-<h3 id="org8b58bdf"><span class="section-number-3">1.1.</span> The model</h3>
+<div id="outline-container-org4e15e85" class="outline-3">
+<h3 id="org4e15e85"><span class="section-number-3">1.1.</span> The model</h3>
 <div class="outline-text-3" id="text-1-1">
 <p>
 The model begins by identifying itself and importing a utility module
@@ -269,8 +273,8 @@ open util/ordering [Book] as BookOrder
 </div>
 </div>
 
-<div id="outline-container-orga297b70" class="outline-3">
-<h3 id="orga297b70"><span class="section-number-3">1.2.</span> The logical formulas</h3>
+<div id="outline-container-org43e5cb4" class="outline-3">
+<h3 id="org43e5cb4"><span class="section-number-3">1.2.</span> The logical formulas</h3>
 <div class="outline-text-3" id="text-1-2">
 <p>
 The module declaration entails no formulas.
@@ -283,12 +287,12 @@ The import of the <i>ordering</i> utility will be discussed later.
 </div>
 </div>
 
-<div id="outline-container-orgdfcceb2" class="outline-2">
-<h2 id="orgdfcceb2"><span class="section-number-2">2.</span> Signatures</h2>
+<div id="outline-container-orga466cf9" class="outline-2">
+<h2 id="orga466cf9"><span class="section-number-2">2.</span> Signatures</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-org514ed7a" class="outline-3">
-<h3 id="org514ed7a"><span class="section-number-3">2.1.</span> The mnodel</h3>
+<div id="outline-container-orgbd7e8d9" class="outline-3">
+<h3 id="orgbd7e8d9"><span class="section-number-3">2.1.</span> The mnodel</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 The model then defines signatures for different kinds of individual:
@@ -314,8 +318,8 @@ sig Book {
 </div>
 </div>
 
-<div id="outline-container-org720feeb" class="outline-3">
-<h3 id="org720feeb"><span class="section-number-3">2.2.</span> Top-level signatures partitioning the universe</h3>
+<div id="outline-container-org7f8e724" class="outline-3">
+<h3 id="org7f8e724"><span class="section-number-3">2.2.</span> Top-level signatures partitioning the universe</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 In this model there are only two top-level signatures (plus whatever
@@ -340,8 +344,8 @@ not(exists x)(Book(x) and AUTO(x))
 </div>
 </div>
 
-<div id="outline-container-org05a9435" class="outline-3">
-<h3 id="org05a9435"><span class="section-number-3">2.3.</span> Nested signatures</h3>
+<div id="outline-container-org368d4e8" class="outline-3">
+<h3 id="org368d4e8"><span class="section-number-3">2.3.</span> Nested signatures</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
 Note that <i>Target</i> is defined abstract and extended by <i>Addr</i> and
@@ -380,27 +384,51 @@ exist.
 </div>
 </div>
 
-<div id="outline-container-org7ed848e" class="outline-3">
-<h3 id="org7ed848e"><span class="section-number-3">2.4.</span> Fields / relations</h3>
+<div id="outline-container-org16a60f7" class="outline-3">
+<h3 id="org16a60f7"><span class="section-number-3">2.4.</span> Fields / relations</h3>
 <div class="outline-text-3" id="text-2-4">
 <p>
 Books have a <i>names</i> field, which is just a set of names, and an
 <i>addr</i> field, which maps names to targets.
 </p>
 
+<div class="org-src-container">
+<pre class="src src-fopc">(all b, n)(names(b, n) implies (Book(b) and Name(n)))
+(all b, n, t)(addr(b, n, t) implies (Book(b) and Name(n) and names(b, n) and Target(t)))
+(all b, n)(names(b, n) implies (some t)(Target(t) and addr(b, n, t)))
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org9c04ae5" class="outline-4">
+<h4 id="org9c04ae5"><span class="section-number-4">2.4.1.</span> <span class="todo TODO">TODO</span> Check the interpretation of <code>names -&gt; some Target</code> against Jackson.</h4>
+<div class="outline-text-4" id="text-2-4-1">
 <p>
 The <i>Book</i> signature also has a constraint saying that the <i>addr</i>
 relation is acyclic: no name <i>n</i> appears in the set of names which can
 be found by applying the <i>addr</i> lookup mapping to <i>n</i> any (positive)
 number of times.  Also, any alias maps to at most one target.
 </p>
+
+<p>
+<i>Can we capture transitive closure?</i>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">(all b, a)(Book(b) and Alias(a)
+    implies (all x, y)(Alias(x) and Alias(y) 
+    and addr(b, a, x) and addr(b, a, y)
+    implies x ≠ y
+</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
 
 
-<div id="outline-container-org2063717" class="outline-2">
-<h2 id="org2063717"><span class="section-number-2">3.</span> Actions <i>add</i> and <i>del</i></h2>
+<div id="outline-container-org4575f02" class="outline-2">
+<h2 id="org4575f02"><span class="section-number-2">3.</span> Actions <i>add</i> and <i>del</i></h2>
 <div class="outline-text-2" id="text-3">
 <p>
 The model continues by defining two predicates describing changes to
@@ -428,8 +456,8 @@ pred init [b: Book]  { no b.addr }
 </div>
 </div>
 
-<div id="outline-container-org441f78d" class="outline-2">
-<h2 id="org441f78d"><span class="section-number-2">4.</span> Traces, and the ordering over all books</h2>
+<div id="outline-container-orgba7837c" class="outline-2">
+<h2 id="orgba7837c"><span class="section-number-2">4.</span> Traces, and the ordering over all books</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 A fact named <i>traces</i> is then declared specifying that in the universe
@@ -463,12 +491,12 @@ operations on books.
 </div>
 </div>
 
-<div id="outline-container-orgf4e3780" class="outline-2">
-<h2 id="orgf4e3780"><span class="section-number-2">5.</span> Assertions</h2>
+<div id="outline-container-org3267e3f" class="outline-2">
+<h2 id="org3267e3f"><span class="section-number-2">5.</span> Assertions</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-orgffe0f00" class="outline-3">
-<h3 id="orgffe0f00"><span class="section-number-3">5.1.</span> <i>del</i> undoes <i>add</i></h3>
+<div id="outline-container-org90a65ed" class="outline-3">
+<h3 id="org90a65ed"><span class="section-number-3">5.1.</span> <i>del</i> undoes <i>add</i></h3>
 <div class="outline-text-3" id="text-5-1">
 <div class="org-src-container">
 <pre class="src src-alloy">------------------------------------------------------
@@ -487,8 +515,8 @@ check delUndoesAdd for 3
 </div>
 </div>
 
-<div id="outline-container-org81bb75c" class="outline-3">
-<h3 id="org81bb75c"><span class="section-number-3">5.2.</span> <i>add</i> is idempotent</h3>
+<div id="outline-container-orge5dd777" class="outline-3">
+<h3 id="orge5dd777"><span class="section-number-3">5.2.</span> <i>add</i> is idempotent</h3>
 <div class="outline-text-3" id="text-5-2">
 <div class="org-src-container">
 <pre class="src src-alloy">------------------------------------------------------
@@ -508,8 +536,8 @@ check addIdempotent for 3
 </div>
 </div>
 
-<div id="outline-container-org5da1feb" class="outline-3">
-<h3 id="org5da1feb"><span class="section-number-3">5.3.</span> <i>add</i> leaves lookup unaffected for other names</h3>
+<div id="outline-container-org1affc7d" class="outline-3">
+<h3 id="org1affc7d"><span class="section-number-3">5.3.</span> <i>add</i> leaves lookup unaffected for other names</h3>
 <div class="outline-text-3" id="text-5-3">
 <div class="org-src-container">
 <pre class="src src-alloy">------------------------------------------------------
@@ -529,8 +557,8 @@ check addLocal for 3 but 2 Book
 </div>
 </div>
 
-<div id="outline-container-org4898085" class="outline-3">
-<h3 id="org4898085"><span class="section-number-3">5.4.</span> Lookup always produces some result</h3>
+<div id="outline-container-orgdb9dbf4" class="outline-3">
+<h3 id="orgdb9dbf4"><span class="section-number-3">5.4.</span> Lookup always produces some result</h3>
 <div class="outline-text-3" id="text-5-4">
 <p>
 <i>I'm a little puzzled here.</i>
@@ -548,8 +576,8 @@ assert lookupYields {
 </div>
 </div>
 
-<div id="outline-container-org26d61df" class="outline-2">
-<h2 id="org26d61df"><span class="section-number-2">6.</span> Check instructions</h2>
+<div id="outline-container-orgcf0acdb" class="outline-2">
+<h2 id="orgcf0acdb"><span class="section-number-2">6.</span> Check instructions</h2>
 <div class="outline-text-2" id="text-6">
 <div class="org-src-container">
 <pre class="src src-alloy">// This should not find any counterexample.
@@ -565,7 +593,7 @@ check lookupYields for 6
 <div id="postamble" class="status">
 <p class="date">Date: 20 March 2024</p>
 <p class="author">Author: CMSMcQ</p>
-<p class="date">Created: 2024-03-20 Wed 10:16</p>
+<p class="date">Created: 2024-03-20 Wed 10:32</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

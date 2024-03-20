@@ -107,10 +107,27 @@ exist.
 Books have a /names/ field, which is just a set of names, and an
 /addr/ field, which maps names to targets.
 
+#+begin_src fopc :tangle yes
+(all b, n)(names(b, n) implies (Book(b) and Name(n)))
+(all b, n, t)(addr(b, n, t) implies (Book(b) and Name(n) and names(b, n) and Target(t)))
+(all b, n)(names(b, n) implies (some t)(Target(t) and addr(b, n, t)))
+#+end_src
+
+*** TODO Check the interpretation of ~names -> some Target~ against Jackson.
+
 The /Book/ signature also has a constraint saying that the /addr/
 relation is acyclic: no name /n/ appears in the set of names which can
 be found by applying the /addr/ lookup mapping to /n/ any (positive)
 number of times.  Also, any alias maps to at most one target.
+
+/Can we capture transitive closure?/
+
+#+begin_src fopc :tangle yes
+(all b, a)(Book(b) and Alias(a)
+    implies (all x, y)(Alias(x) and Alias(y) 
+    and addr(b, a, x) and addr(b, a, y)
+    implies x ≠ y
+#+end_src
 
 
 * Actions /add/ and /del/
