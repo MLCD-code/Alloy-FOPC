@@ -1,6 +1,6 @@
 #+title: First sketch of an Alloy model in FOL
 #+author: CMSMcQ 
-#+date: 17 March 2024
+#+date: 17 March 2024, rev 20 March 2024
 
 This document provides a first sketch of what an Alloy model might
 look like if re-expressed in standard first-order predicate calculus.
@@ -35,6 +35,8 @@ A fuller and more careful account is given in the next section.
 
 * The FOPC translation
 
+** Signatures as identifying groups of individuals
+
 First, we enunciate the entailments of the three signature
 declarations for Name, Addr, and Book.
 
@@ -54,6 +56,8 @@ can be automatically included, I'll stick with /AUTO/.)
 #+begin_src fopc :tangle yes
 (all x)(Name(x) or Addr(x) or Book(x) or AUTO(x))
 #+end_src
+
+** Top-level signatures as a partition of the universe
 
 Second, top-level signatures are pairwise disjoint.
 
@@ -81,12 +85,20 @@ We could also write this differently, as:
 with one formula for each top-level signature, each naming all the
 other top-level signatures. 
 
+** The /addr/ field of /Book/
+
 The declaration of /Book/ specifies that books contain a mapping from
 /Name/ to /Addr/.  The mapping is not assumed complete over all names:
 the declaration "~addr: Name -> lone Addr~" does specify with the
 keyword /lone/ that any given name maps to at most one address.  (The
 keyword /lone/ means one, or none -- Less than one, or ONE, in the
 mnemonic formulation.)
+
+The declaration gives us information about the arguments of
+the individuals involved, and also about their number (in
+Alloy terms, their /multiplicity/.
+
+*** The type information for /addr/
 
 The type information can be captured by a generalization over all
 tuples in the relation:
@@ -95,6 +107,8 @@ tuples in the relation:
              implies
              (Book(x) and Name(y) and Addr(z)))
 #+end_src
+
+*** The multiplicity information for /addr/
 
 The fact that no name maps to more than one address can be expressed
 by saying that for any book /x/ and name /y/, there are not two

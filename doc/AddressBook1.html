@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-17 Sun 13:57 -->
+<!-- 2024-03-20 Wed 08:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>First sketch of an Alloy model in FOL</title>
@@ -201,8 +201,19 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org0c37d5e">1. The Alloy model</a></li>
-<li><a href="#org125d75c">2. The FOPC translation</a></li>
+<li><a href="#orge8933b4">1. The Alloy model</a></li>
+<li><a href="#org4cc898b">2. The FOPC translation</a>
+<ul>
+<li><a href="#orgb79a603">2.1. Signatures as identifying groups of individuals</a></li>
+<li><a href="#orgb05933a">2.2. Top-level signatures as a partition of the universe</a></li>
+<li><a href="#orge556141">2.3. The <i>addr</i> field of <i>Book</i></a>
+<ul>
+<li><a href="#orgebaee70">2.3.1. The type information for <i>addr</i></a></li>
+<li><a href="#orgf011053">2.3.2. The multiplicity information for <i>addr</i></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -220,8 +231,8 @@ complicated enough for our purposes). We then work through the
 translation. 
 </p>
 
-<div id="outline-container-org0c37d5e" class="outline-2">
-<h2 id="org0c37d5e"><span class="section-number-2">1.</span> The Alloy model</h2>
+<div id="outline-container-orge8933b4" class="outline-2">
+<h2 id="orge8933b4"><span class="section-number-2">1.</span> The Alloy model</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The model appears on p. 6 of Jackson 2012:
@@ -251,9 +262,13 @@ A fuller and more careful account is given in the next section.
 </div>
 </div>
 
-<div id="outline-container-org125d75c" class="outline-2">
-<h2 id="org125d75c"><span class="section-number-2">2.</span> The FOPC translation</h2>
+<div id="outline-container-org4cc898b" class="outline-2">
+<h2 id="org4cc898b"><span class="section-number-2">2.</span> The FOPC translation</h2>
 <div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-orgb79a603" class="outline-3">
+<h3 id="orgb79a603"><span class="section-number-3">2.1.</span> Signatures as identifying groups of individuals</h3>
+<div class="outline-text-3" id="text-2-1">
 <p>
 First, we enunciate the entailments of the three signature
 declarations for Name, Addr, and Book.
@@ -282,7 +297,12 @@ can be automatically included, I'll stick with <i>AUTO</i>.)
 <pre class="src src-fopc">(all x)(Name(x) or Addr(x) or Book(x) or AUTO(x))
 </pre>
 </div>
+</div>
+</div>
 
+<div id="outline-container-orgb05933a" class="outline-3">
+<h3 id="orgb05933a"><span class="section-number-3">2.2.</span> Top-level signatures as a partition of the universe</h3>
+<div class="outline-text-3" id="text-2-2">
 <p>
 Second, top-level signatures are pairwise disjoint.
 </p>
@@ -318,7 +338,12 @@ We could also write this differently, as:
 with one formula for each top-level signature, each naming all the
 other top-level signatures. 
 </p>
+</div>
+</div>
 
+<div id="outline-container-orge556141" class="outline-3">
+<h3 id="orge556141"><span class="section-number-3">2.3.</span> The <i>addr</i> field of <i>Book</i></h3>
+<div class="outline-text-3" id="text-2-3">
 <p>
 The declaration of <i>Book</i> specifies that books contain a mapping from
 <i>Name</i> to <i>Addr</i>.  The mapping is not assumed complete over all names:
@@ -329,6 +354,16 @@ mnemonic formulation.)
 </p>
 
 <p>
+The declaration gives us information about the arguments of
+the individuals involved, and also about their number (in
+Alloy terms, their <i>multiplicity</i>.
+</p>
+</div>
+
+<div id="outline-container-orgebaee70" class="outline-4">
+<h4 id="orgebaee70"><span class="section-number-4">2.3.1.</span> The type information for <i>addr</i></h4>
+<div class="outline-text-4" id="text-2-3-1">
+<p>
 The type information can be captured by a generalization over all
 tuples in the relation:
 </p>
@@ -338,7 +373,12 @@ tuples in the relation:
              (Book(x) and Name(y) and Addr(z)))
 </pre>
 </div>
+</div>
+</div>
 
+<div id="outline-container-orgf011053" class="outline-4">
+<h4 id="orgf011053"><span class="section-number-4">2.3.2.</span> The multiplicity information for <i>addr</i></h4>
+<div class="outline-text-4" id="text-2-3-2">
 <p>
 The fact that no name maps to more than one address can be expressed
 by saying that for any book <i>x</i> and name <i>y</i>, there are not two
@@ -428,10 +468,12 @@ declarations:
 </div>
 </div>
 </div>
+</div>
+</div>
 <div id="postamble" class="status">
-<p class="date">Date: 17 March 2024</p>
+<p class="date">Date: 17 March 2024, rev 20 March 2024</p>
 <p class="author">Author: CMSMcQ</p>
-<p class="date">Created: 2024-03-17 Sun 13:57</p>
+<p class="date">Created: 2024-03-20 Wed 08:32</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
