@@ -112,7 +112,7 @@ tuples in the relation:
 
 The fact that no name maps to more than one address can be expressed
 by saying that for any book /x/ and name /y/, there are not two
-addresses /y/ and /z/ such that /address(x, y, z)/ and /address(x, y,
+addresses /z/ and /w/ such that /address(x, y, z)/ and /address(x, y,
 w)/.  Using our usual short-hands, this is
 
 #+begin_src fopc :tangle no
@@ -166,7 +166,7 @@ declarations:
     - not
       + (exists y)(exists w)
         - and
-          + Addr(y)
+          + Addr(z)
           + Addr(w)
           + address(x, y, z)
           + address(x, y, w)
