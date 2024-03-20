@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-03-20 Wed 10:16 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A second sketch of an Alloy model in FOL</title>
+<meta name="author" content="CMSMcQ" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">A second sketch of an Alloy model in FOL</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgfa6ab97">1. The top-level module declaration and import</a>
+<ul>
+<li><a href="#org8b58bdf">1.1. The model</a></li>
+<li><a href="#orga297b70">1.2. The logical formulas</a></li>
+</ul>
+</li>
+<li><a href="#orgdfcceb2">2. Signatures</a>
+<ul>
+<li><a href="#org514ed7a">2.1. The mnodel</a></li>
+<li><a href="#org720feeb">2.2. Top-level signatures partitioning the universe</a></li>
+<li><a href="#org05a9435">2.3. Nested signatures</a></li>
+<li><a href="#org7ed848e">2.4. Fields / relations</a></li>
+</ul>
+</li>
+<li><a href="#org2063717">3. Actions <i>add</i> and <i>del</i></a></li>
+<li><a href="#org441f78d">4. Traces, and the ordering over all books</a></li>
+<li><a href="#orgf4e3780">5. Assertions</a>
+<ul>
+<li><a href="#orgffe0f00">5.1. <i>del</i> undoes <i>add</i></a></li>
+<li><a href="#org81bb75c">5.2. <i>add</i> is idempotent</a></li>
+<li><a href="#org5da1feb">5.3. <i>add</i> leaves lookup unaffected for other names</a></li>
+<li><a href="#org4898085">5.4. Lookup always produces some result</a></li>
+</ul>
+</li>
+<li><a href="#org26d61df">6. Check instructions</a></li>
+</ul>
+</div>
+</div>
+<p>
+This document continues the work begun in <a href="AddressBook1.html">First sketch of an Alloy
+model in FOL</a>; again, the goal is to sketch a set of FOPC formulas
+which capture the meaning of an Alloy model.
+</p>
+
+<p>
+The model appears on p. <i>tbd</i> of Jackson 2012 as figure 2.18,
+as the end point in a series of elaborations illustrating different
+aspects of model development with Alloy.
+</p>
+
+<p>
+To simplify the discussion, we will divide the model into parts, and
+for each part specify the corresponding FOPC formulas.
+</p>
+
+<div id="outline-container-orgfa6ab97" class="outline-2">
+<h2 id="orgfa6ab97"><span class="section-number-2">1.</span> The top-level module declaration and import</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-org8b58bdf" class="outline-3">
+<h3 id="org8b58bdf"><span class="section-number-3">1.1.</span> The model</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+The model begins by identifying itself and importing a utility module
+for ordering, passing the name <i>Book</i> as the value of a parameter
+declared by that utility module.  This import allows the model to
+assume an ordering imposed on atoms of signature <i>Book</i>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-alloy">module tour/addressBook3d ----- this is the final model in fig 2.18
+
+open util/ordering [Book] as BookOrder
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga297b70" class="outline-3">
+<h3 id="orga297b70"><span class="section-number-3">1.2.</span> The logical formulas</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+The module declaration entails no formulas.
+</p>
+
+<p>
+The import of the <i>ordering</i> utility will be discussed later.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdfcceb2" class="outline-2">
+<h2 id="orgdfcceb2"><span class="section-number-2">2.</span> Signatures</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org514ed7a" class="outline-3">
+<h3 id="org514ed7a"><span class="section-number-3">2.1.</span> The mnodel</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+The model then defines signatures for different kinds of individual:
+targets, addresses, names, aliases, groups, and books.
+</p>
+<div class="org-src-container">
+<pre class="src src-alloy">
+abstract sig Target { }
+sig Addr extends Target { }
+abstract sig Name extends Target { }
+
+sig Alias, Group extends Name { }
+
+sig Book {
+        names: set Name,
+        addr: names-&gt;some Target
+} {
+        no n: Name | n in n.^addr
+        all a: Alias | lone a.addr
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org720feeb" class="outline-3">
+<h3 id="org720feeb"><span class="section-number-3">2.2.</span> Top-level signatures partitioning the universe</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+In this model there are only two top-level signatures (plus whatever
+Alloy automatically supplies); everything in the universe of discourse
+is a <i>Target</i> or a <i>Book</i> (or auto-declared).
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(all x)(Target(x) or Book(x) or AUTO(x))
+</pre>
+</div>
+
+<p>
+The top-level signatures are pairwise disjoint.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">not(exists x)(Target(x) and Book(x))
+not(exists x)(Target(x) and AUTO(x))
+not(exists x)(Book(x) and AUTO(x))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org05a9435" class="outline-3">
+<h3 id="org05a9435"><span class="section-number-3">2.3.</span> Nested signatures</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+Note that <i>Target</i> is defined abstract and extended by <i>Addr</i> and
+<i>Name</i>.  This means that every target is either an address or a name,
+and none is both.  It also means that every address and every name
+is a target.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">(all x : Target)(Addr(x) or Name(x))
+not(exists x)(Addr(x) and Name(x))
+(all x)(Name(x) implies Target(x))
+(all x)(Addr(x) implies Target(x))
+</pre>
+</div>
+
+<p>
+The signature <i>Name</i> is concrete, and is extended by two
+sub-signatures for aliases and groups.  This means that names may be
+aliases or groups, no name is both an alias and a group, and there may
+be names which are neither aliases nor groups.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">not(exists x)(Alias(x) and Group(x))
+(all x)(Alias(x) implies Name(x))
+(all x)(Group(x) implies Name(x))
+</pre>
+</div>
+
+<p>
+Note that since no cardinalities are given for any signatures,
+there is no requirement that any individuals in these signatures
+exist.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7ed848e" class="outline-3">
+<h3 id="org7ed848e"><span class="section-number-3">2.4.</span> Fields / relations</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+Books have a <i>names</i> field, which is just a set of names, and an
+<i>addr</i> field, which maps names to targets.
+</p>
+
+<p>
+The <i>Book</i> signature also has a constraint saying that the <i>addr</i>
+relation is acyclic: no name <i>n</i> appears in the set of names which can
+be found by applying the <i>addr</i> lookup mapping to <i>n</i> any (positive)
+number of times.  Also, any alias maps to at most one target.
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org2063717" class="outline-2">
+<h2 id="org2063717"><span class="section-number-2">3.</span> Actions <i>add</i> and <i>del</i></h2>
+<div class="outline-text-2" id="text-3">
+<p>
+The model continues by defining two predicates describing changes to
+address books, a function for looking names up in the <i>addr</i> field of
+a book, aned an initialization predicate which specifies an
+empty <i>Book</i>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-alloy">pred add [b, b": Book, n: Name, t: Target] {
+        t in Addr or some lookup [b, Name&amp;t]
+        b".addr = b.addr + n-&gt;t
+}
+
+pred del [b, b": Book, n: Name, t: Target] {
+        no b.addr.n or some n.(b.addr) - t
+        b".addr = b.addr - n-&gt;t
+}
+
+fun lookup [b: Book, n: Name] : set Addr { n.^(b.addr) &amp; Addr }
+
+pred init [b: Book]  { no b.addr }
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org441f78d" class="outline-2">
+<h2 id="org441f78d"><span class="section-number-2">4.</span> Traces, and the ordering over all books</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+A fact named <i>traces</i> is then declared specifying that in the universe
+of discourse to be considered:
+</p>
+
+<ul class="org-ul">
+<li>The first book in the sequence satisfies the <i>init</i> predicate
+(i.e. has no mappings in its <i>addr</i> field).  It may be recalled the
+import of the <i>ordering</i> utility imposed an ordering on all
+individuals in the <i>Book</i> signature.</li>
+
+<li>Every book in the sequence (except the last one) is related to its
+successor either by the <i>add</i> action or the <i>del</i> action.</li>
+</ul>
+
+<p>
+This fact allows the user to consider the effects of specified
+operations on books.
+</p>
+<div class="org-src-container">
+<pre class="src src-alloy">fact traces {
+        init [first]
+        all b: Book-last |
+          let b" = b.next |
+            some n: Name, t: Target |
+              add [b, b", n, t] or del [b, b", n, t]
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf4e3780" class="outline-2">
+<h2 id="orgf4e3780"><span class="section-number-2">5.</span> Assertions</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-orgffe0f00" class="outline-3">
+<h3 id="orgffe0f00"><span class="section-number-3">5.1.</span> <i>del</i> undoes <i>add</i></h3>
+<div class="outline-text-3" id="text-5-1">
+<div class="org-src-container">
+<pre class="src src-alloy">------------------------------------------------------
+
+assert delUndoesAdd {
+        all b, b", b"": Book, n: Name, t: Target |
+                no n.(b.addr) and add [b, b", n, t] and del [b", b"", n, t]
+                implies
+                b.addr = b"".addr
+}
+
+// This should not find any counterexample.
+check delUndoesAdd for 3
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org81bb75c" class="outline-3">
+<h3 id="org81bb75c"><span class="section-number-3">5.2.</span> <i>add</i> is idempotent</h3>
+<div class="outline-text-3" id="text-5-2">
+<div class="org-src-container">
+<pre class="src src-alloy">------------------------------------------------------
+
+assert addIdempotent {
+        all b, b", b"": Book, n: Name, t: Target |
+                add [b, b", n, t] and add [b", b"", n, t]
+                implies
+                b".addr = b"".addr
+}
+
+// This should not find any counterexample.
+check addIdempotent for 3
+
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5da1feb" class="outline-3">
+<h3 id="org5da1feb"><span class="section-number-3">5.3.</span> <i>add</i> leaves lookup unaffected for other names</h3>
+<div class="outline-text-3" id="text-5-3">
+<div class="org-src-container">
+<pre class="src src-alloy">------------------------------------------------------
+
+assert addLocal {
+        all b, b": Book, n, n": Name, t: Target |
+                add [b, b", n, t] and n != n"
+                implies
+                lookup [b, n"] = lookup [b", n"]
+}
+
+// This should not find any counterexample.
+check addLocal for 3 but 2 Book
+
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4898085" class="outline-3">
+<h3 id="org4898085"><span class="section-number-3">5.4.</span> Lookup always produces some result</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+<i>I'm a little puzzled here.</i>
+</p>
+<div class="org-src-container">
+<pre class="src src-alloy">------------------------------------------------------
+
+assert lookupYields {
+        all b: Book, n: b.names | some lookup [b,n]
+}
+
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org26d61df" class="outline-2">
+<h2 id="org26d61df"><span class="section-number-2">6.</span> Check instructions</h2>
+<div class="outline-text-2" id="text-6">
+<div class="org-src-container">
+<pre class="src src-alloy">// This should not find any counterexample.
+check lookupYields for 3 but 4 Book
+
+// This should not find any counterexample.
+check lookupYields for 6
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 20 March 2024</p>
+<p class="author">Author: CMSMcQ</p>
+<p class="date">Created: 2024-03-20 Wed 10:16</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,234 @@
+#+title: A second sketch of an Alloy model in FOL
+#+author: CMSMcQ 
+#+date: 20 March 2024
+
+This document continues the work begun in [[file:AddressBook1.org][First sketch of an Alloy
+model in FOL]]; again, the goal is to sketch a set of FOPC formulas
+which capture the meaning of an Alloy model.
+
+The model appears on p. /tbd/ of Jackson 2012 as figure 2.18,
+as the end point in a series of elaborations illustrating different
+aspects of model development with Alloy.
+
+To simplify the discussion, we will divide the model into parts, and
+for each part specify the corresponding FOPC formulas.
+
+* The top-level module declaration and import
+
+** The model
+
+The model begins by identifying itself and importing a utility module
+for ordering, passing the name /Book/ as the value of a parameter
+declared by that utility module.  This import allows the model to
+assume an ordering imposed on atoms of signature /Book/.
+
+#+begin_src alloy 
+module tour/addressBook3d ----- this is the final model in fig 2.18
+
+open util/ordering [Book] as BookOrder
+#+end_src
+
+** The logical formulas
+
+The module declaration entails no formulas.
+
+The import of the /ordering/ utility will be discussed later.
+
+* Signatures
+
+** The mnodel
+The model then defines signatures for different kinds of individual:
+targets, addresses, names, aliases, groups, and books.
+#+begin_src alloy 
+
+abstract sig Target { }
+sig Addr extends Target { }
+abstract sig Name extends Target { }
+
+sig Alias, Group extends Name { }
+
+sig Book {
+	names: set Name,
+	addr: names->some Target
+} {
+	no n: Name | n in n.^addr
+	all a: Alias | lone a.addr
+}
+#+end_src
+
+** Top-level signatures partitioning the universe
+
+In this model there are only two top-level signatures (plus whatever
+Alloy automatically supplies); everything in the universe of discourse
+is a /Target/ or a /Book/ (or auto-declared).
+#+begin_src fopc :tangle yes
+(all x)(Target(x) or Book(x) or AUTO(x))
+#+end_src
+
+The top-level signatures are pairwise disjoint.
+
+#+begin_src fopc :tangle yes
+not(exists x)(Target(x) and Book(x))
+not(exists x)(Target(x) and AUTO(x))
+not(exists x)(Book(x) and AUTO(x))
+#+end_src
+
+** Nested signatures
+
+Note that /Target/ is defined abstract and extended by /Addr/ and
+/Name/.  This means that every target is either an address or a name,
+and none is both.  It also means that every address and every name
+is a target.
+
+#+begin_src fopc :tangle yes
+(all x : Target)(Addr(x) or Name(x))
+not(exists x)(Addr(x) and Name(x))
+(all x)(Name(x) implies Target(x))
+(all x)(Addr(x) implies Target(x))
+#+end_src
+
+The signature /Name/ is concrete, and is extended by two
+sub-signatures for aliases and groups.  This means that names may be
+aliases or groups, no name is both an alias and a group, and there may
+be names which are neither aliases nor groups.
+
+#+begin_src fopc :tangle yes
+not(exists x)(Alias(x) and Group(x))
+(all x)(Alias(x) implies Name(x))
+(all x)(Group(x) implies Name(x))
+#+end_src
+
+Note that since no cardinalities are given for any signatures,
+there is no requirement that any individuals in these signatures
+exist.
+
+** Fields / relations
+
+Books have a /names/ field, which is just a set of names, and an
+/addr/ field, which maps names to targets.
+
+The /Book/ signature also has a constraint saying that the /addr/
+relation is acyclic: no name /n/ appears in the set of names which can
+be found by applying the /addr/ lookup mapping to /n/ any (positive)
+number of times.  Also, any alias maps to at most one target.
+
+
+* Actions /add/ and /del/
+The model continues by defining two predicates describing changes to
+address books, a function for looking names up in the /addr/ field of
+a book, aned an initialization predicate which specifies an
+empty /Book/.
+
+#+begin_src alloy 
+pred add [b, b": Book, n: Name, t: Target] {
+	t in Addr or some lookup [b, Name&t]
+	b".addr = b.addr + n->t
+}
+
+pred del [b, b": Book, n: Name, t: Target] {
+	no b.addr.n or some n.(b.addr) - t
+	b".addr = b.addr - n->t
+}
+
+fun lookup [b: Book, n: Name] : set Addr { n.^(b.addr) & Addr }
+
+pred init [b: Book]  { no b.addr }
+#+end_src
+
+* Traces, and the ordering over all books
+
+A fact named /traces/ is then declared specifying that in the universe
+of discourse to be considered:
+
+- The first book in the sequence satisfies the /init/ predicate
+  (i.e. has no mappings in its /addr/ field).  It may be recalled the
+  import of the /ordering/ utility imposed an ordering on all
+  individuals in the /Book/ signature.
+
+- Every book in the sequence (except the last one) is related to its
+  successor either by the /add/ action or the /del/ action.
+
+This fact allows the user to consider the effects of specified
+operations on books.
+#+begin_src alloy
+fact traces {
+	init [first]
+	all b: Book-last |
+	  let b" = b.next |
+	    some n: Name, t: Target |
+	      add [b, b", n, t] or del [b, b", n, t]
+}
+#+end_src
+
+* Assertions
+
+** /del/ undoes /add/
+#+begin_src alloy
+------------------------------------------------------
+
+assert delUndoesAdd {
+	all b, b", b"": Book, n: Name, t: Target |
+		no n.(b.addr) and add [b, b", n, t] and del [b", b"", n, t]
+		implies
+		b.addr = b"".addr
+}
+
+// This should not find any counterexample.
+check delUndoesAdd for 3
+#+end_src
+
+** /add/ is idempotent
+#+begin_src alloy
+------------------------------------------------------
+
+assert addIdempotent {
+	all b, b", b"": Book, n: Name, t: Target |
+		add [b, b", n, t] and add [b", b"", n, t]
+		implies
+		b".addr = b"".addr
+}
+
+// This should not find any counterexample.
+check addIdempotent for 3
+
+#+end_src
+
+** /add/ leaves lookup unaffected for other names 
+#+begin_src alloy
+------------------------------------------------------
+
+assert addLocal {
+	all b, b": Book, n, n": Name, t: Target |
+		add [b, b", n, t] and n != n"
+		implies
+		lookup [b, n"] = lookup [b", n"]
+}
+
+// This should not find any counterexample.
+check addLocal for 3 but 2 Book
+
+#+end_src
+
+** Lookup always produces some result
+
+/I'm a little puzzled here./
+#+begin_src alloy
+------------------------------------------------------
+
+assert lookupYields {
+	all b: Book, n: b.names | some lookup [b,n]
+}
+
+#+end_src
+
+* Check instructions
+
+#+begin_src alloy
+// This should not find any counterexample.
+check lookupYields for 3 but 4 Book
+
+// This should not find any counterexample.
+check lookupYields for 6
+#+end_src
+
+
