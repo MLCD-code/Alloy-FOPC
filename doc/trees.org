@@ -1,0 +1,397 @@
+#+title: Experiments with tree models in Alloy
+#+author: CMSMcQ 
+#+date: 28 March 2024
+
+This document describes a translation of some simple Alloy models of
+trees into first-order logic and some experiments with translating
+them into first-order logic.
+
+The models are borrowed from teaching materials for a course on
+software testing published on the web by Jan van Eijck of the
+University of Amsterdam, specifically from the lecture notes on
+[[https://staff.fnwi.uva.nl/d.j.n.vaneijck2/courses/10/pdfs/Week4.pdf][Specifications and assertions]].
+
+* The first Alloy model
+
+** The Alloy
+
+The first model appears on slide 3:
+#+begin_src alloy
+/* Tree Specification in Alloy */
+module myexamples/tree
+
+sig Object { b: set Object }
+one sig Root, A, B, C, D extends Object {}
+
+fact OneRoot { all x: Object | x = Root <=> no b.x }
+fact b_acyclic { no ^b & iden }
+
+fact { C in B.b and D in C.b }
+
+pred show () {}
+run show for 5
+#+end_src
+
+A (slightly rough) English paraphrase might be as follows.
+From the signature declarations, we have:
+  - Objects Root, A, B, C, and D exist; there are no other objects.
+  - Each object has a field /b/ whose value is a set of objects.
+    (Informally: for any object /X/, /X.b/ is the set of /X/'s
+    children.)  Note that /b/ can also be described simply as a binary
+    relation /b/ on objects.
+
+The fact /OneRoot/ says that an object is the Root object if
+and only if it is not a member of the value of /b/ for any object.
+
+The fact /b\under{}acyclic/ says that the intersection of the transitive
+closure of /b/ (viewed as a binary relation) and the identity relation
+is empty (i.e. they are disjoint).  This means, in effect, that no
+object /X/ can be reached by starting at /X/ and traversing the /b/
+relation any positive number of times.
+
+The unnamed third fact specifies that object C is a member of the /b/
+field of B (i.e. C is one of B's children), and D is a child of C.
+
+The predicate /show/ imposes no constraints, so it hold for any
+instance of the model; the /run/ command, when executed, asks Alloy to
+find an instance of the predicate /show/ in a universe with at most 5
+objects of any signature.
+
+** The FOPC translation
+
+*** The signature declarations
+
+In our usual first-order calculus notation, we can perhaps render this
+model as follows.
+
+There is only one top-level signature, so everything is either an
+object or a member of an automatically supplied signature (like Int),
+and nothing is both.
+#+begin_src fopc
+(all x)(Object(x) aut AUTO(x))
+#+end_src
+
+The five signatures Root, A, B, C, D are all sub-signatures of Object,
+and each is declared with a cardinality of one.  That means first that
+there is at least one individual in each of these signatures, and then
+also that any individual which is a member of these signatures is an
+object, and if /x/ and /y/ are members of one of these signatures,
+then /x/ and /y/ are the same individual.
+
+#+begin_src fopc
+(some x)(Root(x))
+(all x : Root)(Object(x))
+(all x : Root)(all y : Root)(x = y)
+(some x)(A(x))
+(all x : A)(Object(x))
+(all x : A)(all y : A)(x = y)
+(some x)(B(x))
+(all x : B)(Object(x))
+(all x : B)(all y : B)(x = y)
+(some x)(C(x))
+(all x : C)(Object(x))
+(all x : C)(all y : C)(x = y)
+(some x)(D(x))
+(all x : D)(Object(x))
+(all x : D)(all y : D)(x = y)
+#+end_src
+
+Furthermore, the sub-signatures partition the parent signature:
+#+begin_src fopc
+(all x: Object)(Root(x) aut A(x) aut B(x) aut C(x) aut D(x))
+#+end_src
+
+Without typed declarations and without exclusive or, these become a
+bit wordier.
+
+#+begin_src fopc
+(all x)(Object(x) or AUTO(x))
+(no x)(Object(x) and AUTO(x))
+(some x)(Root(x))
+(all x)(Root(x) implies
+       (Object(x) and (all y)(Root(y) implies x = y)))
+(some x)(A(x))
+(all x)(A(x) implies
+       (Object(x) and (all y)(A(y) implies x = y)))
+(some x)(B(x))
+(all x)(B(x) implies
+       (Object(x) and (all y)(B(y) implies x = y)))
+(some x)(C(x))
+(all x)(C(x) implies
+       (Object(x) and (all y)(C(y) implies x = y)))
+(some x)(D(x))
+(all x)(D(x) implies
+       (Object(x) and (all y)(D(y) implies x = y)))
+(all x)(Object(x) implies
+        ((Root(x) or A(x) or B(x) or C(x) or D(x))
+         and not(Root(x) and A(x))
+         and not(Root(x) and B(x))
+         and not(Root(x) and C(x))
+         and not(Root(x) and D(x))
+         and not(A(x) and B(x))
+         and not(A(x) and C(x))
+         and not(A(x) and D(x))
+         and not(B(x) and C(x))
+         and not(B(x) and D(x))
+         and not(C(x) and D(x)))
+#+end_src
+
+*** The fact /OneRoot/
+
+/OneRoot/ says that for all objects, the object is the Root if and
+only if no object has it as a child.
+
+#+begin_src fopc
+(all x: Object)(Root(x) iff (no y)(b(y, x)))
+#+end_src
+
+*** The fact /b\under{}acyclic/
+
+The fact /b\under{}acyclic/ is, closely paraphrased, a statement
+about the cardinality of a set.
+
+We cannot define the transitive closure operator
+"~^~" in a first-order system, so we will need to
+define the transitive closure of /b/ as a named
+relation, in the usual recursive way:
+#+begin_src fopc
+(all x, y)(tcb(x, y) 
+          iff 
+          (b(x,y) or (some z)(b(x,z) and tcb(z,y))))
+#+end_src
+
+We may need to define /iden/ as well:
+#+begin_src fopc
+(all x, y)(iden(x, y) iff x = y)
+#+end_src
+
+A direct translation of the fact might then be:
+#+begin_src fopc
+(no x, y)(tcb(x, y) and iden(x, y))
+#+end_src
+
+For complex expressions denoting relations, it might be
+better to reify and name the relations denoted by the
+subexpressions.  We have already done that for "~^b~" and
+"~iden~" here, so we are already part-way there.  A blind
+reification of each level in the structure would replace
+the direct translation with another reification and then
+a simpler statement of the fact:
+#+begin_src fopc
+(all x, y)(tcb_inter_iden(x, y) 
+          iff
+          (tcb(x, y) and iden(x, y)))
+(no x, y)(tcp_inter_iden(x, y))
+#+end_src
+*** The nameless fact
+The third fact specifies that B is the parent of C and C the parent of
+D.  Or, more precisely, that the single atom of signature B is the
+parent of the single atom of signature C, and so on.  Or, given that
+they are unique, more simply it says that for any atoms x, y, and z
+of signature B, C, and D respectively, the parent/child relation /b/
+holds for the pairs (x, y) and (y, z).
+#+begin_src fopc
+(all x : B)(all y : C)(all z : D)(b(x, y) and b(y, z))
+#+end_src
+
+
+* Checking an example
+
+** The example 
+Given the model above, Alloy can generate examples, including one we
+can display as a nested list:
+
+- Root
+  + B
+    - C
+      + D
+  + A
+
+Can we prove in first-order logic what Alloy has told us, namely
+that this instance is consistent with the constraints of the model?
+
+I'm not completely certain of the right way to express this instance
+as a set of formulas in our target language, but a first cut would be:
+
+#+begin_src fopc
+b(Root, B)
+b(Root, A)
+b(B, C)
+b(C, D)
+#+end_src
+
+On further consideration, however, I see that this assumes that the
+signature names are constants designating individuals, which is wrong
+in several ways.  A second attempt to describe the example says that
+in the state of affairs reflected in it, there are five individuals,
+one for each declared signature, and they have the relations shown.
+Since the uniqueness of each signature has already been established
+(or should have been), we don't need to specify that there are exactly
+five such individuals but can focus on their signatures and relations.
+
+We can conceive of this as a predicate that holds for five
+individuals, which might be declared in Alloy this way:
+#+begin_src alloy
+pred example[x: Root, y: A, z: B, w: C, v: D] {
+ y in b[x]
+ z in b[x]
+ w in b[z]
+ v in b[w]
+}
+#+end_src
+Mnemonic names (/a/ for the member of signature /A/, for example)
+would be nicer, but /b/ as the name both for the relation /b/ and the
+atom /b/ of signature /B/ was a step too far for me.
+
+We could also conceive of it as a predicate that takes no arguments
+but is just true or not true.
+#+begin_src fopc
+pred example {
+ some x: Root, y: A, z: B, w: C, v: D {
+   y in b[x]
+   z in b[x]
+   w in b[z]
+   v in b[w]
+ }
+}
+#+end_src
+We can translate either of these into FOL; let's pick the second.
+#+begin_src fopc
+example iff (
+  (some x, y, z, w, v)
+  ( (Root(x) and A(y) and B(z) and C(w) and D(v)
+    and b(x, y)
+    and b(x, z)
+    and b(z, w)
+    and b(w, v)
+)
+#+end_src
+
+If there can be no instance that satisfies the statements just given
+(call their conjunction /E/), then both of the following formulations
+of the state of affairs will be true:
+
+- The constraints of the model entail ¬/E/.
+- The conjunction of /E/ with the constraints of the model will be
+  inconsistent.
+
+Since entailment of /E/ by /M/ is established, in many systems, by
+showing that the conjunction /M/ ∧ ¬/E/ is inconsistent, these two
+statements boil down to the same thing.
+
+Let's try it.
+
+** A TPTP translation of the model and example
+
+In TPTP notation, first-order formulas are labeled as such and 
+given names and roles.  So the overall structure of each formula
+will match the following grammar (I'm ignoring whitespace for
+simplicity):
+#+begin_src ixml
+tptp-formula: "fof(", name, ",", role, ",", formula, ")".
+name: [L], [L; Nd; "_"]*.
+role: "axiom"      { start here }
+    ; axiom-like
+    ; "conjecture" { formula to be proved }
+    ; other-roles
+    .
+axiom-like: "hypothesis" { assumed true, used like axioms }
+          ; "definition" { universally quantified equations 
+                           or equivalences with atomic LHS,
+                           intended to define symbols }
+          ; "assumption" { like axiom but "must be discharged
+                           before a derivation is complete" }
+          ; "lemma"      { has been proved, must follow from axioms }
+          ; "theorem"    { has been proved, must follow from axioms }
+                         { problem with non-redundant lemma or theorem
+                           is ill-formed }
+         
+other-roles: { probably irrelevant for us? }
+             "corollary" | "negated_conjecture" | "plain" 
+           | "type" | "interpretation" | "fi_domain" | "fi_functors" 
+           | "fi_predicates" | "unknown".
+formula: ...
+#+end_src
+
+The FOPC rules given above can, I think, be rendered into TPTP as
+follows.  Some notes:
+- Since TPTP uses the Prolog convention of spelling variables with
+  initial uppercase letters and requiring functors to begin with
+  lowercase letters (or be quoted), I've lowercased all the signature
+  names.
+- The theorem prover E objects if the same predicate symbol is used
+  with different arities, so this TPTP translation writes "~pc(X, Y)~"
+  where the logical rules given above write "b(x, y)".
+
+#+begin_src tptp :tangle tree.jve1.p
+/* Signature Object */
+fof(sigo1, axiom,
+   ( ! [X] : (object(X) | auto(X)))).
+fof(sigo2, axiom,
+   (~ ? [X] : (object(X) & auto(X)))).
+
+/* Signatures root, a, b, c, d */
+fof(sigr1, axiom, (?[X] : root(X))).
+fof(sigr2, axiom, 
+    ( ! [X] : (root(X) => (object(X) & ( ! [Y] : (root(Y) => (X = Y)))))) ).
+fof(siga1, axiom, (?[X] : a(X))).
+fof(siga2, axiom, 
+    ( ! [X] : (a(X) => (object(X) & ( ! [Y] : (a(Y) => (X = Y)))))) ).
+fof(sigb1, axiom, (?[X] : b(X))).
+fof(sigb2, axiom, 
+    ( ! [X] : (b(X) => (object(X) & ( ! [Y] : (b(Y) => (X = Y)))))) ).
+fof(sigc1, axiom, (?[X] : c(X))).
+fof(sigc2, axiom, 
+    ( ! [X] : (c(X) => (object(X) & ( ! [Y] : (c(Y) => (X = Y)))))) ).
+fof(sigd1, axiom, (?[X] : d(X))).
+fof(sigd2, axiom, 
+    ( ! [X] : (d(X) => (object(X) & ( ! [Y] : (d(Y) => (X = Y)))))) ).
+
+/* Root, A-D partition Object */
+fof(sigosubs, axiom,
+    ( ! [X] : ( object(X) =>
+              ( (root(X) | a(X) | b(X) | c(X) | d(X))
+                & ~(root(X) & a(X))
+                & ~(root(X) & b(X))
+                & ~(root(X) & c(X))
+                & ~(root(X) & d(X))
+                & ~(a(X) & b(X))
+                & ~(a(X) & c(X))
+                & ~(a(X) & d(X))
+                & ~(b(X) & c(X))
+                & ~(b(X) & d(X))
+                & ~(c(X) & d(X)))))).
+
+/* fact OneRoot */
+fof(oneroot, axiom,
+   (![X]: (root(X) <=> (~?[Y]: (pc(Y,X)))))).
+
+/* definition of tcb (^b) */
+fof(def_tcb, axiom,
+   (![X, Y]: (tcb(X, Y) <=> ((pc(X, Y))|(?[Z]:(pc(X, Z) & tcb(Z, Y))))))).
+
+/* fact b_acyclic */
+fof(b_acyclic, axiom,
+  (~?[X, Y]:(tcb(X,Y) & (X = Y)))).
+
+/* fact 3 (nameless) */
+fof(fact3, axiom,
+   (![X,Y,Z] : ((b(X) & c(Y) & d(Z)) => (pc(X, Y) & pc(Y, Z))))).
+#+end_src
+
+The example translates into TPTP syntax as follows:
+#+begin_src tptp :tangle tree.jve1.p
+/* Definition of example */
+fof(example1, definition,
+  (example <=> ?[X, Y, Z, W, V] :
+               (root(X) & a(Y) & b(Z) & c(W) & d(V)
+                & pc(X,Y) & pc(X,Z) & pc(Z,W) & pc(W,V)))).
+#+end_src
+
+** Testing
+
+To check whether the example is possible, we ask the prover to prove
+that it is impossible.
+#+begin_src tptp :tangle tree.jve1.p
+fof(ex1nogo, conjecture, ~example).
+#+end_src

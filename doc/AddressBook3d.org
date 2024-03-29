@@ -120,7 +120,39 @@ relation is acyclic: no name /n/ appears in the set of names which can
 be found by applying the /addr/ lookup mapping to /n/ any (positive)
 number of times.  Also, any alias maps to at most one target.
 
-/Can we capture transitive closure?/
+Jackson observes in /SA/ that transitive closure cannot be axiomatized
+in first-order logic.  I am not completely certain what he means, but
+I take the point to be that operators like Alloy's "~^~" and "~*~"
+cannot be defined using first-order means, because such a definition
+would have to involve a variable quantified over relations.  If so,
+then there is no barrier to defining the transitive closure of /addr/
+in the obvious way:
+#+begin_src fopc :tangle yes
+(all b : Book, n : Name, t : Target)
+              (tc_addr(b, n, t)
+              iff 
+              (addr(b, n, t)
+              or
+              (some x : Target)(addr(b, n, x) and tc_addr(x, n, t))
+              ))
+#+end_src
+Or, expanding the typed quantifications:
+#+begin_src fopc :tangle yes
+(all b, n, t)((Book(b) and Name(n) and names(b, n) and target(T))
+              implies
+              (tc_addr(b, n, t)
+              iff 
+              (addr(b, n, t)
+              or
+              (some x)(Target(x) and addr(b, n, x) and tc_addr(x, n, t))
+              )))
+#+end_src
+
+Whether theorem provers can deal with the recursion is another
+matter, but it seems pretty clear that a tableau prover can do so,
+and I am inclined to suspect that the tableau prover I have in mind
+is the weakest of all our possible target systems.  But there is no
+need to speculate; we will find out empirically soon enough.
 
 #+begin_src fopc :tangle yes
 (all b, a)(Book(b) and Alias(a)
