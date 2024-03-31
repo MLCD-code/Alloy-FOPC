@@ -39,7 +39,7 @@ As a baseline, what happens if we submit the example given above to
 /E/?  Here is the command:
 
 #+name: run_phil01
-#+begin_src sh :results output verbatim :exports results
+#+begin_src sh :results output verbatim :exports both
 /opt/local/bin/eprover --auto --answers=2 --output-level=0 ../examples/phil01.p
 #+end_src
 
@@ -56,6 +56,8 @@ As a baseline, what happens if we submit the example given above to
 
 # Proof found!
 #+end_example
+
+`
 
 
 * Are answer substitutions what we need?
@@ -116,26 +118,26 @@ the following conjecture is true, nor that it's false.
 If we hand this problem to /E/ what do we get?
 
 #+name: run_phil02
-#+begin_src sh :results output verbatim :exports both
-/opt/local/bin/eprover --auto --output-level=0 ../examples/phil02.p
+#+begin_src sh :results output verbatim :exports results
+/opt/local/bin/eprover --auto \
+                       --answers=2 \
+                       --output-level=0 \
+                       ../examples/phil02.p \
+                       ; echo -n
+#                      The 'echo -n' is needed because 
+#                      otherwise the non-zero return code
+#                      confuses org-mode.
 #+end_src
 
 #+RESULTS: run_phil02
-
-For reasons I do not understand, org mode is not capturing the output
-of eprover for that code scrap (actually, it says no output was
-produced). When I run it myself, I get this output:
-
-#+begin_example
-# No SInE strategy applied
-# Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
-# and selection function SelectComplexExceptUniqMaxHorn.
-#
-# Presaturation interreduction done
-
-# No proof found!
-# SZS status CounterSatisfiable
-#+end_example
+: # No SInE strategy applied
+: # Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+: # and selection function SelectComplexExceptUniqMaxHorn.
+: #
+: # Presaturation interreduction done
+: 
+: # No proof found!
+: # SZS status CounterSatisfiable
 
 For what it's worth, negating the question produces (as we should
 expect) the same result.  Here is the negation:
@@ -149,13 +151,19 @@ And here is the result:
 
 #+name: run_phil03
 #+begin_src sh :results output verbatim :exports results
-/opt/local/bin/eprover --auto --output-level=0 ../examples/phil03.p
+/opt/local/bin/eprover --auto --output-level=0 \
+                       ../examples/phil03.p; echo -n
 #+end_src
 
 #+RESULTS: run_phil03
-
-[Or rather, here should be the result, except that for reasons I
-don't understand org-mode reports that E has produced no output.]
+: # No SInE strategy applied
+: # Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+: # and selection function SelectComplexExceptUniqMaxHorn.
+: #
+: # Presaturation interreduction done
+: 
+: # No proof found!
+: # SZS status CounterSatisfiable
 
 The remark "SZS status CounterSatisfiable" seems promising, at least.
 I should look more carefully at the documentation.
@@ -173,8 +181,120 @@ using words I did not recognize as having that meaning.
 What happens if I hand it a set of axioms without any conjecture or
 question?  That is, what if I add the example (here:  there exists a
 philosopher) not as a question but as an axiom?
+
+Answer:  we get a very similar result.
+
 #+begin_src tptp :tangle ../examples/phil04.p :noweb tangle
   <<philosophers>>
   fof(philosophers_exist,axiom,(?[X]:(philosopher(X)))).
 #+end_src
+
+#+name: run_phil04
+#+begin_src sh :results output verbatim :exports none
+/opt/local/bin/eprover --auto --output-level=0 \
+                       ../examples/phil04.p; echo -n
+#+end_src
+
+#+RESULTS: run_phil04
+: # No SInE strategy applied
+: # Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+: # and selection function SelectComplexExceptUniqMaxHorn.
+: #
+: # Presaturation interreduction done
+: 
+: # No proof found!
+: # SZS status Satisfiable
+
+The message "No proof found!" appears again -- a bit confusing since
+there was nothing to prove.  And the SZS status is "Satisfiable" and
+not "CounterSatisfiable".
+
+Perhaps this tells us that when the input contains a list of axioms
+with no conjecture or question, /E/ does precisely what I was looking
+for (or at least: one of the things I am looking for): it checks the
+axioms for satisfiability.
+
+If we add an inconsistent axiom to the set, what will /E/ do?
+
+#+name: run_phil04x
+#+begin_src sh :results output verbatim :exports both
+(cat ../examples/phil04.p \
+   ; echo "fof(contradiction, axiom, (p & ~ p)).") \
+   | /opt/local/bin/eprover --auto --output-level=0 \
+   ; echo $?
+#+end_src
+
+#+RESULTS: run_phil04x
+: # No SInE strategy applied
+: # Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+: # and selection function SelectComplexExceptUniqMaxHorn.
+: #
+: # Presaturation interreduction done
+: 
+: # Proof found!
+: # SZS status Unsatisfiable
+: 0
+
+Further consideration of what it says in the manual suggests also that
+/E/ makes a helpful three-way distinction in its results:
+- "Proof found!" means the input (including any negated conjecture)
+  was found to be inconsistent / non-satisfiable.
+- "Proof not found!" means the input (including any negated conjecture)
+  was found to be satisfiable.
+- "Failure: ..." means that the result was indeterminate, because
+  some resource limit or other was exceeded.
+
+That means that in some cases, at least, we will have the terminating
+behavior we hoped for, with an affirmative statement that a particular
+example is consistent with the constraints.
+
+Why does the documentation not say that more directly and explicitly?
+I can think of some possible reasons, not mutually exclusive:
+
+- Perhaps checking a set of sentences for consistency is not /that/
+  common a requirement.
+- Perhaps it is so blindingly obvious to most users of /E/ that it
+  does not occur to anyone that it needs saying at all.
+- Perhaps the documentation does say this already, in a way that
+  is clear to other readers even if it did not seem clear to me.
+
+* Conclusions
+
+It appears (I am still feeling a bit tentative) that:
+
+- A set of sentences (e.g. the formulas capturing some set of
+  constraints) can be checked for consistency by submitting the set to
+  /E/, without the need to manufacture and append a conjecture to be
+  proved or disproved.
+
+- That means that a possible state of affairs S can be checked for
+  consistency with a set of sentences or axioms A by just adding a
+  description of S as an additional sentence.  If S is consistent with
+  A, /E/ will report "SZS Status Satisfiable"; if S is not consistent
+  with A, then /E/ will report "SZS Status Unsatisfiable".
+
+  Or, possibly, it may run out of resources before reaching a result.
+
+- If it is a necessary consequence of the axioms that some
+  individual(s) exist who collectively satisfy some state of affairs
+  S, then a conjecture to that effect, formulated as an existential
+  quantification and labeled a "question" in the input, will lead E to
+  propose (as an answer substitution) one or more sets of individuals
+  who instantiate S.
+
+- If, on the other hand, S is compatible with A but not entailed by A
+  -- that is, if S is contingent, not necessary -- then the answer
+  substitution facility in /E/ will not propose possible individuals.
+
+  Perhaps this can be summarized as: /E/ will propose answer
+  substitutions which will make the existential statement true in
+  every model of the theory; it will not propose answer substitutions
+  that will satisfy the statement in some but not all models.
+
+- I think that means that I do not know a way to use /E/ to find
+  instances of a theory in the style of Alloy.
+
+  But it does seem that in cases where Alloy fails to find an instance
+  and reports that the model may be contradictory, /E/ may be able to
+  prove as a theorem that it is contradictory.
 

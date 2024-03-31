@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-31 Sun 08:29 -->
+<!-- 2024-03-31 Sun 09:51 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Short experiment with answer substitution in E</title>
@@ -201,9 +201,10 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org9ce817a">1. E can provide answer substitutions</a></li>
-<li><a href="#orgadda6b0">2. Are answer substitutions what we need?</a></li>
-<li><a href="#orgf349e2b">3. A concrete case:  if Socrates exists, Socrates is a philosopher</a></li>
+<li><a href="#orge040e44">1. E can provide answer substitutions</a></li>
+<li><a href="#orga600f98">2. Are answer substitutions what we need?</a></li>
+<li><a href="#orga03f28d">3. A concrete case:  if Socrates exists, Socrates is a philosopher</a></li>
+<li><a href="#orga68e902">4. Conclusions</a></li>
 </ul>
 </div>
 </div>
@@ -211,8 +212,8 @@
 I want to do a little experiment with the theorem prover E.
 </p>
 
-<div id="outline-container-org9ce817a" class="outline-2">
-<h2 id="org9ce817a"><span class="section-number-2">1.</span> E can provide answer substitutions</h2>
+<div id="outline-container-orge040e44" class="outline-2">
+<h2 id="orge040e44"><span class="section-number-2">1.</span> E can provide answer substitutions</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The usage notes say it can perform "answer substitutions", which from
@@ -257,7 +258,12 @@ As a baseline, what happens if we submit the example given above to
 <i>E</i>?  Here is the command:
 </p>
 
-<pre class="example" id="orgb41a198">
+<div class="org-src-container">
+<pre class="src src-sh" id="org02629c8">/opt/local/bin/eprover --auto --answers=2 --output-level=0 ../examples/phil01.p
+</pre>
+</div>
+
+<pre class="example" id="org2c34fba">
 # No SInE strategy applied
 # Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
 # and selection function SelectComplexExceptUniqMaxHorn.
@@ -269,12 +275,16 @@ As a baseline, what happens if we submit the example given above to
 
 # Proof found!
 </pre>
+
+<p>
+`
+</p>
 </div>
 </div>
 
 
-<div id="outline-container-orgadda6b0" class="outline-2">
-<h2 id="orgadda6b0"><span class="section-number-2">2.</span> Are answer substitutions what we need?</h2>
+<div id="outline-container-orga600f98" class="outline-2">
+<h2 id="orga600f98"><span class="section-number-2">2.</span> Are answer substitutions what we need?</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 However, our situation appears to be a little different when we wish
@@ -320,8 +330,8 @@ prover will terminate in most or all simple cases?
 </div>
 </div>
 
-<div id="outline-container-orgf349e2b" class="outline-2">
-<h2 id="orgf349e2b"><span class="section-number-2">3.</span> A concrete case:  if Socrates exists, Socrates is a philosopher</h2>
+<div id="outline-container-orga03f28d" class="outline-2">
+<h2 id="orga03f28d"><span class="section-number-2">3.</span> A concrete case:  if Socrates exists, Socrates is a philosopher</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Suppose, for example, that our axioms were not that Socrates, Plato,
@@ -352,18 +362,7 @@ fof(philosophers_exist,question,(?[X]:(philosopher(X)))).
 If we hand this problem to <i>E</i> what do we get?
 </p>
 
-<div class="org-src-container">
-<pre class="src src-sh" id="orgdd709fc">/opt/local/bin/eprover --auto --output-level=0 ../examples/phil02.p
-</pre>
-</div>
-
-<p>
-For reasons I do not understand, org mode is not capturing the output
-of eprover for that code scrap (actually, it says no output was
-produced). When I run it myself, I get this output:
-</p>
-
-<pre class="example" id="orgdda6f0b">
+<pre class="example">
 # No SInE strategy applied
 # Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
 # and selection function SelectComplexExceptUniqMaxHorn.
@@ -373,6 +372,7 @@ produced). When I run it myself, I get this output:
 # No proof found!
 # SZS status CounterSatisfiable
 </pre>
+
 
 <p>
 For what it's worth, negating the question produces (as we should
@@ -389,10 +389,17 @@ fof(philosophers_exist,question,(~ ?[X]:(philosopher(X)))).
 And here is the result:
 </p>
 
-<p>
-[Or rather, here should be the result, except that for reasons I
-don't understand org-mode reports that E has produced no output.]
-</p>
+<pre class="example">
+# No SInE strategy applied
+# Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+# and selection function SelectComplexExceptUniqMaxHorn.
+#
+# Presaturation interreduction done
+
+# No proof found!
+# SZS status CounterSatisfiable
+</pre>
+
 
 <p>
 The remark "SZS status CounterSatisfiable" seems promising, at least.
@@ -418,18 +425,153 @@ What happens if I hand it a set of axioms without any conjecture or
 question?  That is, what if I add the example (here:  there exists a
 philosopher) not as a question but as an axiom?
 </p>
+
+<p>
+Answer:  we get a very similar result.
+</p>
+
 <div class="org-src-container">
 <pre class="src src-tptp">&lt;&lt;philosophers&gt;&gt;
 fof(philosophers_exist,axiom,(?[X]:(philosopher(X)))).
 </pre>
 </div>
+
+<p>
+The message "No proof found!" appears again &#x2013; a bit confusing since
+there was nothing to prove.  And the SZS status is "Satisfiable" and
+not "CounterSatisfiable".
+</p>
+
+<p>
+Perhaps this tells us that when the input contains a list of axioms
+with no conjecture or question, <i>E</i> does precisely what I was looking
+for (or at least: one of the things I am looking for): it checks the
+axioms for satisfiability.
+</p>
+
+<p>
+If we add an inconsistent axiom to the set, what will <i>E</i> do?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh" id="org28d7d69">(cat ../examples/phil04.p \
+   ; echo "fof(contradiction, axiom, (p &amp; ~ p)).") \
+   | /opt/local/bin/eprover --auto --output-level=0 \
+   ; echo $?
+</pre>
+</div>
+
+<pre class="example">
+# No SInE strategy applied
+# Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+# and selection function SelectComplexExceptUniqMaxHorn.
+#
+# Presaturation interreduction done
+
+# Proof found!
+# SZS status Unsatisfiable
+0
+</pre>
+
+
+<p>
+Further consideration of what it says in the manual suggests also that
+<i>E</i> makes a helpful three-way distinction in its results:
+</p>
+<ul class="org-ul">
+<li>"Proof found!" means the input (including any negated conjecture)
+was found to be inconsistent / non-satisfiable.</li>
+<li>"Proof not found!" means the input (including any negated conjecture)
+was found to be satisfiable.</li>
+<li>"Failure: &#x2026;" means that the result was indeterminate, because
+some resource limit or other was exceeded.</li>
+</ul>
+
+<p>
+That means that in some cases, at least, we will have the terminating
+behavior we hoped for, with an affirmative statement that a particular
+example is consistent with the constraints.
+</p>
+
+<p>
+Why does the documentation not say that more directly and explicitly?
+I can think of some possible reasons, not mutually exclusive:
+</p>
+
+<ul class="org-ul">
+<li>Perhaps checking a set of sentences for consistency is not <i>that</i>
+common a requirement.</li>
+<li>Perhaps it is so blindingly obvious to most users of <i>E</i> that it
+does not occur to anyone that it needs saying at all.</li>
+<li>Perhaps the documentation does say this already, in a way that
+is clear to other readers even if it did not seem clear to me.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga68e902" class="outline-2">
+<h2 id="orga68e902"><span class="section-number-2">4.</span> Conclusions</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+It appears (I am still feeling a bit tentative) that:
+</p>
+
+<ul class="org-ul">
+<li>A set of sentences (e.g. the formulas capturing some set of
+constraints) can be checked for consistency by submitting the set to
+<i>E</i>, without the need to manufacture and append a conjecture to be
+proved or disproved.</li>
+
+<li><p>
+That means that a possible state of affairs S can be checked for
+consistency with a set of sentences or axioms A by just adding a
+description of S as an additional sentence.  If S is consistent with
+A, <i>E</i> will report "SZS Status Satisfiable"; if S is not consistent
+with A, then <i>E</i> will report "SZS Status Unsatisfiable".
+</p>
+
+<p>
+Or, possibly, it may run out of resources before reaching a result.
+</p></li>
+
+<li>If it is a necessary consequence of the axioms that some
+individual(s) exist who collectively satisfy some state of affairs
+S, then a conjecture to that effect, formulated as an existential
+quantification and labeled a "question" in the input, will lead E to
+propose (as an answer substitution) one or more sets of individuals
+who instantiate S.</li>
+
+<li><p>
+If, on the other hand, S is compatible with A but not entailed by A
+&#x2013; that is, if S is contingent, not necessary &#x2013; then the answer
+substitution facility in <i>E</i> will not propose possible individuals.
+</p>
+
+<p>
+Perhaps this can be summarized as: <i>E</i> will propose answer
+substitutions which will make the existential statement true in
+every model of the theory; it will not propose answer substitutions
+that will satisfy the statement in some but not all models.
+</p></li>
+
+<li><p>
+I think that means that I do not know a way to use <i>E</i> to find
+instances of a theory in the style of Alloy.
+</p>
+
+<p>
+But it does seem that in cases where Alloy fails to find an instance
+and reports that the model may be contradictory, <i>E</i> may be able to
+prove as a theorem that it is contradictory.
+</p></li>
+</ul>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 30 March 2024</p>
 <p class="author">Author: CMSMcQ</p>
-<p class="date">Created: 2024-03-31 Sun 08:29</p>
+<p class="date">Created: 2024-03-31 Sun 09:51</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
