@@ -1,4 +1,4 @@
-+title: Short experiment with answer substitution in E
+#+title: Short experiment with answer substitution in E
 #+author: CMSMcQ 
 #+date: 30 March 2024
 
