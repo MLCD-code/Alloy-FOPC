@@ -1,0 +1,180 @@
++title: Short experiment with answer substitution in E
+#+author: CMSMcQ 
+#+date: 30 March 2024
+
+I want to do a little experiment with the theorem prover E.
+
+* E can provide answer substitutions
+
+The usage notes say it can perform "answer substitutions", which from
+the example appears to be more or less what Prolog does when providing
+an answer to a user query.
+
+#+begin_quote
+Starting with version 1.3, E is able to provide answer
+substitutions. It currently adheres to the Tuple version of the TPTP
+proposal for answer extraction. To use this feature, you need to
+specify an existentially quantified conjecture formula with the
+formula type question, as in the example below. This implies the use
+of the TPTP-3/TSTP syntax.
+#+end_quote
+#+begin_src tptp :tangle ../examples/phil01.p
+      fof(socrates,axiom,(philosopher(socrates))).
+      fof(plato,axiom,(philosopher(plato))).      
+      fof(hume,axiom,(philosopher(hume))).
+      fof(philosphers_exist,question,(?[X]:(philosopher(X)))).
+#+end_src
+  
+#+begin_quote
+By default, E will stop searching after the first answer. The
+~--answers~ option can be used to specify for how many answers E will
+keep searching : ~eprover --answers=2 ans_test01.p~
+#+end_quote
+
+Consulting Spivey I see that the term /answer substitution/ is one I
+should recognize: it's not more or less but precisely what Prolog
+does.
+
+As a baseline, what happens if we submit the example given above to
+/E/?  Here is the command:
+
+#+name: run_phil01
+#+begin_src sh :results output verbatim :exports results
+/opt/local/bin/eprover --auto --answers=2 --output-level=0 ../examples/phil01.p
+#+end_src
+
+#+RESULTS: run_phil01
+#+begin_example
+# No SInE strategy applied
+# Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+# and selection function SelectComplexExceptUniqMaxHorn.
+#
+# Presaturation interreduction done
+# SZS status Theorem
+# SZS answers Tuple [[hume]|_]
+# SZS answers Tuple [[plato]|_]
+
+# Proof found!
+#+end_example
+
+
+* Are answer substitutions what we need?
+
+However, our situation appears to be a little different when we wish
+to find an instance of a model, or perhaps I should say a possible
+world which obeys a set of constraints, or to check that a given
+instance is in fact compatible with the model.
+
+We don't normally expect that it will follow from the constraints of a
+definition of /tree/ that three individuals of class Object exist,
+arranged such that the child_parent relation links two of them to the
+third.  Nor will it follow that no such individuals can exist.  (If it
+does follow that they cannot exist, then the example we are checking
+is clearly incompatible with the axioms.)
+
+For simplicity, I'll assume that any example we are interested in
+consists of some set of individuals of which certain sentences are
+true; on this view, any example can be concisely described as a
+predicate in Alloy, and if the example is compatible with the
+constraints in the Alloy model, then in some possible world the
+sentence (some x, y, ..., z)(P(x, y, ..., z)) will hold.
+
+Since many theorem provers work by negating the demonstrandum,
+conjoining it to some set of premises, and then proving the
+inconsistency of the resulting set of sentences, it's clear that
+checking a set of sentences for consistency or inconsistency is in
+priciple within their power.  My difficulty is finding a simple and
+reliable way to formulate a problem for which the theorem prover's
+solution will tell me whether the set of sentences it started with is
+consistent or not.  The obvious problem is that since first-order
+logic is only semi-decidable, what I want is not always feasible.
+
+But would it be possible to formulate a problem for which a theorem
+prover will terminate in most or all simple cases?
+
+* A concrete case:  if Socrates exists, Socrates is a philosopher
+
+Suppose, for example, that our axioms were not that Socrates, Plato,
+and Hume exist and are philosophers, but but that if Socrates, Plato,
+and Hume exist, then they will be philosophers?
+
+#+begin_src tptp :noweb-ref philosophers
+  fof(soc, axiom, (![X]: (is_socrates(X) => philosopher(X)))).
+  fof(pla, axiom, (![X]: (is_plato(X) => philosopher(X)))).
+  fof(hum, axiom, (![X]: (is_hume(X) => philosopher(X)))).
+#+end_src
+
+Unless I am mistaken, a state of affairs in which some individual /x/
+satisfies the predicates /is_socrates(x)/ and /philosopher(x)/ is
+possible but not necessary.  So we won't be able to prove either that
+the following conjecture is true, nor that it's false.
+#+begin_src tptp :tangle ../examples/phil02.p :noweb tangle
+  <<philosophers>>
+  fof(philosophers_exist,question,(?[X]:(philosopher(X)))).
+#+end_src
+
+If we hand this problem to /E/ what do we get?
+
+#+name: run_phil02
+#+begin_src sh :results output verbatim :exports both
+/opt/local/bin/eprover --auto --output-level=0 ../examples/phil02.p
+#+end_src
+
+#+RESULTS: run_phil02
+
+For reasons I do not understand, org mode is not capturing the output
+of eprover for that code scrap (actually, it says no output was
+produced). When I run it myself, I get this output:
+
+#+begin_example
+# No SInE strategy applied
+# Auto-Mode selected heuristic G_E___208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04AN
+# and selection function SelectComplexExceptUniqMaxHorn.
+#
+# Presaturation interreduction done
+
+# No proof found!
+# SZS status CounterSatisfiable
+#+end_example
+
+For what it's worth, negating the question produces (as we should
+expect) the same result.  Here is the negation:
+
+#+begin_src tptp :tangle ../examples/phil03.p :noweb tangle
+  <<philosophers>>
+  fof(philosophers_exist,question,(~ ?[X]:(philosopher(X)))).
+#+end_src
+
+And here is the result:
+
+#+name: run_phil03
+#+begin_src sh :results output verbatim :exports results
+/opt/local/bin/eprover --auto --output-level=0 ../examples/phil03.p
+#+end_src
+
+#+RESULTS: run_phil03
+
+[Or rather, here should be the result, except that for reasons I
+don't understand org-mode reports that E has produced no output.]
+
+The remark "SZS status CounterSatisfiable" seems promising, at least.
+I should look more carefully at the documentation.
+
+But before I do that, perhaps we can exploit the idea that any
+contradiction licenses arbitrary conclusions?  (Yes, but the tasks
+assigned in that case to the prover are guaranteed to terminate only
+if the example violates the constraints.  We want some task that will
+terminate if it /conforms/ to the constraints.)
+
+The manual does not mention a mode of operation that amounts to asking
+"is this set of propositions consistent?" -- or possibly it does so
+using words I did not recognize as having that meaning.
+
+What happens if I hand it a set of axioms without any conjecture or
+question?  That is, what if I add the example (here:  there exists a
+philosopher) not as a question but as an axiom?
+#+begin_src tptp :tangle ../examples/phil04.p :noweb tangle
+  <<philosophers>>
+  fof(philosophers_exist,axiom,(?[X]:(philosopher(X)))).
+#+end_src
+
