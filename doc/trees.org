@@ -4,12 +4,18 @@
 
 This document describes a translation of some simple Alloy models of
 trees into first-order logic and some experiments with translating
-them into first-order logic.
+them into first-order logic.  
 
 The models are borrowed from teaching materials for a course on
 software testing published on the web by Jan van Eijck of the
 University of Amsterdam, specifically from the lecture notes on
 [[https://staff.fnwi.uva.nl/d.j.n.vaneijck2/courses/10/pdfs/Week4.pdf][Specifications and assertions]].
+
+The document was written bit by bit and thus has some characteristics
+of a work log.  In particular, the bits at the beginning don't know
+for sure where the last bits are going, and there are digressions and
+notes about things that may or may not be important but which I don't
+want to forget.
 
 * The first Alloy model
 
@@ -281,6 +287,17 @@ statements boil down to the same thing.
 
 Let's try it.
 
+It may be worth pointing out that this particular example poses no
+great difficulty -- it was produced by Alloy, which is very good at
+producing instances compatible with the constraints of a model, and
+the example is simple enough that one can easily see that it's
+consistent with the model.  Moreover, it's small enough that one could
+in a pinch assume five individuals and generate a complete set of
+closed clauses and a complete set of literals, and show that the set
+of literals has no contradictions.  The point of trying to use a
+theorem prover to show that the example is consistent with the
+constraints is to gain a tool for use on manually constructed examples.
+
 ** A TPTP translation of the model and example
 
 In TPTP notation, first-order formulas are labeled as such and 
@@ -390,8 +407,35 @@ fof(example1, definition,
 
 ** Testing
 
-To check whether the example is possible, we ask the prover to prove
+To check whether the example is possible, we can ask the prover to prove
 that it is impossible.
 #+begin_src tptp :tangle tree.jve1.p
 fof(ex1nogo, conjecture, ~example).
 #+end_src
+
+If we place the TPTP description of the model, with this conjecture,
+in a file named /tree.jve1.p/ and pass it to the theorem prover /E/,
+with "~eprover --auto --output-file=tree.jve1.e.out tree.jve1.p~",
+then (as expected) /E/ fails to prove the conjecture.
+
+For the record: the version of /E/ I'm running appears to be 2.6
+"Floral Guranse".
+
+(One detail was a little puzzling.  I thought that the default value
+for the /--cpu-limit/ option was 300 (seconds), but /E/ ran for half
+an hour or so and produced 35 MB of output before I stopped it.
+Closer examination of the output of "~eprover -h~" shows my
+misunderstanding.  What it says is "The option without the optional
+argument is equivalent to ~--cpu-limit=300~."  That is, if you specify
+"~--cpu-limit~", you get 300 seconds.)
+
+Unfortunately, any automated theorem prover will sometimes fail to
+prove a true conjecture, so this is not completely satisfactory.  What
+we would like is a clear indication that the example is consistent
+with the assumptions.  In a tableau proof, we can (at least in some
+cases) produce a proof tree which is not closed but is complete, and
+we can construct a counterexample to the conjecture by reading off the
+values for various literals by running down any open branch.  Can we
+do that, or something analogous, with /E/ or with any other theorem
+prover?
+
