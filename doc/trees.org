@@ -1,6 +1,6 @@
 #+title: Experiments with tree models in Alloy
 #+author: CMSMcQ 
-#+date: 28 March 2024
+#+date: 28 March - 12 April 2024, resumed 2 May 2024
 
 This document describes a translation of some simple Alloy models of
 trees into first-order logic and some experiments with translating
@@ -15,7 +15,7 @@ The document was written bit by bit and thus has some characteristics
 of a work log.  In particular, the bits at the beginning don't know
 for sure where the last bits are going, and there are digressions and
 notes about things that may or may not be important but which I don't
-want to forget.
+want to forget.  The reader is requested to be patient.
 
 * The first Alloy model
 
@@ -439,3 +439,56 @@ values for various literals by running down any open branch.  Can we
 do that, or something analogous, with /E/ or with any other theorem
 prover?
 
+** Diagnosing the problem
+
+After a digression to a simpler example, I tried this again, with a
+soft CPU limit of 30 seconds.  It timed out.
+
+Next, I tried a primitive binary chop.
+1. Tried the first half of the model (down to axiom /sigd2/
+   inclusive).  It showed the (truncated) model satisfiable, in
+   about 15 msec.
+2. Added /sigosubs/ and /oneroot/; that is 42 lines of 63.
+   Satisfiable, 23 msec.
+3. Added /def\under{}tcb/ and /b\under{}acyclic/.  I wonder if the
+   recursion here is part of the problem.  It is; /E/ times out.
+4. Leave the definition of tcb in place, but comment out the
+   translation of /b\under{}acyclic/.  Still times out.
+5. Comment out the two axioms added in step 3 of this diagnostic
+   process, restore all the others: /fact3/, /example/.  Times out.
+6. Comment out definition of /example/.  Shown satisfiable in 23 msec.
+7. Try alternate definition of example (as predicate of arity 5).
+   Satisfiable, 23 msec.
+
+Retrying the two definitions of the example, one making /example/ a
+proposition true iff there are five individuals with a given
+configuration and the other making it a predicate over five arguments,
+I find that I am unable to replicate the timing shown for step 5.
+Either way it takes a little over 20 milliseconds.
+
+* A second Alloy model
+
+** The Alloy
+
+The second model appears on slide 7:
+#+begin_src alloy
+/* Corrected specification */
+module myexamples/tree
+
+sig Object { b: set Object }
+one sig Root, A, B, C, D extends Object {}
+fact OneRoot { all x: Object | x = Root <=> no b.x }
+fact SingleParent
+  { all x,y,z: Object | z in x.b and z in y.b => x=y }
+fact b_acyclic { no ^b & iden }
+
+fact { C in B.b and D in C.b }
+
+pred show () {}
+run show for 5
+#+end_src
+
+The English paraphrase is the same as before, with one addition for
+the fact /SingleParent/:
+
+- No object is in the value of /b/ for two distinct parent objects.

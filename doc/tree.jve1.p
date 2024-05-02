@@ -40,13 +40,13 @@ fof(sigosubs, axiom,
 fof(oneroot, axiom,
    (![X]: (root(X) <=> (~?[Y]: (pc(Y,X)))))).
 
-/* definition of tcb (^b) */
-fof(def_tcb, axiom,
-   (![X, Y]: (tcb(X, Y) <=> ((pc(X, Y))|(?[Z]:(pc(X, Z) & tcb(Z, Y))))))).
+/* definition of tcpc (^b) */
+fof(deftcpc, axiom,
+   (![X, Y]: (tcpc(X, Y) <=> ((pc(X, Y))|(?[Z]:(pc(X, Z) & tcpc(Z, Y))))))).
 
 /* fact b_acyclic */
 fof(b_acyclic, axiom,
-  (~?[X, Y]:(tcb(X,Y) & (X = Y)))).
+  (~?[X, Y]:(tcpc(X,Y) & (X = Y)))).
 
 /* fact 3 (nameless) */
 fof(fact3, axiom,
@@ -58,4 +58,11 @@ fof(example1, definition,
                (root(X) & a(Y) & b(Z) & c(W) & d(V)
                 & pc(X,Y) & pc(X,Z) & pc(Z,W) & pc(W,V)))).
 
-fof(ex1nogo, conjecture, ~example).
+/* fof(example1b, definition,
+    (![X, Y, Z, W, V]:
+     (example(X, Y, Z, W, V)
+     <=> 
+     (root(X) & a(Y) & b(Z) & c(W) & d(V)
+      & pc(X,Y) & pc(X,Z) & pc(Z,W) & pc(W,V))))).
+*/
+fof(ex1nogo, hypothesis, example).
