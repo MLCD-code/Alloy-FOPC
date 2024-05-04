@@ -1,0 +1,7 @@
+digraph tree {
+  rankdir="BT"
+  A -> Root
+  B -> Root
+  C -> B
+  D -> C
+}

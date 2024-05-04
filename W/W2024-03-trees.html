@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-05-02 Thu 12:06 -->
+<!-- 2024-05-04 Sat 13:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Experiments with tree models in Alloy</title>
@@ -201,14 +201,850 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org03228fe">1. A second Alloy model</a>
+<li><a href="#org4b73be0">1. The first Alloy model</a>
 <ul>
-<li><a href="#orgdab0f7a">1.1. The Alloy</a></li>
+<li><a href="#orgd29ec8b">1.1. The Alloy</a></li>
+<li><a href="#org34b5c53">1.2. The FOPC translation</a>
+<ul>
+<li><a href="#org28c5ef7">1.2.1. The signature declarations</a></li>
+<li><a href="#org67288a7">1.2.2. The fact <i>OneRoot</i></a></li>
+<li><a href="#org1a4735e">1.2.3. The fact <i>b_acyclic</i></a></li>
+<li><a href="#orgc07bac2">1.2.4. The nameless fact</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org444fdb0">2. Checking an example</a>
+<ul>
+<li><a href="#org3e12aa8">2.1. The example</a></li>
+<li><a href="#orgc3923c1">2.2. Expressing the example in FOPC</a></li>
+<li><a href="#org178546b">2.3. How to check that the example is allowed?</a></li>
+<li><a href="#orgf2d4384">2.4. A TPTP translation of the model and example</a></li>
+<li><a href="#org77ac3e5">2.5. Testing ways to run the example</a>
+<ul>
+<li><a href="#org52b1a82">2.5.1. Initial attempt to test the example</a></li>
+<li><a href="#orgd1f5f65">2.5.2. Diagnosing the problem</a></li>
+<li><a href="#org7a120c7">2.5.3. A simpler way</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org3bd9f83">3. Checking an assertion</a></li>
+<li><a href="#orgc45b5be">4. A second Alloy model</a></li>
+<li><a href="#org20b2164">5. A third model</a>
+<ul>
+<li><a href="#org985274e">5.1. The Alloy of slide 10</a></li>
+<li><a href="#org280c4b2">5.2. Equivalent in FOPC</a></li>
+<li><a href="#org964a607">5.3. The modification and a new conjecture</a></li>
+<li><a href="#orgd21cba6">5.4. A TPTP rendering in FOF</a></li>
+<li><a href="#orge689d41">5.5. Can <i>SingleParent</i> conjecture be proved?</a></li>
+<li><a href="#org44cc583">5.6. A TPTP rendering in TFF</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
+<p>
+This document describes a translation of some simple Alloy models of
+trees into first-order logic and some experiments with translating
+them into first-order logic.  
+</p>
+
+<p>
+The models are borrowed from teaching materials for a course on
+software testing published on the web by Jan van Eijck of the
+University of Amsterdam, specifically from the lecture notes on
+<a href="https://staff.fnwi.uva.nl/d.j.n.vaneijck2/courses/10/pdfs/Week4.pdf">Specifications and assertions</a>.
+</p>
+
+<p>
+The document was written bit by bit and thus has some characteristics
+of a work log.  In particular, the bits at the beginning don't know
+for sure where the last bits are going, and there are digressions and
+notes about things that may or may not be important but which I don't
+want to forget.  The reader is requested to be patient.
+</p>
+
+<div id="outline-container-org4b73be0" class="outline-2">
+<h2 id="org4b73be0"><span class="section-number-2">1.</span> The first Alloy model</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-orgd29ec8b" class="outline-3">
+<h3 id="orgd29ec8b"><span class="section-number-3">1.1.</span> The Alloy</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+The first model appears on slide 3:
+</p>
+<div class="org-src-container">
+<pre class="src src-alloy">/* Tree Specification in Alloy */
+module myexamples/tree
+
+sig Object { b: set Object }
+one sig Root, A, B, C, D extends Object {}
+
+fact OneRoot { all x: Object | x = Root &lt;=&gt; no b.x }
+fact b_acyclic { no ^b &amp; iden }
+
+fact { C in B.b and D in C.b }
+
+pred show () {}
+run show for 5
+</pre>
+</div>
+
+<p>
+A (slightly rough) English paraphrase might be as follows.
+From the signature declarations, we have:
+</p>
+<ul class="org-ul">
+<li>Objects Root, A, B, C, and D exist; there are no other objects.</li>
+<li><p>
+Each object has a field <i>b</i> (for <i>branches</i> or <i>branching</i>
+relation) whose value is a set of objects.  Informally: for any
+object <i>X</i>, <i>X.b</i> is the set of <i>X</i>'s children.
+</p>
+
+<p>
+Note that <i>b</i> can also be described simply as a binary relation
+<i>b</i> on objects.
+</p></li>
+</ul>
+
+<p>
+From the fact <i>OneRoot</i> we have:
+</p>
+<ul class="org-ul">
+<li>An object is the Root object if and only if it is not a member of
+the value of <i>b</i> for any object.</li>
+</ul>
+
+<p>
+From the fact <i>b_acyclic</i> we have:
+</p>
+<ul class="org-ul">
+<li>The intersection of the transitive closure of <i>b</i> (viewed as a
+binary relation) and the identity relation is empty (i.e. they are
+disjoint).  This means, in effect, that no object <i>X</i> can be
+reached by starting at <i>X</i> and traversing the <i>b</i> relation any
+positive number of times.</li>
+</ul>
+
+<p>
+From the unnamed third fact we have:
+</p>
+<ul class="org-ul">
+<li>Object C is a member of the <i>b</i> field of B (i.e. C is one of B's
+children), and D is a child of C.</li>
+</ul>
+
+<p>
+The predicate <i>show</i> imposes no constraints, so it hold for any
+instance of the model; the <i>run</i> command, when executed, asks Alloy to
+find an instance of the predicate <i>show</i> in a universe with at most 5
+objects of any signature.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org34b5c53" class="outline-3">
+<h3 id="org34b5c53"><span class="section-number-3">1.2.</span> The FOPC translation</h3>
+<div class="outline-text-3" id="text-1-2">
+</div>
+<div id="outline-container-org28c5ef7" class="outline-4">
+<h4 id="org28c5ef7"><span class="section-number-4">1.2.1.</span> The signature declarations</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+In our usual first-order calculus notation, we can perhaps render this
+model as follows.
+</p>
+
+<p>
+There is only one top-level signature, so everything is either an
+object or a member of an automatically supplied signature (like Int),
+and nothing is both.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x)(Object(x) aut AUTO(x))
+</pre>
+</div>
+
+<p>
+The five signatures Root, A, B, C, D are all sub-signatures of Object,
+and each is declared with a cardinality of one.  That means first that
+there is at least one individual in each of these signatures, and then
+also that any individual which is a member of these signatures is an
+object, and if <i>x</i> and <i>y</i> are members of one of these signatures,
+then <i>x</i> and <i>y</i> are the same individual.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">(∃x)(Root(x))
+(∀x: Root)(Object(x))
+(∀x: Root)(∀y: Root)(x = y)
+(∃x)(A(x))
+(∀x: A)(Object(x))
+(∀x: A)(∀y: A)(x = y)
+(∃x)(B(x))
+(∀x: B)(Object(x))
+(∀x: B)(∀y: B)(x = y)
+(∃x)(C(x))
+(∀x: C)(Object(x))
+(∀x: C)(∀y: C)(x = y)
+(∃x)(D(x))
+(∀x: D)(Object(x))
+(∀x: D)(∀y: D)(x = y)
+</pre>
+</div>
+
+<p>
+Furthermore, the sub-signatures partition the parent signature:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x: Object)(Root(x) aut A(x) aut B(x) aut C(x) aut D(x))
+</pre>
+</div>
+
+<p>
+Without typed declarations and without exclusive or, these become a
+bit wordier.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x)(Object(x) ∨ AUTO(x))
+¬(∃x)(Object(x) ∧ AUTO(x))
+(∃x)(Root(x))
+(∀x)(Root(x) ⇒ (Object(x) ∧ (∀y)(Root(y) ⇒ x = y)))
+(∃x)(A(x))
+(∀x)(A(x) ⇒ (Object(x) ∧ (∀y)(A(y) ⇒ x = y)))
+(∃x)(B(x))
+(∀x)(B(x) ⇒ (Object(x) ∧ (∀y)(B(y) ⇒ x = y)))
+(∃x)(C(x))
+(∀x)(C(x) ⇒ (Object(x) ∧ (∀y)(C(y) ⇒ x = y)))
+(∃x)(D(x))
+(∀x)(D(x) ⇒ (Object(x) ∧ (∀y)(D(y) ⇒ x = y)))
+(∀x)(Object(x) ⇒
+        ((Root(x) ∨ A(x) ∨ B(x) ∨ C(x) ∨ D(x))
+         ∧ ¬(Root(x) ∧ A(x))
+         ∧ ¬(Root(x) ∧ B(x))
+         ∧ ¬(Root(x) ∧ C(x))
+         ∧ ¬(Root(x) ∧ D(x))
+         ∧ ¬(A(x) ∧ B(x))
+         ∧ ¬(A(x) ∧ C(x))
+         ∧ ¬(A(x) ∧ D(x))
+         ∧ ¬(B(x) ∧ C(x))
+         ∧ ¬(B(x) ∧ D(x))
+         ∧ ¬(C(x) ∧ D(x)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org67288a7" class="outline-4">
+<h4 id="org67288a7"><span class="section-number-4">1.2.2.</span> The fact <i>OneRoot</i></h4>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+<i>OneRoot</i> says that for all objects, the object is the Root if and
+only if no object has it as a child.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x: Object)(Root(x) ⇔ ¬(∃y)(b(y, x)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1a4735e" class="outline-4">
+<h4 id="org1a4735e"><span class="section-number-4">1.2.3.</span> The fact <i>b_acyclic</i></h4>
+<div class="outline-text-4" id="text-1-2-3">
+<p>
+The fact <i>b_acyclic</i> is, closely paraphrased, a statement
+about the cardinality of a set.
+</p>
+
+<p>
+We cannot define the transitive closure operator "<code>^</code>" in a
+first-order system, so we will need to define the transitive closure
+of <i>b</i> as a named relation, which we'll call <i>tcb</i> for 'transitive
+closure of b'.  It can be defined recursively in a pattern familiar
+from other recursive definitions.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y)(tcb(x, y) 
+          ⇔ 
+          (b(x,y) ∨ (∃z)(b(x,z) ∧ tcb(z,y))))
+</pre>
+</div>
+
+<p>
+We may need to define <i>iden</i> as well:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y)(iden(x, y) ⇔ x = y)
+</pre>
+</div>
+
+<p>
+A direct translation of the fact might then be:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">¬(∃ x, y)(tcb(x, y) ∧ iden(x, y))
+</pre>
+</div>
+
+<p>
+For complex expressions denoting relations, it might be
+better to reify and name the relations denoted by the
+subexpressions.  We have already done that for "<code>^b</code>" and
+"<code>iden</code>" here, so we are already part-way there.  A blind
+reification of each level in the structure would replace
+the direct translation with another reification and then
+a simpler statement of the fact:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x, y)(tcb_inter_iden(x, y) 
+          ⇔
+          (tcb(x, y) ∧ iden(x, y)))
+¬(∃ x, y)(tcb_inter_iden(x, y))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc07bac2" class="outline-4">
+<h4 id="orgc07bac2"><span class="section-number-4">1.2.4.</span> The nameless fact</h4>
+<div class="outline-text-4" id="text-1-2-4">
+<p>
+The third fact specifies that B is the parent of C and C the parent of
+D.  Or, more precisely, that the single atom of signature B is the
+parent of the single atom of signature C, and so on.  Or, given that
+they are unique, more simply it says that for any atoms x, y, and z
+of signature B, C, and D respectively, the parent/child relation <i>b</i>
+holds for the pairs (x, y) and (y, z).
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x : B)(∀y : C)(∀z : D)(b(x, y) ∧ b(y, z))
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org444fdb0" class="outline-2">
+<h2 id="org444fdb0"><span class="section-number-2">2.</span> Checking an example</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org3e12aa8" class="outline-3">
+<h3 id="org3e12aa8"><span class="section-number-3">2.1.</span> The example</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+Given the model above, Alloy can generate examples, including one we
+can display as a nested list:
+</p>
+
+<ul class="org-ul">
+<li>Root
+<ul class="org-ul">
+<li>B
+<ul class="org-ul">
+<li>C
+<ul class="org-ul">
+<li>D</li>
+</ul></li>
+</ul></li>
+<li>A</li>
+</ul></li>
+</ul>
+
+<p>
+Or, as an image:
+</p>
+
+
+<div id="org69b7955" class="figure">
+<p><img src="./images//jve-tree.dot.png" alt="jve-tree.dot.png" />
+</p>
+</div>
+
+<p>
+Can we prove in first-order logic what Alloy has told us, namely
+that this instance is consistent with the constraints of the model?
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc3923c1" class="outline-3">
+<h3 id="orgc3923c1"><span class="section-number-3">2.2.</span> Expressing the example in FOPC</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+I'm not completely certain of the right way to express this instance
+as a set of formulas in our target language, but a first cut would be:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fopc">b(Root, B)
+b(Root, A)
+b(B, C)
+b(C, D)
+</pre>
+</div>
+
+<p>
+On further consideration, however, I see that this assumes that the
+signature names are constants designating individuals, which is wrong
+in several ways.  A second attempt to describe the example says that
+in the state of affairs reflected in it, there are five individuals,
+one for each declared signature, and they have the relations shown.
+Since the uniqueness of each signature has already been established
+(or should have been), we don't need to specify that there are exactly
+five such individuals but can focus on their signatures and relations.
+</p>
+
+<p>
+We can conceive of this as a predicate that holds for five
+individuals, which might be declared in Alloy this way:
+</p>
+<div class="org-src-container">
+<pre class="src src-alloy">pred example[x: Root, y: A, z: B, w: C, v: D] {
+ y in b[x]
+ z in b[x]
+ w in b[z]
+ v in b[w]
+}
+</pre>
+</div>
+<p>
+Mnemonic names (<i>a</i> for the member of signature <i>A</i>, for example)
+would be nicer, but <i>b</i> as the name both for the relation <i>b</i> and the
+atom <i>b</i> of signature <i>B</i> was a step too far for me.  (I believe it's
+also a step too far for the TPTP theorem provers we are using.)
+</p>
+
+<p>
+We could also conceive of our description of the example as a
+predicate that takes no arguments but is just true or not true.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">pred example {
+ some x: Root, y: A, z: B, w: C, v: D {
+   y in b[x]
+   z in b[x]
+   w in b[z]
+   v in b[w]
+ }
+}
+</pre>
+</div>
+<p>
+We can translate either of these into FOL; let's pick the second.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">example ⇔ (
+  (∃ x, y, z, w, v)
+  ( (Root(x) ∧ A(y) ∧ B(z) ∧ C(w) ∧ D(v)
+    ∧ b(x, y)
+    ∧ b(x, z)
+    ∧ b(z, w)
+    ∧ b(w, v)
+)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org178546b" class="outline-3">
+<h3 id="org178546b"><span class="section-number-3">2.3.</span> How to check that the example is allowed?</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+[Note: the discussion below exhibits a certain amount of confusion
+about how to check examples.  That task has since come to seem
+simpler, but the confused discussion below is retained, since it
+illustrates that our current understanding did not always seem
+obvious.]
+</p>
+
+<p>
+If there can be no instance that satisfies the statements just given
+(call their conjunction <i>E</i>), then both of the following formulations
+of the state of affairs will be true:
+</p>
+
+<ul class="org-ul">
+<li>The constraints of the model entail ¬/E/.</li>
+<li>The conjunction of <i>E</i> with the constraints of the model will be
+inconsistent.</li>
+</ul>
+
+<p>
+Since entailment of <i>E</i> by <i>M</i> is established, in many systems, by
+showing that the conjunction <i>M</i> ∧ ¬/E/ is inconsistent, these two
+statements boil down to the same thing.
+</p>
+
+<p>
+Let's try it.
+</p>
+
+<p>
+It may be worth pointing out that this particular example poses no
+great difficulty &#x2013; it was produced by Alloy, which is very good at
+producing instances compatible with the constraints of a model, and
+the example is simple enough that one can easily see that it's
+consistent with the model.  Moreover, it's small enough that one could
+in a pinch assume five individuals and generate a complete set of
+closed clauses and a complete set of literals, and show that the set
+of literals has no contradictions.  The point of trying to use a
+theorem prover to show that the example is consistent with the
+constraints is to gain a tool for use on manually constructed examples.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf2d4384" class="outline-3">
+<h3 id="orgf2d4384"><span class="section-number-3">2.4.</span> A TPTP translation of the model and example</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+In TPTP notation, first-order formulas are labeled as such and 
+given names and roles.  So the overall structure of each formula
+will match the following grammar (I'm ignoring whitespace for
+simplicity):
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">tptp-formula: "fof(", name, ",", role, ",", formula, ")".
+name: [L], [L; Nd; "_"]*.
+role: "axiom"      { start here }
+    ; axiom-like
+    ; "conjecture" { formula to be proved }
+    ; other-roles
+    .
+axiom-like: "hypothesis" { assumed true, used like axioms }
+          ; "definition" { universally quantified equations 
+                           or equivalences with atomic LHS,
+                           intended to define symbols }
+          ; "assumption" { like axiom but "must be discharged
+                           before a derivation is complete" }
+          ; "lemma"      { has been proved, must follow from axioms }
+          ; "theorem"    { has been proved, must follow from axioms }
+                         { problem with non-redundant lemma or theorem
+                           is ill-formed }
+
+other-roles: { probably irrelevant for us? }
+             "corollary" | "negated_conjecture" | "plain" 
+           | "type" | "interpretation" | "fi_domain" | "fi_functors" 
+           | "fi_predicates" | "unknown".
+formula: ...
+</pre>
+</div>
+
+<p>
+The FOPC rules given above can, I think, be rendered into TPTP as
+follows.  Some notes:
+</p>
+<ul class="org-ul">
+<li>Since TPTP uses the Prolog convention of spelling variables with
+initial uppercase letters and requiring functors to begin with
+lowercase letters (or be quoted), I've lowercased all the signature
+names.</li>
+<li>The theorem prover E objects if the same predicate symbol is used
+with different arities, so this TPTP translation writes "<code>pc(X, Y)</code>"
+where the logical rules given above write "b(x, y)".</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-tptp">/* Signature Object */
+fof(sigo1, axiom,
+   ( ! [X] : (object(X) | auto(X)))).
+fof(sigo2, axiom,
+   (~ ? [X] : (object(X) &amp; auto(X)))).
+
+/* Signatures root, a, b, c, d */
+fof(sigr1, axiom, (?[X] : root(X))).
+fof(sigr2, axiom, 
+    ( ! [X] : (root(X) =&gt; (object(X) &amp; ( ! [Y] : (root(Y) =&gt; (X = Y)))))) ).
+fof(siga1, axiom, (?[X] : a(X))).
+fof(siga2, axiom, 
+    ( ! [X] : (a(X) =&gt; (object(X) &amp; ( ! [Y] : (a(Y) =&gt; (X = Y)))))) ).
+fof(sigb1, axiom, (?[X] : b(X))).
+fof(sigb2, axiom, 
+    ( ! [X] : (b(X) =&gt; (object(X) &amp; ( ! [Y] : (b(Y) =&gt; (X = Y)))))) ).
+fof(sigc1, axiom, (?[X] : c(X))).
+fof(sigc2, axiom, 
+    ( ! [X] : (c(X) =&gt; (object(X) &amp; ( ! [Y] : (c(Y) =&gt; (X = Y)))))) ).
+fof(sigd1, axiom, (?[X] : d(X))).
+fof(sigd2, axiom, 
+    ( ! [X] : (d(X) =&gt; (object(X) &amp; ( ! [Y] : (d(Y) =&gt; (X = Y)))))) ).
+
+/* Root, A-D partition Object */
+fof(sigosubs, axiom,
+    ( ! [X] : ( object(X) =&gt;
+              ( (root(X) | a(X) | b(X) | c(X) | d(X))
+                &amp; ~(root(X) &amp; a(X))
+                &amp; ~(root(X) &amp; b(X))
+                &amp; ~(root(X) &amp; c(X))
+                &amp; ~(root(X) &amp; d(X))
+                &amp; ~(a(X) &amp; b(X))
+                &amp; ~(a(X) &amp; c(X))
+                &amp; ~(a(X) &amp; d(X))
+                &amp; ~(b(X) &amp; c(X))
+                &amp; ~(b(X) &amp; d(X))
+                &amp; ~(c(X) &amp; d(X)))))).
+
+/* fact OneRoot */
+fof(oneroot, axiom,
+   (![X]: (root(X) &lt;=&gt; (~?[Y]: (pc(Y,X)))))).
+
+/* definition of tcb (^b) */
+fof(def_tcb, axiom,
+   (![X, Y]: (tcb(X, Y) &lt;=&gt; ((pc(X, Y))|(?[Z]:(pc(X, Z) &amp; tcb(Z, Y))))))).
+
+/* fact b_acyclic */
+fof(b_acyclic, axiom,
+  (~?[X, Y]:(tcb(X,Y) &amp; (X = Y)))).
+
+/* fact 3 (nameless) */
+fof(fact3, axiom,
+   (![X,Y,Z] : ((b(X) &amp; c(Y) &amp; d(Z)) =&gt; (pc(X, Y) &amp; pc(Y, Z))))).
+</pre>
+</div>
+
+<p>
+The example translates into TPTP syntax as follows:
+</p>
+<div class="org-src-container">
+<pre class="src src-tptp">/* Definition of example */
+fof(example1, definition,
+  (example &lt;=&gt; ?[X, Y, Z, W, V] :
+               (root(X) &amp; a(Y) &amp; b(Z) &amp; c(W) &amp; d(V)
+                &amp; pc(X,Y) &amp; pc(X,Z) &amp; pc(Z,W) &amp; pc(W,V)))).
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org77ac3e5" class="outline-3">
+<h3 id="org77ac3e5"><span class="section-number-3">2.5.</span> Testing ways to run the example</h3>
+<div class="outline-text-3" id="text-2-5">
+</div>
+<div id="outline-container-org52b1a82" class="outline-4">
+<h4 id="org52b1a82"><span class="section-number-4">2.5.1.</span> Initial attempt to test the example</h4>
+<div class="outline-text-4" id="text-2-5-1">
+<p>
+[Note: the approach described here does not now appear to be the
+simplest way to check that an example is consistent with the axioms.]
+</p>
+
+<p>
+To check whether the example is possible, we can ask the prover to prove
+that it is impossible.
+</p>
+<div class="org-src-container">
+<pre class="src src-tptp">fof(ex1nogo, conjecture, ~example).
+</pre>
+</div>
+
+<p>
+If we place the TPTP description of the model, with this conjecture,
+in a file named <i>tree.jve1.p</i> and pass it to the theorem prover <i>E</i>,
+with "<code>eprover --auto --output-file=tree.jve1.e.out tree.jve1.p</code>",
+then (as expected) <i>E</i> fails to prove the conjecture.
+</p>
+
+<p>
+For the record: the version of <i>E</i> I'm running appears to be 2.6
+"Floral Guranse".
+</p>
+
+<p>
+(One detail was a little puzzling.  I thought that the default value
+for the <i>&#x2013;cpu-limit</i> option was 300 (seconds), but <i>E</i> ran for half
+an hour or so and produced 35 MB of output before I stopped it.
+Closer examination of the output of "<code>eprover -h</code>" shows my
+misunderstanding.  What it says is "The option without the optional
+argument is equivalent to <code>--cpu-limit=300</code>."  That is, if you specify
+"<code>--cpu-limit</code>", you get 300 seconds.)
+</p>
+
+<p>
+Unfortunately, any automated theorem prover will sometimes fail to
+prove a true conjecture, so this is not completely satisfactory.  What
+we would like is a clear indication that the example is consistent
+with the assumptions.  In a tableau proof, we can (at least in some
+cases) produce a proof tree which is not closed but is complete, and
+we can construct a counterexample to the conjecture by reading off the
+values for various literals by running down any open branch.  Can we
+do that, or something analogous, with <i>E</i> or with any other theorem
+prover?
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd1f5f65" class="outline-4">
+<h4 id="orgd1f5f65"><span class="section-number-4">2.5.2.</span> Diagnosing the problem</h4>
+<div class="outline-text-4" id="text-2-5-2">
+<p>
+After a digression to a simpler example, I tried this again, with a
+soft CPU limit of 30 seconds.  It timed out.
+</p>
+
+<p>
+Next, I tried a primitive binary chop.
+</p>
+<ol class="org-ol">
+<li>Tried the first half of the model (down to axiom <i>sigd2</i>
+inclusive).  It showed the (truncated) model satisfiable, in
+about 15 msec.</li>
+<li>Added <i>sigosubs</i> and <i>oneroot</i>; that is 42 lines of 63.
+Satisfiable, 23 msec.</li>
+<li>Added <i>def_tcb</i> and <i>b_acyclic</i>.  I wonder if the
+recursion here is part of the problem.  It is; <i>E</i> times out.</li>
+<li>Leave the definition of tcb in place, but comment out the
+translation of <i>b_acyclic</i>.  Still times out.</li>
+<li>Comment out the two axioms added in step 3 of this diagnostic
+process, restore all the others: <i>fact3</i>, <i>example</i>.  Times out.</li>
+<li>Comment out definition of <i>example</i>.  Shown satisfiable in 23 msec.</li>
+<li>Try alternate definition of example (as predicate of arity 5).
+Satisfiable, 23 msec.</li>
+</ol>
+
+<p>
+Retrying the two definitions of the example, one making <i>example</i> a
+proposition true iff there are five individuals with a given
+configuration and the other making it a predicate over five arguments,
+I find that I am unable to replicate the timing shown for step 5.
+Either way it takes a little over 20 milliseconds.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7a120c7" class="outline-4">
+<h4 id="org7a120c7"><span class="section-number-4">2.5.3.</span> A simpler way</h4>
+<div class="outline-text-4" id="text-2-5-3">
+<p>
+As the reader may know, some automatic theorem provers work by
+assuming the negation of the conjecture and deriving a contradioction
+&#x2013; a sort of mechanized <i>reductio ad absurdum</i>.  In such a theorem
+prover, it should be straightforward to see whether a set of axioms is
+consistent, without trying to prove a theorem.
+</p>
+
+<p>
+And behold! some such provers &#x2013; at least E and Vampire &#x2013; are
+perfectly happy to do this.
+</p>
+
+<p>
+So a simpler and more reliable way to show that the example is
+consistent with the axioms is to feed the prover input containing:
+</p>
+<ul class="org-ul">
+<li>the axioms shown above</li>
+<li>the definition of a predicate representing the example</li>
+<li>the example-predicate as a hypothesis as shown below.</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-tptp">fof(ex1nogo, hypothesis, example).
+</pre>
+</div>
+
+<p>
+If there is no conjecture in the input, both E and Vampire will take
+their task to be checking the axioms and hypotheses for
+satisfiability.  (The author of E is explicit that finding models for
+sets of axioms is not E's strength, and other provers may do better.)
+</p>
+
+<p>
+The simplest way to combine the axioms with different conjectures and
+hypotheses will be to write the axioms to one file, the conjectures
+and hypotheses to different files, and then combine them before
+calling the provers.  Both E and Vampire accept a problem description
+on the standard input, so the shell command can look like this:
+</p>
+
+<pre class="example" id="org80dd4b9">
+cat tree.jve1.axioms.p \
+    tree.jve1.ex-def.p \
+    tree.jve1.ex-hyp.p \
+  | eprover --auto \
+            --soft-cpu-limit=120 \
+            --output-level=0
+</pre>
+
+<p>
+First, the three files containing the axioms, the definition of the
+predicate <i>example</i>, and the hypothesis that <i>example</i> holds are
+concatenated using <i>cat</i> and fed into the standard input port of E,
+invoked with a soft CPU limit of 120 seconds, in 'automatic' mode
+(which is what the documentation recommends as "the easiest way to
+get good performance".
+</p>
+
+<p>
+When we invoke E as shown, it times out without producing a result.
+Using the <code>--auto-schedule</code> option causes E to try an array of
+strategies, but none succeed here.
+</p>
+
+<p>
+Vampire can be invoked thus:
+</p>
+<pre class="example" id="org51bab66">
+cat tree.jve1.axioms.p \
+    tree.jve1.ex-def.p \
+    tree.jve1.ex-hyp.p \
+  | vampire --mode casc_sat \
+            -t 30
+</pre>
+
+<p>
+Here, we have specified a time limit of 30 seconds, and a <code>casc_sat</code>
+mode, which implements a strategy used in CASC competitions for
+problems whose specifications are expected to be satisfiable.
+</p>
+
+<p>
+Invoked with mode <code>casc_sat</code>, Vampire tries a portfolio of approaches,
+one of which succeeds and produces the message "Finite Model Found!"
+The logging output is a little terse, but seems to indicate that the
+successful approach involved choosing "<code>fmb</code>" (for 'finite model building
+for satisfiable problems') as the 'saturation algorithm'.  So a more
+direct way to get a result here is to invoke Vampire with the option
+"<code>-sa fmb</code>".
+</p>
+
+<p>
+Note:  using the fmb option appears to cause some sort of problem.
+Immediately after the "Finite Model Found!" message, I get the messages
+</p>
+<pre class="example" id="org9307c72">
+% SZS status Satisfiable for 
+164958 Aborted by signal SIGSEGV on 
+</pre>
+<p>
+followed by normal-looking output from Vampire.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3bd9f83" class="outline-2">
+<h2 id="org3bd9f83"><span class="section-number-2">3.</span> Checking an assertion</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Having presented the example above, van Eijck remarks:
+</p>
+<blockquote>
+<ul class="org-ul">
+<li>This looks OK, but is it?</li>
+<li>Hmm, maybe not. We forgot to say that every other object but
+the root has exactly one B-predecessor.</li>
+<li>Maybe it follows from our specification. Let us check.</li>
+</ul>
+</blockquote>
+
 <p>
 He then suggests an assertion that can be checked:
 </p>
@@ -221,7 +1057,7 @@ check SingleParent for 5
 
 <p>
 Alloy checks the assertion by finding a counter-example within
-the scope specified; in principle, a prover cand check
+the scope specified; in principle, a prover can check
 the assertion more broadly (although it's clear that in practice
 at least some disproofs are going to take the form of finding
 a counter-example).
@@ -229,20 +1065,47 @@ a counter-example).
 
 <div class="org-src-container">
 <pre class="src src-tptp">fof(single_parent, conjecture,
-  ![X, Y, Z] : (object(X) &amp; object(Y) &amp; object(Z) =&gt;)
+  ![X, Y, Z] : ((object(X) &amp; object(Y) &amp; object(Z)) =&gt;
+               ((pc(X,Z) &amp; pc(Y,Z)) =&gt; (X = Y)))
 ).
 </pre>
 </div>
 
-<div id="outline-container-org03228fe" class="outline-2">
-<h2 id="org03228fe"><span class="section-number-2">1.</span> A second Alloy model</h2>
-<div class="outline-text-2" id="text-1">
-</div>
-<div id="outline-container-orgdab0f7a" class="outline-3">
-<h3 id="orgdab0f7a"><span class="section-number-3">1.1.</span> The Alloy</h3>
-<div class="outline-text-3" id="text-1-1">
 <p>
-The second model appears on slide 7:
+How does that in-principle checking work out in practice?  Since this
+conjecture is known to be false, we are not expecting any theorem
+prover to produce a proof, and it is not surprising that none do.  It
+would be nice to have a clear statement that the generalization is
+false, possibly with a counter-example.  Here, results are mixed.
+</p>
+
+<ul class="org-ul">
+<li>When E is invoked with <code>--auto-schedule</code>, each tactic it tries times
+out before reaching a conclusion.</li>
+<li>When Vampire is invoked with <code>--mode casc</code>, it too fails to prove
+the conjecture; some of its tactics time out, while others report
+only "Refutation not found, incomplete strategy".</li>
+<li>When Vampire is invoked with <code>--mode casc_sat~</code>, however, the tactic
+summarized as "fmb+10<sub>1</sub><sub>av</sub>=off : fmbsr=1.6 : lma=on : nm=64 :
+nwc=3 : sp=reverse<sub>arity</sub> : urr=on<sub>258</sub>" reports "Finite Model Found!"
+and signals an SZS status of "CounterSatisfiable".</li>
+</ul>
+
+<p>
+This appears consistent with the observation that for software, the
+task of finding models (or counter-examples) and that of finding
+proofs are distinct problems which require different approaches,
+however much they may overlap in principle.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc45b5be" class="outline-2">
+<h2 id="orgc45b5be"><span class="section-number-2">4.</span> A second Alloy model</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+The second model appears on slide 7 of van Eijck's presentation; it
+changes <i>SingleParent</i> from being an assertion to being a fact.
 </p>
 <div class="org-src-container">
 <pre class="src src-alloy">/* Corrected specification */
@@ -272,7 +1135,608 @@ the fact <i>SingleParent</i>:
 </ul>
 
 <p>
-(modify-syntax-entry ?&lt; "_")
+In conventional predicate calculus, this could be written:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y, z)((Object(x) ∧ Object(y) ∧ Object(z))
+    ⇒ ((pc(x, z) ∧ pc(y, z))
+        ⇒ (x = y)))
+</pre>
+</div>
+
+<p>
+A TPTP rendering is essentially the same as above, with <i>conjecture</i>
+changed to <i>axiom</i>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-tptp">fof(single_parent, conjecture,
+  ![X, Y, Z] : ((object(X) &amp; object(Y) &amp; object(Z)) =&gt;
+               ((pc(X,Z) &amp; pc(Y,Z)) =&gt; (X = Y)))
+).
+</pre>
+</div>
+
+<p>
+Van Eijck formulates no conjectures or assertions relating to this
+modified model.  We could think of some on our own, but that seems too
+much like work.  So we move on to van Eijck's third model.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org20b2164" class="outline-2">
+<h2 id="org20b2164"><span class="section-number-2">5.</span> A third model</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-org985274e" class="outline-3">
+<h3 id="org985274e"><span class="section-number-3">5.1.</span> The Alloy of slide 10</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+On slide 9, van Eijck considers the definition of trees starting not
+from a branching relation <i>b</i> but from a parenthood relation <i>P</i>.  He
+identifies three requirements:
+</p>
+
+<ul class="org-ul">
+<li>There is exactly one root, defined as an object without parents
+(<i>P</i>-successors)</li>
+<li>Every other object has exactly one <i>P</i>-successor (parent).</li>
+<li>The relation <i>P</i> is acyclic.</li>
+</ul>
+
+<p>
+In Alloy:
+</p>
+<div class="org-src-container">
+<pre class="src src-alloy">module myexamples/newtree
+
+sig Object { p: lone Object }
+one sig Root, A, B, C, D extends Object {}
+
+fact OneRoot { all x: Object | x = Root &lt;=&gt; no x.p }
+fact SingleParent
+  { all x,y,z: Object | y in x.p and z in x.p =&gt; y=z }
+fact p_acyclic { no ^p &amp; iden }
+
+fact { C in p.B and D in p.B }
+
+pred show () {}
+run show for 5
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org280c4b2" class="outline-3">
+<h3 id="org280c4b2"><span class="section-number-3">5.2.</span> Equivalent in FOPC</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+We can render this new model in first-order logic as follows.
+</p>
+
+<p>
+The description of the signatures is the same as above:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">// Everything is an Object or else it's automatically
+// supplied by Alloy.  Nothing is both.
+(∀x)(Object(x) ∨ AUTO(x))
+¬(∃x)(Object(x) ∧ AUTO(x))
+
+// Subsignatures Root, A, B, C, D have one instance each.
+(∃x)(Root(x))
+(∀x)(Root(x) ⇒ (Object(x) ∧ (∀y)(Root(y) ⇒ x = y)))
+
+(∃x)(A(x))
+(∀x)(A(x) ⇒ (Object(x) ∧ (∀y)(A(y) ⇒ x = y)))
+
+(∃x)(B(x))
+(∀x)(B(x) ⇒ (Object(x) ∧ (∀y)(B(y) ⇒ x = y)))
+
+(∃x)(C(x))
+(∀x)(C(x) ⇒ (Object(x) ∧ (∀y)(C(y) ⇒ x = y)))
+
+(∃x)(D(x))
+(∀x)(D(x) ⇒ (Object(x) ∧ (∀y)(D(y) ⇒ x = y)))
+
+// The subsignatures partition the set of Objects.
+(∀x)(Object(x) ⇒
+        ((Root(x) ∨ A(x) ∨ B(x) ∨ C(x) ∨ D(x))
+         ∧ ¬(Root(x) ∧ A(x))
+         ∧ ¬(Root(x) ∧ B(x))
+         ∧ ¬(Root(x) ∧ C(x))
+         ∧ ¬(Root(x) ∧ D(x))
+         ∧ ¬(A(x) ∧ B(x))
+         ∧ ¬(A(x) ∧ C(x))
+         ∧ ¬(A(x) ∧ D(x))
+         ∧ ¬(B(x) ∧ C(x))
+         ∧ ¬(B(x) ∧ D(x))
+         ∧ ¬(C(x) ∧ D(x)))
+</pre>
+</div>
+
+<p>
+The declaration of <i>Object</i> tells us that Objects have a field named
+<i>p</i>, the optional value of which is an Object.  In relational terms,
+this means that:
+</p>
+<ul class="org-ul">
+<li>for any object <i>x</i>, there is at most one object <i>y</i> for which</li>
+</ul>
+<p>
+the relation <i>p(x, y)</i> holds;
+</p>
+<ul class="org-ul">
+<li>if <i>p(x, y)</i> holds, then <i>x</i> and <i>y</i> are objects.</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y)(p(x, y) ⇒ (∀z)(p(x, z) ⇒ (z = y)))
+(∀ x, y)(p(x, y) ⇒ (Object(x) ∧ Object(y)))
+</pre>
+</div>
+
+<p>
+Two things should be noted about the second formula, regarding the
+types of <i>p</i>'s arguments:
+</p>
+<ul class="org-ul">
+<li>It also applies to the <i>b</i> relation in the first specification of
+trees, although we failed to formulate it there.</li>
+<li>Alloy allows relation names to be overloaded, so the right-hand side
+of the implication will, in the general case, be a disjunction of
+statements about possible argument types.  (Overloading will also
+affect the cardinality constraints.)</li>
+</ul>
+
+<p>
+The fact <i>OneRoot</i> is misnamed; it does not say that there is one
+root, but only says that an object is a root iff it has no parent.
+The fact that there is only one root is captured by the
+signature-related axioms above.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x)(Object(x) ⇒ (Root(x) ⇔ ¬(∃y)(p(x, y)))
+</pre>
+</div>
+
+<p>
+The fact <i>SingleParent</i> is much as before but with the inverse
+relation: For any objects <i>x</i>, <i>y</i>, and <i>z</i>, if <i>y</i> is a parent of <i>x</i>
+and <i>z</i> is a parent of <i>x</i>, then <i>y</i> = <i>z</i>.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y, z)((Object(x) ∧ Object(y) ∧ Object(z))
+  ⇒ (p(x, y) ∧ p(x, z)
+      ⇒
+      (y = z)))
+</pre>
+</div>
+
+<p>
+The fact <i>p_acyclic</i> requires the same machinery as was
+needed above for <i>b_acyclic</i>:
+</p>
+<ul class="org-ul">
+<li>a definition of the transitive closure of <i>p</i>, which we'll
+call <i>TCP</i>;</li>
+<li>a definition of the binary <i>iden</i> relation; and</li>
+<li>a definition of the intersection of <i>pcb</i> and <i>iden</i>.</li>
+</ul>
+
+<p>
+TCP is the transitive closure of p.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y)(TCP(x, y) 
+          ⇔ 
+          (p(x,y) ∨ (∃z)(p(x,z) ∧ TCP(z,y))))
+</pre>
+</div>
+
+<p>
+<i>iden</i> is the identity relation.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y)(iden(x, y) ⇔ x = y)
+</pre>
+</div>
+
+<p>
+As a set, <i>TCP<sub>and</sub><sub>iden</sub></i> is the intersection of sets <i>TCP</i> and <i>iden</i>.
+In the predicate-based translation we are using, <i>TCP<sub>and</sub><sub>iden</sub></i> is the
+logical conjuntion of predicates <i>TCP</i> and <i>iden</i>.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀ x, y)(TCP_inter_iden(x, y) 
+          ⇔
+          (TCP(x, y) ∧ iden(x, y)))
+</pre>
+</div>
+
+<p>
+The set <i>TCP<sub>and</sub><sub>iden</sub></i> is empty (or equivalently:  the
+predicate <i>TCP<sub>and</sub><sub>iden</sub></i> is true of no (x, y) pairs).
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">¬(∃ x, y)(TCP_and_iden(x, y))
+</pre>
+</div>
+
+<p>
+The nameless fact <code>C in p.B and D in p.B</code> again constrains the set of
+possible trees (but differently from the nameless fact of the earlier
+model).  Because we know that each of the signatures <i>B</i>, <i>C</i>, and <i>D</i>
+has cardinality one, it is tempting to translate this sentence as a
+sentence about individuals:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(p(b, c) ∧ p(b, d)
+</pre>
+</div>
+
+<p>
+But in general, every Alloy expression denotes a set, not an
+individual; the closest Alloy comes to referring to individuals are
+references to singleton sets.  So the correct translation is a
+little wordier:
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(∀x)(C(x) ⇒ (∃y)(B(y) ∧ p(x, y)))
+∧ (∀x)(D(x) ⇒ (∃y)(B(y) ∧ p(x, y)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org964a607" class="outline-3">
+<h3 id="org964a607"><span class="section-number-3">5.3.</span> The modification and a new conjecture</h3>
+<div class="outline-text-3" id="text-5-3">
+<p>
+At this point, van Eijck asks whether the fact <i>SingleParent</i> in its
+new form is perhaps redundant, entailed already by the declaration
+<code>lone p: Object</code>.  So he removes the fact and replaces it with a
+conjecture.
+</p>
+
+<p>
+This conjecture seems worth checking, so we'll translate the third
+model into TPTP notation.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd21cba6" class="outline-3">
+<h3 id="orgd21cba6"><span class="section-number-3">5.4.</span> A TPTP rendering in FOF</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+In the FOF (first-order formula) language of the TPTP project
+(thousands of problems for theorem provers), the modified model
+using a parent relation can, I think, be represented as follows:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-tptp">% Everything is an Object or automatically supplied by Alloy.
+% Nothing is both.
+fof(top_signatures_1, axiom,
+    ![X]: (object(X) | auto(X))).
+fof(top_signatures_disjoint, axiom, 
+    ~(?[X]: (object(X) &amp; auto(X)))).
+
+% Subsignatures Root, A, B, C, D have one instance each.
+fof(sig_root_extends_object, axiom, 
+    ![X]: (root(X) =&gt; object(X))).
+fof(sig_root_min1, axiom, ?[X]: (root(X))).
+fof(sig_root_max1, axiom, 
+    ![X]: (root(X) =&gt; ![Y]: (root(Y) =&gt; X = Y))).
+
+fof(sig_a_extends_object, axiom,
+    ![X]: (a(X) =&gt; object(X))).
+fof(sig_a_min1, axiom, ?[X]: (a(X))).
+fof(sig_a_max1, axiom,
+    ![X]: (a(X) =&gt; ![Y]: (a(Y) =&gt; X = Y))).
+
+fof(sig_b_extends_object, axiom,
+    ![X]: (b(X) =&gt; object(X))).
+fof(sig_b_min1, axiom, ?[X]: (b(X))).
+fof(sig_b_max1, axiom,
+    ![X]: (b(X) =&gt; ![Y]: (b(Y) =&gt; X = Y))).
+
+fof(sig_c_extends_object, axiom,
+    ![X]: (c(X) =&gt; object(X))).
+fof(sig_c_min1, axiom, ?[X]: (c(X))).
+fof(sig_c_max1, axiom,
+    ![X]: (c(X) =&gt; ![Y]: (c(Y) =&gt; X = Y))).
+
+fof(sig_d_extends_object, axiom,
+    ![X]: (d(X) =&gt; object(X))).
+fof(sig_d_min1, axiom, ?[X]: (d(X))).
+fof(sig_d_max1, axiom,
+    ![X]: (d(X) =&gt; ![Y]: (d(Y) =&gt; X = Y))).
+
+%  The subsignatures partition the set of objects.
+fof(subsigs_of_object, axiom, 
+    ![X]: (object(X) =&gt;
+            ((root(X) | a(X) | b(X) | c(X) | d(X))
+             &amp; ~(root(X) &amp; a(X))
+             &amp; ~(root(X) &amp; b(X))
+             &amp; ~(root(X) &amp; c(X))
+             &amp; ~(root(X) &amp; d(X))
+             &amp; ~(a(X) &amp; b(X))
+             &amp; ~(a(X) &amp; c(X))
+             &amp; ~(a(X) &amp; d(X))
+             &amp; ~(b(X) &amp; c(X))
+             &amp; ~(b(X) &amp; d(X))
+             &amp; ~(c(X) &amp; d(X))))).
+
+% p takes objects as arguments
+fof(p_types, axiom, 
+    ![X, Y]: (p(X, Y) =&gt; (object(X) &amp; object(Y)))).
+
+% p is functional
+fof(p_functional, axiom,
+    ![X, Y]: (p(X, Y) =&gt; ![Z]: (p(X, Z) =&gt; (Z = Y)))).
+
+% definition of root-ness
+fof(oneroot, axiom, 
+    ![X]: (object(X) =&gt; (root(X) &lt;=&gt; ~?[Y]: (p(X, Y))))).
+
+% TCP is the transitive closure of p.
+fof(tcp_def, definition,
+    ![X, Y]: (tcp(X, Y) 
+              &lt;=&gt; 
+              (p(X,Y) | ?[Z]: (p(X,Z) &amp; tcp(Z,Y))))).
+
+% iden is the identity relation.
+fof(iden_def, definition, 
+    ![X, Y]: (iden(X, Y) &lt;=&gt; X = Y)).
+
+% tcp_and_iden is the intersection of tcp and iden.
+fof(tcp_and_iden_def, definition,
+    ![X, Y]: (tcp_inter_iden(X, Y) 
+              &lt;=&gt;
+              (tcp(X, Y) &amp; iden(X, Y)))).
+
+% The set tcp_and_iden is empty.
+fof(p_acyclic, axiom,
+    ~?[X, Y]: (tcp_and_iden(X, Y))).
+
+% B is the parent of both C and D
+fof(fact_4, axiom,
+    (![X]: (c(X) =&gt; ?[Y]: (b(Y) &amp; p(X, Y)))
+   &amp; ![X]: (d(X) =&gt; ?[Y]: (b(Y) &amp; p(X, Y))))).
+</pre>
+</div>
+
+<p>
+The <i>SingleParent</i> assertion can be represented
+as a conjecture.
+</p>
+<div class="org-src-container">
+<pre class="src src-tptp">% conjecture SingleParent
+fof(singleparent, conjecture,
+    ![X, Y, Z]: ((object(X) &amp; object(Y) &amp; object(Z))
+      =&gt; ((p(X, Y) &amp; p(X, Z))
+          =&gt;
+          (Y = Z)))).
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge689d41" class="outline-3">
+<h3 id="orge689d41"><span class="section-number-3">5.5.</span> Can <i>SingleParent</i> conjecture be proved?</h3>
+<div class="outline-text-3" id="text-5-5">
+<p>
+Both E and Vampire quickly prove the <i>SingleParent</i> conjecture, but each
+also reports:
+</p>
+<pre class="example" id="org7664022">
+% SZS status Unsatisfiable 
+</pre>
+<p>
+(Interestingly, this appears in the <code>--mode casc_sat</code> output from
+Vampire, but not in <code>--mode=casc</code>".)
+</p>
+
+<p>
+Checking the axioms without the conjecture confirms that the axioms as
+originally given are inconsistent.  (For the record: one stray
+negation, possibly originating in the typo of tilde for exclamation
+point, and two stray predicates applied to X when they should have
+applied to Y.)
+</p>
+
+<p>
+At this point, the original goals of this working paper appear
+to have been achieved.  The paper illustrates:
+</p>
+
+<ul class="org-ul">
+<li>translation of simple Alloy models into FOPC and into the
+first-order form of the TPTP problem language;</li>
+<li>use of theorem provers to detect typos in the formulation of axioms
+(not one of the original goals, but helpful);</li>
+<li>use of theorem provers to check conjectures, whether false or true.</li>
+</ul>
+
+<p>
+But a small extension may also be worth exploring: the translation of
+the final model into the TFF0 ('monomorphic typed first-order form')
+of TPTP.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org44cc583" class="outline-3">
+<h3 id="org44cc583"><span class="section-number-3">5.6.</span> A TPTP rendering in TFF</h3>
+<div class="outline-text-3" id="text-5-6">
+<p>
+In the TFF (typed first-order formula) language of the TPTP project,
+the model could, I think, look like the following.
+</p>
+
+<p>
+First, we declare the top-level signature <i>object</i>.
+</p>
+<div class="org-src-container">
+<pre class="src src-tptp">% Everything is an Object or automatically supplied by Alloy.
+tff(sig_object, type, object: $tType).
+
+% Nothing is both.
+% (No statement necessary; follows automatically.)
+</pre>
+</div>
+
+<p>
+Note that declaring <i>object</i> as a type leads to an axiom
+that at least one object exists:  TFF0 has no empty sorts.
+</p>
+
+<p>
+Because the form of TFF we are using (TFF0?) has only disjoint
+top-level types which (together with <code>$i</code>) partition the set of
+individuals, we cannot treat <i>Root</i>, <i>A</i>, <i>B</i>, <i>C</i>, and <i>D</i>
+as types, and we cannot use those names in quantifiers.  So
+the statements about these sub-signatures remain mostly similar
+to those given above in the <i>fof</i> language.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-tptp">% Root, A, B, C, D are subsignatures of Object.
+% I.e. the predicates Root, A, B, C, D apply to objects.
+% And they have one instance each.
+tff(sig_root_extends_object, type,
+    root: ( object ) &gt; $o).
+tff(sig_root_min1, axiom,
+    ?[X : object]: (root(X))).
+tff(sig_root_max1, axiom, 
+    ![X : object]: (root(X) =&gt; ![Y : object]: (root(Y) =&gt; X = Y))).
+
+tff(sig_a_extends_object, type,
+    a: (object) &gt; $o).
+tff(sig_a_min1, axiom,
+    ?[X : object]: (a(X))).
+tff(sig_a_max1, axiom,
+    ![X : object]: (a(X) =&gt; ![Y : object]: (a(Y) =&gt; X = Y))).
+
+tff(sig_b_extends_object, type,
+    b: (object) &gt; $o).
+tff(sig_b_min1, axiom,
+    ?[X : object]: (b(X))).
+tff(sig_b_max1, axiom,
+    ![X : object]: (b(X) =&gt; ![Y : object]: (b(Y) =&gt; X = Y))).
+
+tff(sig_c_extends_object, type,
+    c: (object) &gt; $o).
+tff(sig_c_min1, axiom,
+    ?[X : object]: (c(X))).
+tff(sig_c_max1, axiom,
+    ![X : object]: (c(X) =&gt; ![Y : object]: (c(Y) =&gt; X = Y))).
+
+tff(sig_d_extends_object, type,
+    d: (object) &gt; $o).
+tff(sig_d_min1, axiom,
+    ?[X : object]: (d(X))).
+tff(sig_d_max1, axiom,
+    ![X : object]: (d(X) =&gt; ![Y : object]: (d(Y) =&gt; X = Y))).
+</pre>
+</div>
+
+<p>
+It is not clear a priori whether the typed quantifiers in the formulas
+just given are helpful, or if they are wholly redundant given the type
+declarations.  (A posteriori, it appears that Vampire, at least, is
+unhappy if they are not present: a quantifier without a sort is taken
+to declare the variable as being of type <code>$i</code>, which Vampire takes to
+be disjoint from <code>object</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-tptp">
+%  The subsignatures partition the set of objects.
+tff(subsigs_of_object, axiom, 
+    ![X : object]:
+            (((root(X) | a(X) | b(X) | c(X) | d(X))
+             &amp; ~(root(X) &amp; a(X))
+             &amp; ~(root(X) &amp; b(X))
+             &amp; ~(root(X) &amp; c(X))
+             &amp; ~(root(X) &amp; d(X))
+             &amp; ~(a(X) &amp; b(X))
+             &amp; ~(a(X) &amp; c(X))
+             &amp; ~(a(X) &amp; d(X))
+             &amp; ~(b(X) &amp; c(X))
+             &amp; ~(b(X) &amp; d(X))
+             &amp; ~(c(X) &amp; d(X))))).
+
+% p takes objects as arguments
+tff(p_types, type, p: (object * object) &gt; $o).
+
+% p is functional
+tff(p_functional, axiom,
+    ![X : object, Y : object]:
+    (p(X, Y) =&gt; ![Z : object]: (p(X, Z) =&gt; (Z = Y)))).
+
+% definition of root-ness
+tff(oneroot, axiom, 
+    ![X : object]: (root(X) &lt;=&gt; ~?[Y : object]: (p(X, Y)))).
+
+% TCP is the transitive closure of p.
+tff(tcp_type, type, tcp : (object * object) &gt; $o).
+tff(tcp_def, definition,
+    ![X : object, Y : object]:
+        (tcp(X, Y) 
+        &lt;=&gt; 
+        (p(X,Y) | ?[Z : object]: (p(X,Z) &amp; tcp(Z,Y))))).
+
+% iden is the identity relation on objects.
+% user-defined predicates cannot be polymorphic.
+tff(iden_type, type, iden : (object * object) &gt; $o).
+tff(iden_def, definition, 
+    ![X : object, Y : object]: (iden(X, Y) &lt;=&gt; X = Y)).
+
+% tcp_and_iden is the intersection of tcp and iden.
+tff(tcp_and_iden_type, type,
+    tcp_and_iden : (object * object) &gt; $o).
+tff(tcp_and_iden_def, definition,
+    ![X : object, Y : object]:
+        (tcp_and_iden(X, Y) 
+        &lt;=&gt;
+        (tcp(X, Y) &amp; iden(X, Y)))).
+
+% The set tcp_and_iden is empty.
+tff(p_acyclic, axiom,
+    ~?[X : object, Y : object]: (tcp_and_iden(X, Y))).
+
+% B is the parent of both C and D
+tff(fact_4, axiom,
+    (![X : object]: (c(X) =&gt; ?[Y : object]: (b(X) &amp; p(X, Y)))
+   &amp; ![X : object]: (d(X) =&gt; ?[Y : object]: (b(X) &amp; p(X, Y))))).
+</pre>
+</div>
+
+<p>
+The <i>SingleParent</i> assertion can be represented
+as a conjecture.
+</p>
+<div class="org-src-container">
+<pre class="src src-tptp">% conjecture SingleParent
+tff(singleparent, conjecture,
+    ![X : object, Y : object, Z : object]:
+        ((p(X, Y) &amp; p(X, Z))
+         =&gt;
+         (Y = Z))).
+</pre>
+</div>
+
+<p>
+Attempting to prove this conjecture turned up (again) a number of
+issues in the hand translation, which seem to indicate that the
+translations from Alloy into FOPC and TPTP really should be automated.
+Concretely, Vampire was unhappy with the input until all predicates
+had been properly declared specifying that their arguments were of
+type <i>object</i> and all quantifiers were also typed with <i>object</i>.
 </p>
 </div>
 </div>
@@ -281,7 +1745,7 @@ the fact <i>SingleParent</i>:
 <div id="postamble" class="status">
 <p class="date">Date: 28 March - 12 April 2024, resumed 2 May 2024</p>
 <p class="author">Author: CMSMcQ</p>
-<p class="date">Created: 2024-05-02 Thu 12:06</p>
+<p class="date">Created: 2024-05-04 Sat 13:00</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

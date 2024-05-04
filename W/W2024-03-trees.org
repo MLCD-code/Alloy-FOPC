@@ -41,10 +41,12 @@ run show for 5
 A (slightly rough) English paraphrase might be as follows.
 From the signature declarations, we have:
   - Objects Root, A, B, C, and D exist; there are no other objects.
-  - Each object has a field /b/ whose value is a set of objects.
-    (Informally: for any object /X/, /X.b/ is the set of /X/'s
-    children.)  Note that /b/ can also be described simply as a binary
-    relation /b/ on objects.
+  - Each object has a field /b/ (for /branches/ or /branching/
+    relation) whose value is a set of objects.  Informally: for any
+    object /X/, /X.b/ is the set of /X/'s children.
+
+    Note that /b/ can also be described simply as a binary relation
+    /b/ on objects.
 
 From the fact /OneRoot/ we have:
   - An object is the Root object if and only if it is not a member of
@@ -154,10 +156,11 @@ only if no object has it as a child.
 The fact /b\under{}acyclic/ is, closely paraphrased, a statement
 about the cardinality of a set.
 
-We cannot define the transitive closure operator
-"~^~" in a first-order system, so we will need to
-define the transitive closure of /b/ as a named
-relation, in the usual recursive way:
+We cannot define the transitive closure operator "~^~" in a
+first-order system, so we will need to define the transitive closure
+of /b/ as a named relation, which we'll call /tcb/ for 'transitive
+closure of b'.  It can be defined recursively in a pattern familiar
+from other recursive definitions.
 #+begin_src fopc
 (∀ x, y)(tcb(x, y) 
           ⇔ 
@@ -185,7 +188,7 @@ a simpler statement of the fact:
 (∀x, y)(tcb_inter_iden(x, y) 
           ⇔
           (tcb(x, y) ∧ iden(x, y)))
-¬(∃ x, y)(tcp_inter_iden(x, y))
+¬(∃ x, y)(tcb_inter_iden(x, y))
 #+end_src
 *** The nameless fact
 The third fact specifies that B is the parent of C and C the parent of
@@ -418,9 +421,12 @@ fof(example1, definition,
                 & pc(X,Y) & pc(X,Z) & pc(Z,W) & pc(W,V)))).
 #+end_src
 
-** Testing
+** Testing ways to run the example
 
 *** Initial attempt to test the example
+
+[Note: the approach described here does not now appear to be the
+simplest way to check that an example is consistent with the axioms.]
 
 To check whether the example is possible, we can ask the prover to prove
 that it is impossible.
@@ -554,7 +560,7 @@ for satisfiable problems') as the 'saturation algorithm'.  So a more
 direct way to get a result here is to invoke Vampire with the option
 "~-sa fmb~".
 
-[Note:  using the fmb option appears to cause some sort of problem.
+Note:  using the fmb option appears to cause some sort of problem.
 Immediately after the "Finite Model Found!" message, I get the messages
 #+begin_example
 % SZS status Satisfiable for 
@@ -580,22 +586,43 @@ check SingleParent for 5
 #+end_src
 
 Alloy checks the assertion by finding a counter-example within
-the scope specified; in principle, a prover cand check
+the scope specified; in principle, a prover can check
 the assertion more broadly (although it's clear that in practice
 at least some disproofs are going to take the form of finding
 a counter-example).
 
 #+begin_src tptp :tangle ../examples/tree.jve1.conj-single-parent.p
 fof(single_parent, conjecture,
-  ![X, Y, Z] : (object(X) & object(Y) & object(Z) =>)
+  ![X, Y, Z] : ((object(X) & object(Y) & object(Z)) =>
+               ((pc(X,Z) & pc(Y,Z)) => (X = Y)))
 ).
 #+end_src
 
+How does that in-principle checking work out in practice?  Since this
+conjecture is known to be false, we are not expecting any theorem
+prover to produce a proof, and it is not surprising that none do.  It
+would be nice to have a clear statement that the generalization is
+false, possibly with a counter-example.  Here, results are mixed.
+
+- When E is invoked with ~--auto-schedule~, each tactic it tries times
+  out before reaching a conclusion.
+- When Vampire is invoked with ~--mode casc~, it too fails to prove
+  the conjecture; some of its tactics time out, while others report
+  only "Refutation not found, incomplete strategy".
+- When Vampire is invoked with ~--mode casc_sat~~, however, the tactic
+  summarized as "fmb+10_1_av=off : fmbsr=1.6 : lma=on : nm=64 :
+  nwc=3 : sp=reverse_arity : urr=on_258" reports "Finite Model Found!"
+  and signals an SZS status of "CounterSatisfiable".
+
+This appears consistent with the observation that for software, the
+task of finding models (or counter-examples) and that of finding
+proofs are distinct problems which require different approaches,
+however much they may overlap in principle.
+
 * A second Alloy model
 
-** The Alloy
-
-The second model appears on slide 7:
+The second model appears on slide 7 of van Eijck's presentation; it
+changes /SingleParent/ from being an assertion to being a fact.
 #+begin_src alloy
 /* Corrected specification */
 module myexamples/tree
@@ -618,5 +645,488 @@ the fact /SingleParent/:
 
 - No object is in the value of /b/ for two distinct parent objects.
 
-(modify-syntax-entry ?< "_")
-(modify-syntax-entry ?> "_")
+In conventional predicate calculus, this could be written:
+#+begin_src fopc
+(∀ x, y, z)((Object(x) ∧ Object(y) ∧ Object(z))
+    ⇒ ((pc(x, z) ∧ pc(y, z))
+        ⇒ (x = y)))
+#+end_src
+
+A TPTP rendering is essentially the same as above, with /conjecture/
+changed to /axiom/:
+
+#+begin_src tptp :tangle ../examples/tree.jve1.ax-single-parent.p
+fof(single_parent, conjecture,
+  ![X, Y, Z] : ((object(X) & object(Y) & object(Z)) =>
+               ((pc(X,Z) & pc(Y,Z)) => (X = Y)))
+).
+#+end_src
+
+Van Eijck formulates no conjectures or assertions relating to this
+modified model.  We could think of some on our own, but that seems too
+much like work.  So we move on to van Eijck's third model.
+
+* A third model
+
+** The Alloy of slide 10
+
+On slide 9, van Eijck considers the definition of trees starting not
+from a branching relation /b/ but from a parenthood relation /P/.  He
+identifies three requirements:
+
+- There is exactly one root, defined as an object without parents
+  (/P/-successors)
+- Every other object has exactly one /P/-successor (parent).
+- The relation /P/ is acyclic.
+
+In Alloy:
+#+begin_src alloy
+module myexamples/newtree
+
+sig Object { p: lone Object }
+one sig Root, A, B, C, D extends Object {}
+
+fact OneRoot { all x: Object | x = Root <=> no x.p }
+fact SingleParent
+  { all x,y,z: Object | y in x.p and z in x.p => y=z }
+fact p_acyclic { no ^p & iden }
+
+fact { C in p.B and D in p.B }
+
+pred show () {}
+run show for 5
+#+end_src
+
+** Equivalent in FOPC
+
+We can render this new model in first-order logic as follows.
+
+The description of the signatures is the same as above:
+#+begin_src fopc
+// Everything is an Object or else it's automatically
+// supplied by Alloy.  Nothing is both.
+(∀x)(Object(x) ∨ AUTO(x))
+¬(∃x)(Object(x) ∧ AUTO(x))
+
+// Subsignatures Root, A, B, C, D have one instance each.
+(∃x)(Root(x))
+(∀x)(Root(x) ⇒ (Object(x) ∧ (∀y)(Root(y) ⇒ x = y)))
+
+(∃x)(A(x))
+(∀x)(A(x) ⇒ (Object(x) ∧ (∀y)(A(y) ⇒ x = y)))
+
+(∃x)(B(x))
+(∀x)(B(x) ⇒ (Object(x) ∧ (∀y)(B(y) ⇒ x = y)))
+
+(∃x)(C(x))
+(∀x)(C(x) ⇒ (Object(x) ∧ (∀y)(C(y) ⇒ x = y)))
+
+(∃x)(D(x))
+(∀x)(D(x) ⇒ (Object(x) ∧ (∀y)(D(y) ⇒ x = y)))
+
+// The subsignatures partition the set of Objects.
+(∀x)(Object(x) ⇒
+        ((Root(x) ∨ A(x) ∨ B(x) ∨ C(x) ∨ D(x))
+         ∧ ¬(Root(x) ∧ A(x))
+         ∧ ¬(Root(x) ∧ B(x))
+         ∧ ¬(Root(x) ∧ C(x))
+         ∧ ¬(Root(x) ∧ D(x))
+         ∧ ¬(A(x) ∧ B(x))
+         ∧ ¬(A(x) ∧ C(x))
+         ∧ ¬(A(x) ∧ D(x))
+         ∧ ¬(B(x) ∧ C(x))
+         ∧ ¬(B(x) ∧ D(x))
+         ∧ ¬(C(x) ∧ D(x)))
+#+end_src
+
+The declaration of /Object/ tells us that Objects have a field named
+/p/, the optional value of which is an Object.  In relational terms,
+this means that:
+- for any object /x/, there is at most one object /y/ for which
+the relation /p(x, y)/ holds;
+- if /p(x, y)/ holds, then /x/ and /y/ are objects.
+
+#+begin_src fopc
+(∀ x, y)(p(x, y) ⇒ (∀z)(p(x, z) ⇒ (z = y)))
+(∀ x, y)(p(x, y) ⇒ (Object(x) ∧ Object(y)))
+#+end_src
+
+Two things should be noted about the second formula, regarding the
+types of /p/'s arguments:
+- It also applies to the /b/ relation in the first specification of
+  trees, although we failed to formulate it there.
+- Alloy allows relation names to be overloaded, so the right-hand side
+  of the implication will, in the general case, be a disjunction of
+  statements about possible argument types.  (Overloading will also
+  affect the cardinality constraints.)
+
+The fact /OneRoot/ is misnamed; it does not say that there is one
+root, but only says that an object is a root iff it has no parent.
+The fact that there is only one root is captured by the
+signature-related axioms above.
+#+begin_src fopc
+(∀x)(Object(x) ⇒ (Root(x) ⇔ ¬(∃y)(p(x, y)))
+#+end_src
+
+The fact /SingleParent/ is much as before but with the inverse
+relation: For any objects /x/, /y/, and /z/, if /y/ is a parent of /x/
+and /z/ is a parent of /x/, then /y/ = /z/.
+#+begin_src fopc
+(∀ x, y, z)((Object(x) ∧ Object(y) ∧ Object(z))
+  ⇒ (p(x, y) ∧ p(x, z)
+      ⇒
+      (y = z)))
+#+end_src
+
+The fact /p\under{}acyclic/ requires the same machinery as was
+needed above for /b\under{}acyclic/:
+- a definition of the transitive closure of /p/, which we'll
+  call /TCP/;
+- a definition of the binary /iden/ relation; and
+- a definition of the intersection of /pcb/ and /iden/.
+
+TCP is the transitive closure of p.
+#+begin_src fopc
+(∀ x, y)(TCP(x, y) 
+          ⇔ 
+          (p(x,y) ∨ (∃z)(p(x,z) ∧ TCP(z,y))))
+#+end_src
+
+/iden/ is the identity relation.
+#+begin_src fopc
+(∀ x, y)(iden(x, y) ⇔ x = y)
+#+end_src
+
+As a set, /TCP_and_iden/ is the intersection of sets /TCP/ and /iden/.
+In the predicate-based translation we are using, /TCP_and_iden/ is the
+logical conjuntion of predicates /TCP/ and /iden/.
+#+begin_src fopc
+(∀ x, y)(TCP_inter_iden(x, y) 
+          ⇔
+          (TCP(x, y) ∧ iden(x, y)))
+#+end_src
+
+The set /TCP_and_iden/ is empty (or equivalently:  the
+predicate /TCP_and_iden/ is true of no (x, y) pairs).
+#+begin_src fopc
+¬(∃ x, y)(TCP_and_iden(x, y))
+#+end_src
+
+The nameless fact ~C in p.B and D in p.B~ again constrains the set of
+possible trees (but differently from the nameless fact of the earlier
+model).  Because we know that each of the signatures /B/, /C/, and /D/
+has cardinality one, it is tempting to translate this sentence as a
+sentence about individuals:
+#+begin_src fopc
+(p(b, c) ∧ p(b, d)
+#+end_src
+
+But in general, every Alloy expression denotes a set, not an
+individual; the closest Alloy comes to referring to individuals are
+references to singleton sets.  So the correct translation is a
+little wordier:
+#+begin_src fopc
+(∀x)(C(x) ⇒ (∃y)(B(y) ∧ p(x, y)))
+∧ (∀x)(D(x) ⇒ (∃y)(B(y) ∧ p(x, y)))
+#+end_src
+
+** The modification and a new conjecture
+
+At this point, van Eijck asks whether the fact /SingleParent/ in its
+new form is perhaps redundant, entailed already by the declaration
+~lone p: Object~.  So he removes the fact and replaces it with a
+conjecture.
+
+This conjecture seems worth checking, so we'll translate the third
+model into TPTP notation.
+
+** A TPTP rendering in FOF
+
+In the FOF (first-order formula) language of the TPTP project
+(thousands of problems for theorem provers), the modified model
+using a parent relation can, I think, be represented as follows:
+
+#+begin_src tptp :tangle ../examples/tree.jve2.axioms.p
+% Everything is an Object or automatically supplied by Alloy.
+% Nothing is both.
+fof(top_signatures_1, axiom,
+    ![X]: (object(X) | auto(X))).
+fof(top_signatures_disjoint, axiom, 
+    ~(?[X]: (object(X) & auto(X)))).
+
+% Subsignatures Root, A, B, C, D have one instance each.
+fof(sig_root_extends_object, axiom, 
+    ![X]: (root(X) => object(X))).
+fof(sig_root_min1, axiom, ?[X]: (root(X))).
+fof(sig_root_max1, axiom, 
+    ![X]: (root(X) => ![Y]: (root(Y) => X = Y))).
+
+fof(sig_a_extends_object, axiom,
+    ![X]: (a(X) => object(X))).
+fof(sig_a_min1, axiom, ?[X]: (a(X))).
+fof(sig_a_max1, axiom,
+    ![X]: (a(X) => ![Y]: (a(Y) => X = Y))).
+
+fof(sig_b_extends_object, axiom,
+    ![X]: (b(X) => object(X))).
+fof(sig_b_min1, axiom, ?[X]: (b(X))).
+fof(sig_b_max1, axiom,
+    ![X]: (b(X) => ![Y]: (b(Y) => X = Y))).
+
+fof(sig_c_extends_object, axiom,
+    ![X]: (c(X) => object(X))).
+fof(sig_c_min1, axiom, ?[X]: (c(X))).
+fof(sig_c_max1, axiom,
+    ![X]: (c(X) => ![Y]: (c(Y) => X = Y))).
+
+fof(sig_d_extends_object, axiom,
+    ![X]: (d(X) => object(X))).
+fof(sig_d_min1, axiom, ?[X]: (d(X))).
+fof(sig_d_max1, axiom,
+    ![X]: (d(X) => ![Y]: (d(Y) => X = Y))).
+
+%  The subsignatures partition the set of objects.
+fof(subsigs_of_object, axiom, 
+    ![X]: (object(X) =>
+            ((root(X) | a(X) | b(X) | c(X) | d(X))
+             & ~(root(X) & a(X))
+             & ~(root(X) & b(X))
+             & ~(root(X) & c(X))
+             & ~(root(X) & d(X))
+             & ~(a(X) & b(X))
+             & ~(a(X) & c(X))
+             & ~(a(X) & d(X))
+             & ~(b(X) & c(X))
+             & ~(b(X) & d(X))
+             & ~(c(X) & d(X))))).
+
+% p takes objects as arguments
+fof(p_types, axiom, 
+    ![X, Y]: (p(X, Y) => (object(X) & object(Y)))).
+
+% p is functional
+fof(p_functional, axiom,
+    ![X, Y]: (p(X, Y) => ![Z]: (p(X, Z) => (Z = Y)))).
+
+% definition of root-ness
+fof(oneroot, axiom, 
+    ![X]: (object(X) => (root(X) <=> ~?[Y]: (p(X, Y))))).
+
+% TCP is the transitive closure of p.
+fof(tcp_def, definition,
+    ![X, Y]: (tcp(X, Y) 
+              <=> 
+              (p(X,Y) | ?[Z]: (p(X,Z) & tcp(Z,Y))))).
+
+% iden is the identity relation.
+fof(iden_def, definition, 
+    ![X, Y]: (iden(X, Y) <=> X = Y)).
+
+% tcp_and_iden is the intersection of tcp and iden.
+fof(tcp_and_iden_def, definition,
+    ![X, Y]: (tcp_inter_iden(X, Y) 
+              <=>
+              (tcp(X, Y) & iden(X, Y)))).
+
+% The set tcp_and_iden is empty.
+fof(p_acyclic, axiom,
+    ~?[X, Y]: (tcp_and_iden(X, Y))).
+
+% B is the parent of both C and D
+fof(fact_4, axiom,
+    (![X]: (c(X) => ?[Y]: (b(Y) & p(X, Y)))
+   & ![X]: (d(X) => ?[Y]: (b(Y) & p(X, Y))))).
+#+end_src
+
+The /SingleParent/ assertion can be represented
+as a conjecture.
+#+begin_src tptp :tangle ../examples/tree.jve2.conj-singleparent.p
+% conjecture SingleParent
+fof(singleparent, conjecture,
+    ![X, Y, Z]: ((object(X) & object(Y) & object(Z))
+      => ((p(X, Y) & p(X, Z))
+          =>
+          (Y = Z)))).
+#+end_src
+
+** Can /SingleParent/ conjecture be proved?
+
+Both E and Vampire quickly prove the /SingleParent/ conjecture, but each
+also reports:
+#+begin_example
+% SZS status Unsatisfiable 
+#+end_example
+(Interestingly, this appears in the ~--mode casc_sat~ output from
+Vampire, but not in ~--mode=casc~".)
+
+Checking the axioms without the conjecture confirms that the axioms as
+originally given are inconsistent.  (For the record: one stray
+negation, possibly originating in the typo of tilde for exclamation
+point, and two stray predicates applied to X when they should have
+applied to Y.)
+
+At this point, the original goals of this working paper appear
+to have been achieved.  The paper illustrates:
+
+- translation of simple Alloy models into FOPC and into the
+  first-order form of the TPTP problem language;
+- use of theorem provers to detect typos in the formulation of axioms
+  (not one of the original goals, but helpful);
+- use of theorem provers to check conjectures, whether false or true.
+
+But a small extension may also be worth exploring: the translation of
+the final model into the TFF0 ('monomorphic typed first-order form')
+of TPTP.
+  
+** A TPTP rendering in TFF
+In the TFF (typed first-order formula) language of the TPTP project,
+the model could, I think, look like the following.
+
+First, we declare the top-level signature /object/.
+#+begin_src tptp :tangle ../examples/tree.jve2.axioms.tff.p
+% Everything is an Object or automatically supplied by Alloy.
+tff(sig_object, type, object: $tType).
+
+% Nothing is both.
+% (No statement necessary; follows automatically.)
+#+end_src
+
+Note that declaring /object/ as a type leads to an axiom
+that at least one object exists:  TFF0 has no empty sorts.
+
+Because the form of TFF we are using (TFF0?) has only disjoint
+top-level types which (together with ~$i~) partition the set of
+individuals, we cannot treat /Root/, /A/, /B/, /C/, and /D/
+as types, and we cannot use those names in quantifiers.  So
+the statements about these sub-signatures remain mostly similar
+to those given above in the /fof/ language.
+
+#+begin_src tptp :tangle ../examples/tree.jve2.axioms.tff.p
+% Root, A, B, C, D are subsignatures of Object.
+% I.e. the predicates Root, A, B, C, D apply to objects.
+% And they have one instance each.
+tff(sig_root_extends_object, type,
+    root: ( object ) > $o).
+tff(sig_root_min1, axiom,
+    ?[X : object]: (root(X))).
+tff(sig_root_max1, axiom, 
+    ![X : object]: (root(X) => ![Y : object]: (root(Y) => X = Y))).
+
+tff(sig_a_extends_object, type,
+    a: (object) > $o).
+tff(sig_a_min1, axiom,
+    ?[X : object]: (a(X))).
+tff(sig_a_max1, axiom,
+    ![X : object]: (a(X) => ![Y : object]: (a(Y) => X = Y))).
+
+tff(sig_b_extends_object, type,
+    b: (object) > $o).
+tff(sig_b_min1, axiom,
+    ?[X : object]: (b(X))).
+tff(sig_b_max1, axiom,
+    ![X : object]: (b(X) => ![Y : object]: (b(Y) => X = Y))).
+
+tff(sig_c_extends_object, type,
+    c: (object) > $o).
+tff(sig_c_min1, axiom,
+    ?[X : object]: (c(X))).
+tff(sig_c_max1, axiom,
+    ![X : object]: (c(X) => ![Y : object]: (c(Y) => X = Y))).
+
+tff(sig_d_extends_object, type,
+    d: (object) > $o).
+tff(sig_d_min1, axiom,
+    ?[X : object]: (d(X))).
+tff(sig_d_max1, axiom,
+    ![X : object]: (d(X) => ![Y : object]: (d(Y) => X = Y))).
+#+end_src
+
+It is not clear a priori whether the typed quantifiers in the formulas
+just given are helpful, or if they are wholly redundant given the type
+declarations.  (A posteriori, it appears that Vampire, at least, is
+unhappy if they are not present: a quantifier without a sort is taken
+to declare the variable as being of type ~$i~, which Vampire takes to
+be disjoint from ~object~.
+
+#+begin_src tptp :tangle ../examples/tree.jve2.axioms.tff.p
+
+%  The subsignatures partition the set of objects.
+tff(subsigs_of_object, axiom, 
+    ![X : object]:
+            (((root(X) | a(X) | b(X) | c(X) | d(X))
+             & ~(root(X) & a(X))
+             & ~(root(X) & b(X))
+             & ~(root(X) & c(X))
+             & ~(root(X) & d(X))
+             & ~(a(X) & b(X))
+             & ~(a(X) & c(X))
+             & ~(a(X) & d(X))
+             & ~(b(X) & c(X))
+             & ~(b(X) & d(X))
+             & ~(c(X) & d(X))))).
+
+% p takes objects as arguments
+tff(p_types, type, p: (object * object) > $o).
+
+% p is functional
+tff(p_functional, axiom,
+    ![X : object, Y : object]:
+    (p(X, Y) => ![Z : object]: (p(X, Z) => (Z = Y)))).
+
+% definition of root-ness
+tff(oneroot, axiom, 
+    ![X : object]: (root(X) <=> ~?[Y : object]: (p(X, Y)))).
+
+% TCP is the transitive closure of p.
+tff(tcp_type, type, tcp : (object * object) > $o).
+tff(tcp_def, definition,
+    ![X : object, Y : object]:
+        (tcp(X, Y) 
+        <=> 
+        (p(X,Y) | ?[Z : object]: (p(X,Z) & tcp(Z,Y))))).
+
+% iden is the identity relation on objects.
+% user-defined predicates cannot be polymorphic.
+tff(iden_type, type, iden : (object * object) > $o).
+tff(iden_def, definition, 
+    ![X : object, Y : object]: (iden(X, Y) <=> X = Y)).
+
+% tcp_and_iden is the intersection of tcp and iden.
+tff(tcp_and_iden_type, type,
+    tcp_and_iden : (object * object) > $o).
+tff(tcp_and_iden_def, definition,
+    ![X : object, Y : object]:
+        (tcp_and_iden(X, Y) 
+        <=>
+        (tcp(X, Y) & iden(X, Y)))).
+
+% The set tcp_and_iden is empty.
+tff(p_acyclic, axiom,
+    ~?[X : object, Y : object]: (tcp_and_iden(X, Y))).
+
+% B is the parent of both C and D
+tff(fact_4, axiom,
+    (![X : object]: (c(X) => ?[Y : object]: (b(X) & p(X, Y)))
+   & ![X : object]: (d(X) => ?[Y : object]: (b(X) & p(X, Y))))).
+#+end_src
+
+The /SingleParent/ assertion can be represented
+as a conjecture.
+#+begin_src tptp :tangle ../examples/tree.jve2.conj-singleparent.tff.p
+% conjecture SingleParent
+tff(singleparent, conjecture,
+    ![X : object, Y : object, Z : object]:
+        ((p(X, Y) & p(X, Z))
+         =>
+         (Y = Z))).
+#+end_src
+
+Attempting to prove this conjecture turned up (again) a number of
+issues in the hand translation, which seem to indicate that the
+translations from Alloy into FOPC and TPTP really should be automated.
+Concretely, Vampire was unhappy with the input until all predicates
+had been properly declared specifying that their arguments were of
+type /object/ and all quantifiers were also typed with /object/.
+
+# (modify-syntax-entry ?< "_")
+# (modify-syntax-entry ?> "_")
