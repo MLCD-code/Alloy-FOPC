@@ -1,6 +1,6 @@
 #+title: Experiments with tree models in Alloy
 #+author: CMSMcQ 
-#+date: 28 March - 12 April 2024, resumed 2 May 2024
+#+date: 28 March - 12 April 2024, resumed 2-4 May 2024
 
 This document describes a translation of some simple Alloy models of
 trees into first-order logic and some experiments with translating
@@ -1128,5 +1128,119 @@ Concretely, Vampire was unhappy with the input until all predicates
 had been properly declared specifying that their arguments were of
 type /object/ and all quantifiers were also typed with /object/.
 
+Once the tff version was well-typed in Vampire's estimation, Vampire
+proved the assertion both in /casc/ and in /casc_sat/ modes.  E also
+proved it, in both ~--auto~ and ~--auto-schedule~.
+
+* Tentative conclusions
+
+The work described here seems to provide a rudimentary demonstration
+that work in Alloy can be usefully supplemented with work using
+automatic theorem provers, when it is desired to prove theorems about
+the models described in Alloy.
+
+By design, Alloy does not attempt to prove theorems; given a
+description of some constraints, the Alloy Analyzer limits itself to
+finding finite models which satisfy the constraints, or to finding
+counter-examples which satisfy the base constraints but violate an
+assertion.  Testing an asertion in Alloy can show that there are no
+counter-examples smaller than the specified scope; proving the
+assertion in a theorem prover can show that there can be no
+counter-examples.
+
+The simple examples exhibited above show some pitfalls that can arise:
+
+- Syntactic errors are possible in any formal description of a model.
+  It may safely be said that few tools provide uniformly helpful
+  diagnostic messages for syntax errors, and the tools used here are
+  not exceptions to that general rule.  It seems likely that an
+  automatic translation can produce output that is more reliably
+  grammatical in the target language.
+
+- The Alloy language is not a perfect match for the language accepted
+  by first-order theorem provers.
+
+    + Alloy expressions denote sets of tuples; neither tuples nor sets
+      are naturally present in the core of first-order logic.
+
+      The translations offered here attempt to render the Alloy models
+      in a first-order formulation without any reference to sets or to
+      the axioms of set theory.  It is a pragmatic question whether it
+      is better to use such a set-less language, to translate the
+      Alloy models into a first-order logic augmented with the axioms
+      of set theory, or to give up on any target language that lacks
+      sets; the answer to that question is still open.
+
+      The example of the /b\under{}acyclic/ and /p\under{}acyclic/
+      constraints suggest that arbitrarily complex Alloy expressions
+      can be translated reliably into FOPC without sets by reifying
+      each expression and subexpression into a characteristic
+      predicate which is true for all and only the memmbers of the set
+      denoted by the expression. This will create a perhaps tedious
+      need to define names for things left anonymous in the Alloy
+      models, but in an automated translation that should be
+      tractable.
+      
+    + The signatures of Alloy can be rendered in colloquial FOPC
+      with the kind of informal typing the authors have often used
+      in paper.
+
+      In TPTP's FOF sublanguage they can be rendered as predicates, at
+      the cost of a certain amount of wordiness.  There are some
+      suggestions in the literature that such predicates may sometimes
+      cause problems for automatic provers (either because of the
+      sheer wordiness of the translations or because the additional
+      rules complicate the search space).
+      
+      In the TFF sublanguage, top-level Alloy signatures can be
+      rendered as user-defined sorts; subsignatures, however, cannot
+      (at least, not in the version of TFF documented in Sutcliffe et
+      al. 2012), so type predicates for subsignatures and formulas
+      expressing constraints like pairwise disjointness are still
+      necessary.
+
+  Some complications are not illustrated here, but must be addressed
+  at some point:
+
+    + Alloy provides at least small subsets of the integers, with
+      built-in knowledge of things like set cardinality.
+      
+      TFF0 does provide integers and basic arithmetic, at least in the
+      sense of allowing them to be referred to.  Some TFF0 processors
+      can do basic arithmetic.
+
+      Fortunately, our models do not make heavy use of integers.
+
+    + Alloy provides sequences, modeled as functions from a prefix
+      of the natural numbers to elements in a domain.
+
+      Sequences are not pre-defined as part of FOF or TFF (or indeed
+      any TPTP language), as far as we have seen.
+
+      It will be necessary either to formulate a set of rules about
+      sequences (borrowed, perhaps, from the relevant Alloy utility
+      modules) or to shift to a different model of sequences.  The
+      paper by Sutcliffe et al (2012) introducing TFF gives an example
+      of defining sequences in roughly the same way that Lisp defines
+      lists, defining a constant for the empty list and a /cons/
+      function which takes an item and prepends it to a list.  (It
+      will, I hope, not be necessary to replicate Lisp's improper
+      lists and so on.)
+
+      
+
+* References
+
+- Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Peter
+  Baumgartner, "The TPTP Typed First-order Form with Arithmetic",
+  /Proceedings of the 18th LPAR/, Merida, 2012, ed. Dines Bjørner and
+  Andrei Voronkov (= LNAI 7180) (Springer, 2012), pp. 406-419,
+
+  On the Web at various places including
+  http://wwwlehre.dhbw-stuttgart.de/~sschulz/PAPERS/SSCB-LPAR-2012.pdf
+
+
+
 # (modify-syntax-entry ?< "_")
 # (modify-syntax-entry ?> "_")
+
