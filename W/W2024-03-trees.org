@@ -548,11 +548,11 @@ cat tree.jve1.axioms.p \
             -t 30
 #+end_example
 
-Here, we have specified a time limit of 30 seconds, and a ~casc_sat~
+Here, we have specified a time limit of 30 seconds, and a ~case\under()sat~
 mode, which implements a strategy used in CASC competitions for
 problems whose specifications are expected to be satisfiable.
 
-Invoked with mode ~casc_sat~, Vampire tries a portfolio of approaches,
+Invoked with mode ~case\under()sat~, Vampire tries a portfolio of approaches,
 one of which succeeds and produces the message "Finite Model Found!"
 The logging output is a little terse, but seems to indicate that the
 successful approach involved choosing "~fmb~" (for 'finite model building
@@ -609,9 +609,9 @@ false, possibly with a counter-example.  Here, results are mixed.
 - When Vampire is invoked with ~--mode casc~, it too fails to prove
   the conjecture; some of its tactics time out, while others report
   only "Refutation not found, incomplete strategy".
-- When Vampire is invoked with ~--mode casc_sat~~, however, the tactic
-  summarized as "fmb+10_1_av=off : fmbsr=1.6 : lma=on : nm=64 :
-  nwc=3 : sp=reverse_arity : urr=on_258" reports "Finite Model Found!"
+- When Vampire is invoked with ~--mode case\under()sat~~, however, the tactic
+  summarized as "fmb+10\under{}1\under{}av=off : fmbsr=1.6 : lma=on : nm=64 :
+  nwc=3 : sp=reverse\under{}arity : urr=on\under{}258" reports "Finite Model Found!"
   and signals an SZS status of "CounterSatisfiable".
 
 This appears consistent with the observation that for software, the
@@ -956,7 +956,7 @@ also reports:
 #+begin_example
 % SZS status Unsatisfiable 
 #+end_example
-(Interestingly, this appears in the ~--mode casc_sat~ output from
+(Interestingly, this appears in the ~--mode case\under()sat~ output from
 Vampire, but not in ~--mode=casc~".)
 
 Checking the axioms without the conjecture confirms that the axioms as
@@ -1129,7 +1129,7 @@ had been properly declared specifying that their arguments were of
 type /object/ and all quantifiers were also typed with /object/.
 
 Once the tff version was well-typed in Vampire's estimation, Vampire
-proved the assertion both in /casc/ and in /casc_sat/ modes.  E also
+proved the assertion both in /casc/ and in /case\under()sat/ modes.  E also
 proved it, in both ~--auto~ and ~--auto-schedule~.
 
 * Tentative conclusions
