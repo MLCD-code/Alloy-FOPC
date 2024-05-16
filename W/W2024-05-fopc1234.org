@@ -1,4 +1,4 @@
-#+title: Four varieties of first-order predicate calculus
+#+title: Five varieties of first-order predicate calculus
 #+author: CMSMcQ and CH
 #+date: 16 May 2024
 
