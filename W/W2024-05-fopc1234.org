@@ -1,0 +1,41 @@
+#+title: Four varieties of first-order predicate calculus
+#+author: CMSMcQ and CH
+#+date: 16 May 2024
+
+This document describes several languages for the expression of
+logical formulas, each containing the preceding.  For convenient
+reference, the languages are given names chosen to suggest their
+relative sizes:
+
+- *XS* (extra-small), the first language, is for sentential logic.
+- *S* (small) is for first-order logic without identity.
+- *M* (medium) is for first-order logic with functions and identity.
+  We believe but have not undertaken to prove that M is equivalent to
+  the TPTP language of first-order formulas, FOF.
+- *L* (large) adds some convenience features: typed quantification,
+  unique existential quantification, and skolem functions.  It is at
+  least roughly comparable to the TFF (typed first-order formulas)
+  language of TPTP.
+- *XL* (extra-large) adds sets and set operations.  /Open question:
+  add tuples?/
+
+One goal of the paper is to provide a more precise description of the
+target language(s) for our work translating Alloy models into
+first-order logic.
+
+* Design goals
+The primary goal is to provide a convenient syntax for presentation
+and discussion of formulas that is as far as possible agnostic on the
+particular symbols used for quantification and logical operators.
+Textbooks on logic are notoriously divergent in their choices of
+symbols, and so are those who publish papers containing logical
+formulas.  Software for dealing with formulas is equally various in
+its choices.  We see no reason to insist that logical conjunction be
+expressed with "&" but not with "/\" or "∧" or even just "and", and so
+on.
+
+* Language XS:  sentential logic
+* Language S:  first-order logic
+* Language M:  first-order logic with identity and functions
+* Language L:  additional convenience features
+* Language XS: first-order logic plus set theory
