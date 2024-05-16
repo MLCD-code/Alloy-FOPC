@@ -561,11 +561,11 @@ cat tree.jve1.axioms.p \
             -t 30
 #+end_example
 
-Here, we have specified a time limit of 30 seconds, and a ~case\under()sat~
+Here, we have specified a time limit of 30 seconds, and a ~case_sat~
 mode, which implements a strategy used in CASC competitions for
 problems whose specifications are expected to be satisfiable.
 
-Invoked with mode ~case\under()sat~, Vampire tries a portfolio of approaches,
+Invoked with mode ~case_sat~, Vampire tries a portfolio of approaches,
 one of which succeeds and produces the message "Finite Model Found!"
 The logging output is a little terse, but seems to indicate that the
 successful approach involved choosing "~fmb~" (for 'finite model building
@@ -622,7 +622,7 @@ false, possibly with a counter-example.  Here, results are mixed.
 - When Vampire is invoked with ~--mode casc~, it too fails to prove
   the conjecture; some of its tactics time out, while others report
   only "Refutation not found, incomplete strategy".
-- When Vampire is invoked with ~--mode case\under()sat~~, however, the tactic
+- When Vampire is invoked with ~--mode case_sat~~, however, the tactic
   summarized as "fmb+10\under{}1\under{}av=off : fmbsr=1.6 : lma=on : nm=64 :
   nwc=3 : sp=reverse\under{}arity : urr=on\under{}258" reports "Finite Model Found!"
   and signals an SZS status of "CounterSatisfiable".
@@ -810,8 +810,8 @@ TCP is the transitive closure of p.
 (∀ x, y)(iden(x, y) ⇔ x = y)
 #+end_src
 
-As a set, /TCP_and_iden/ is the intersection of sets /TCP/ and /iden/.
-In the predicate-based translation we are using, /TCP_and_iden/ is the
+As a set, /TCP\under{}and\under{}iden/ is the intersection of sets /TCP/ and /iden/.
+In the predicate-based translation we are using, /TCP\under{}and\under{}iden/ is the
 logical conjuntion of predicates /TCP/ and /iden/.
 #+begin_src fopc
 (∀ x, y)(TCP_inter_iden(x, y) 
@@ -819,8 +819,8 @@ logical conjuntion of predicates /TCP/ and /iden/.
           (TCP(x, y) ∧ iden(x, y)))
 #+end_src
 
-The set /TCP_and_iden/ is empty (or equivalently:  the
-predicate /TCP_and_iden/ is true of no (x, y) pairs).
+The set /TCP\under{}and\under{}iden/ is empty (or equivalently:  the
+predicate /TCP\under{}and\under{}iden/ is true of no (x, y) pairs).
 #+begin_src fopc
 ¬(∃ x, y)(TCP_and_iden(x, y))
 #+end_src
@@ -969,7 +969,7 @@ also reports:
 #+begin_example
 % SZS status Unsatisfiable 
 #+end_example
-(Interestingly, this appears in the ~--mode case\under()sat~ output from
+(Interestingly, this appears in the ~--mode case_sat~ output from
 Vampire, but not in ~--mode=casc~".)
 
 Checking the axioms without the conjecture confirms that the axioms as

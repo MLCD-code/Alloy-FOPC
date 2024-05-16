@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-05-07 Tue 12:39 -->
+<!-- 2024-05-16 Thu 13:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Experiments with tree models in Alloy</title>
@@ -201,48 +201,48 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org8f407d3">1. The first Alloy model</a>
+<li><a href="#org4d6e495">1. The first Alloy model</a>
 <ul>
-<li><a href="#org96d6e3f">1.1. The Alloy</a></li>
-<li><a href="#org54da1b3">1.2. The FOPC translation</a>
+<li><a href="#orgecf9872">1.1. The Alloy</a></li>
+<li><a href="#orgdb6f47c">1.2. The FOPC translation</a>
 <ul>
-<li><a href="#orgad2d420">1.2.1. The signature declarations</a></li>
-<li><a href="#orgbd0fd90">1.2.2. The fact <i>OneRoot</i></a></li>
-<li><a href="#org9d4b86f">1.2.3. The fact <i>b_acyclic</i></a></li>
-<li><a href="#orgb6fe487">1.2.4. The nameless fact</a></li>
+<li><a href="#orgbfd1a4e">1.2.1. The signature declarations</a></li>
+<li><a href="#org73e7b56">1.2.2. The fact <i>OneRoot</i></a></li>
+<li><a href="#org5554238">1.2.3. The fact <i>b_acyclic</i></a></li>
+<li><a href="#org5ead4af">1.2.4. The nameless fact</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org1960227">2. Checking an example</a>
+<li><a href="#orgec88d0d">2. Checking an example</a>
 <ul>
-<li><a href="#orgdeccacb">2.1. The example</a></li>
-<li><a href="#orgb58b1c6">2.2. Expressing the example in FOPC</a></li>
-<li><a href="#org73a06ba">2.3. How to check that the example is allowed?</a></li>
-<li><a href="#org28d5f7a">2.4. A TPTP translation of the model and example</a></li>
-<li><a href="#orge49d665">2.5. Testing ways to run the example</a>
+<li><a href="#orga26a173">2.1. The example</a></li>
+<li><a href="#org197cc21">2.2. Expressing the example in FOPC</a></li>
+<li><a href="#org3f74c0b">2.3. How to check that the example is allowed?</a></li>
+<li><a href="#orgf6a2ff4">2.4. A TPTP translation of the model and example</a></li>
+<li><a href="#orgbeb55f4">2.5. Testing ways to run the example</a>
 <ul>
-<li><a href="#org8e22dbc">2.5.1. Initial attempt to test the example</a></li>
-<li><a href="#org926f994">2.5.2. Diagnosing the problem</a></li>
-<li><a href="#org2a08c68">2.5.3. A simpler way</a></li>
+<li><a href="#orgb791077">2.5.1. Initial attempt to test the example</a></li>
+<li><a href="#org971d9f3">2.5.2. Diagnosing the problem</a></li>
+<li><a href="#org504b3ea">2.5.3. A simpler way</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org40e2a81">3. Checking an assertion</a></li>
-<li><a href="#orga8ffc63">4. A second Alloy model</a></li>
-<li><a href="#org37806e6">5. A third model</a>
+<li><a href="#org28331e3">3. Checking an assertion</a></li>
+<li><a href="#orgaa0b242">4. A second Alloy model</a></li>
+<li><a href="#org6e68f53">5. A third model</a>
 <ul>
-<li><a href="#org7aa7a98">5.1. The Alloy of slide 10</a></li>
-<li><a href="#orgb39a108">5.2. Equivalent in FOPC</a></li>
-<li><a href="#org5befef4">5.3. The modification and a new conjecture</a></li>
-<li><a href="#org683a259">5.4. A TPTP rendering in FOF</a></li>
-<li><a href="#orgeac3c7e">5.5. Can <i>SingleParent</i> conjecture be proved?</a></li>
-<li><a href="#org7ceae9c">5.6. A TPTP rendering in TFF</a></li>
+<li><a href="#orgbd32f47">5.1. The Alloy of slide 10</a></li>
+<li><a href="#org9b145c2">5.2. Equivalent in FOPC</a></li>
+<li><a href="#org258f467">5.3. The modification and a new conjecture</a></li>
+<li><a href="#orgfe3e389">5.4. A TPTP rendering in FOF</a></li>
+<li><a href="#org46e21f1">5.5. Can <i>SingleParent</i> conjecture be proved?</a></li>
+<li><a href="#orgbc5161c">5.6. A TPTP rendering in TFF</a></li>
 </ul>
 </li>
-<li><a href="#orgfcb2668">6. Tentative conclusions</a></li>
-<li><a href="#org177003e">7. References</a></li>
+<li><a href="#orge92c165">6. Tentative conclusions</a></li>
+<li><a href="#org5e321d6">7. References</a></li>
 </ul>
 </div>
 </div>
@@ -267,12 +267,12 @@ notes about things that may or may not be important but which I don't
 want to forget.  The reader is requested to be patient.
 </p>
 
-<div id="outline-container-org8f407d3" class="outline-2">
-<h2 id="org8f407d3"><span class="section-number-2">1.</span> The first Alloy model</h2>
+<div id="outline-container-org4d6e495" class="outline-2">
+<h2 id="org4d6e495"><span class="section-number-2">1.</span> The first Alloy model</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-org96d6e3f" class="outline-3">
-<h3 id="org96d6e3f"><span class="section-number-3">1.1.</span> The Alloy</h3>
+<div id="outline-container-orgecf9872" class="outline-3">
+<h3 id="orgecf9872"><span class="section-number-3">1.1.</span> The Alloy</h3>
 <div class="outline-text-3" id="text-1-1">
 <p>
 The first model appears on slide 3:
@@ -348,12 +348,12 @@ objects of any signature.
 </div>
 </div>
 
-<div id="outline-container-org54da1b3" class="outline-3">
-<h3 id="org54da1b3"><span class="section-number-3">1.2.</span> The FOPC translation</h3>
+<div id="outline-container-orgdb6f47c" class="outline-3">
+<h3 id="orgdb6f47c"><span class="section-number-3">1.2.</span> The FOPC translation</h3>
 <div class="outline-text-3" id="text-1-2">
 </div>
-<div id="outline-container-orgad2d420" class="outline-4">
-<h4 id="orgad2d420"><span class="section-number-4">1.2.1.</span> The signature declarations</h4>
+<div id="outline-container-orgbfd1a4e" class="outline-4">
+<h4 id="orgbfd1a4e"><span class="section-number-4">1.2.1.</span> The signature declarations</h4>
 <div class="outline-text-4" id="text-1-2-1">
 <p>
 In our usual first-order calculus notation, we can perhaps render this
@@ -441,8 +441,8 @@ bit wordier.
 </div>
 </div>
 
-<div id="outline-container-orgbd0fd90" class="outline-4">
-<h4 id="orgbd0fd90"><span class="section-number-4">1.2.2.</span> The fact <i>OneRoot</i></h4>
+<div id="outline-container-org73e7b56" class="outline-4">
+<h4 id="org73e7b56"><span class="section-number-4">1.2.2.</span> The fact <i>OneRoot</i></h4>
 <div class="outline-text-4" id="text-1-2-2">
 <p>
 <i>OneRoot</i> says that for all objects, the object is the Root if and
@@ -456,8 +456,8 @@ only if no object has it as a child.
 </div>
 </div>
 
-<div id="outline-container-org9d4b86f" class="outline-4">
-<h4 id="org9d4b86f"><span class="section-number-4">1.2.3.</span> The fact <i>b_acyclic</i></h4>
+<div id="outline-container-org5554238" class="outline-4">
+<h4 id="org5554238"><span class="section-number-4">1.2.3.</span> The fact <i>b_acyclic</i></h4>
 <div class="outline-text-4" id="text-1-2-3">
 <p>
 The fact <i>b_acyclic</i> is, closely paraphrased, a statement
@@ -512,8 +512,8 @@ a simpler statement of the fact:
 </div>
 </div>
 </div>
-<div id="outline-container-orgb6fe487" class="outline-4">
-<h4 id="orgb6fe487"><span class="section-number-4">1.2.4.</span> The nameless fact</h4>
+<div id="outline-container-org5ead4af" class="outline-4">
+<h4 id="org5ead4af"><span class="section-number-4">1.2.4.</span> The nameless fact</h4>
 <div class="outline-text-4" id="text-1-2-4">
 <p>
 The third fact specifies that B is the parent of C and C the parent of
@@ -527,18 +527,36 @@ holds for the pairs (x, y) and (y, z).
 <pre class="src src-fopc">(∀x : B)(∀y : C)(∀z : D)(b(x, y) ∧ b(y, z))
 </pre>
 </div>
+<p>
+<i>Later note:</i> The formulation just given exploits our knowledge of the
+cardinalities in a way that makes it hard to produce mechanically.  If
+we stick to the surface meaning of the Alloy formulation <code>C in B.b and
+D in C.b</code>, without applying other knowledge, we would want something
+more like the following.
+</p>
+<div class="org-src-container">
+<pre class="src src-fopc">(all x : B)(some y : C)(b(x, y))
+and
+(all y : C)(some z : D)(b(y, z))
+</pre>
+</div>
+<p>
+It ought to be possible to show that from the more elaborate
+translation just given and the signature facts that say that
+<i>B</i>, <i>C</i>, and <i>D</i> are singletons, the earlier statement follows.
+</p>
 </div>
 </div>
 </div>
 </div>
 
 
-<div id="outline-container-org1960227" class="outline-2">
-<h2 id="org1960227"><span class="section-number-2">2.</span> Checking an example</h2>
+<div id="outline-container-orgec88d0d" class="outline-2">
+<h2 id="orgec88d0d"><span class="section-number-2">2.</span> Checking an example</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orgdeccacb" class="outline-3">
-<h3 id="orgdeccacb"><span class="section-number-3">2.1.</span> The example</h3>
+<div id="outline-container-orga26a173" class="outline-3">
+<h3 id="orga26a173"><span class="section-number-3">2.1.</span> The example</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 Given the model above, Alloy can generate examples, including one we
@@ -564,7 +582,7 @@ Or, as an image:
 </p>
 
 
-<div id="orgc54b69a" class="figure">
+<div id="org488f98d" class="figure">
 <p><img src="./images//jve-tree.dot.png" alt="jve-tree.dot.png" />
 </p>
 </div>
@@ -576,8 +594,8 @@ that this instance is consistent with the constraints of the model?
 </div>
 </div>
 
-<div id="outline-container-orgb58b1c6" class="outline-3">
-<h3 id="orgb58b1c6"><span class="section-number-3">2.2.</span> Expressing the example in FOPC</h3>
+<div id="outline-container-org197cc21" class="outline-3">
+<h3 id="org197cc21"><span class="section-number-3">2.2.</span> Expressing the example in FOPC</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 I'm not completely certain of the right way to express this instance
@@ -655,8 +673,8 @@ We can translate either of these into FOL; let's pick the second.
 </div>
 </div>
 
-<div id="outline-container-org73a06ba" class="outline-3">
-<h3 id="org73a06ba"><span class="section-number-3">2.3.</span> How to check that the example is allowed?</h3>
+<div id="outline-container-org3f74c0b" class="outline-3">
+<h3 id="org3f74c0b"><span class="section-number-3">2.3.</span> How to check that the example is allowed?</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
 [Note: the discussion below exhibits a certain amount of confusion
@@ -703,8 +721,8 @@ constraints is to gain a tool for use on manually constructed examples.
 </div>
 </div>
 
-<div id="outline-container-org28d5f7a" class="outline-3">
-<h3 id="org28d5f7a"><span class="section-number-3">2.4.</span> A TPTP translation of the model and example</h3>
+<div id="outline-container-orgf6a2ff4" class="outline-3">
+<h3 id="orgf6a2ff4"><span class="section-number-3">2.4.</span> A TPTP translation of the model and example</h3>
 <div class="outline-text-3" id="text-2-4">
 <p>
 In TPTP notation, first-order formulas are labeled as such and 
@@ -824,12 +842,12 @@ fof(example1, definition,
 </div>
 </div>
 
-<div id="outline-container-orge49d665" class="outline-3">
-<h3 id="orge49d665"><span class="section-number-3">2.5.</span> Testing ways to run the example</h3>
+<div id="outline-container-orgbeb55f4" class="outline-3">
+<h3 id="orgbeb55f4"><span class="section-number-3">2.5.</span> Testing ways to run the example</h3>
 <div class="outline-text-3" id="text-2-5">
 </div>
-<div id="outline-container-org8e22dbc" class="outline-4">
-<h4 id="org8e22dbc"><span class="section-number-4">2.5.1.</span> Initial attempt to test the example</h4>
+<div id="outline-container-orgb791077" class="outline-4">
+<h4 id="orgb791077"><span class="section-number-4">2.5.1.</span> Initial attempt to test the example</h4>
 <div class="outline-text-4" id="text-2-5-1">
 <p>
 [Note: the approach described here does not now appear to be the
@@ -881,8 +899,8 @@ prover?
 </div>
 </div>
 
-<div id="outline-container-org926f994" class="outline-4">
-<h4 id="org926f994"><span class="section-number-4">2.5.2.</span> Diagnosing the problem</h4>
+<div id="outline-container-org971d9f3" class="outline-4">
+<h4 id="org971d9f3"><span class="section-number-4">2.5.2.</span> Diagnosing the problem</h4>
 <div class="outline-text-4" id="text-2-5-2">
 <p>
 After a digression to a simpler example, I tried this again, with a
@@ -919,8 +937,8 @@ Either way it takes a little over 20 milliseconds.
 </div>
 </div>
 
-<div id="outline-container-org2a08c68" class="outline-4">
-<h4 id="org2a08c68"><span class="section-number-4">2.5.3.</span> A simpler way</h4>
+<div id="outline-container-org504b3ea" class="outline-4">
+<h4 id="org504b3ea"><span class="section-number-4">2.5.3.</span> A simpler way</h4>
 <div class="outline-text-4" id="text-2-5-3">
 <p>
 As the reader may know, some automatic theorem provers work by
@@ -965,7 +983,7 @@ calling the provers.  Both E and Vampire accept a problem description
 on the standard input, so the shell command can look like this:
 </p>
 
-<pre class="example" id="orge7c6c4e">
+<pre class="example" id="org152c37c">
 cat tree.jve1.axioms.p \
     tree.jve1.ex-def.p \
     tree.jve1.ex-hyp.p \
@@ -992,7 +1010,7 @@ strategies, but none succeed here.
 <p>
 Vampire can be invoked thus:
 </p>
-<pre class="example" id="orgdd35558">
+<pre class="example" id="org3c521f0">
 cat tree.jve1.axioms.p \
     tree.jve1.ex-def.p \
     tree.jve1.ex-hyp.p \
@@ -1001,13 +1019,13 @@ cat tree.jve1.axioms.p \
 </pre>
 
 <p>
-Here, we have specified a time limit of 30 seconds, and a <code>case\under()sat</code>
+Here, we have specified a time limit of 30 seconds, and a <code>case_sat</code>
 mode, which implements a strategy used in CASC competitions for
 problems whose specifications are expected to be satisfiable.
 </p>
 
 <p>
-Invoked with mode <code>case\under()sat</code>, Vampire tries a portfolio of approaches,
+Invoked with mode <code>case_sat</code>, Vampire tries a portfolio of approaches,
 one of which succeeds and produces the message "Finite Model Found!"
 The logging output is a little terse, but seems to indicate that the
 successful approach involved choosing "<code>fmb</code>" (for 'finite model building
@@ -1020,7 +1038,7 @@ direct way to get a result here is to invoke Vampire with the option
 Note:  using the fmb option appears to cause some sort of problem.
 Immediately after the "Finite Model Found!" message, I get the messages
 </p>
-<pre class="example" id="orgb504976">
+<pre class="example" id="org7b38748">
 % SZS status Satisfiable for 
 164958 Aborted by signal SIGSEGV on 
 </pre>
@@ -1032,8 +1050,8 @@ followed by normal-looking output from Vampire.
 </div>
 </div>
 
-<div id="outline-container-org40e2a81" class="outline-2">
-<h2 id="org40e2a81"><span class="section-number-2">3.</span> Checking an assertion</h2>
+<div id="outline-container-org28331e3" class="outline-2">
+<h2 id="org28331e3"><span class="section-number-2">3.</span> Checking an assertion</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Having presented the example above, van Eijck remarks:
@@ -1087,7 +1105,7 @@ out before reaching a conclusion.</li>
 <li>When Vampire is invoked with <code>--mode casc</code>, it too fails to prove
 the conjecture; some of its tactics time out, while others report
 only "Refutation not found, incomplete strategy".</li>
-<li>When Vampire is invoked with <code>--mode case\under()sat~</code>, however, the tactic
+<li>When Vampire is invoked with <code>--mode case_sat~</code>, however, the tactic
 summarized as "fmb+10_1_av=off : fmbsr=1.6 : lma=on : nm=64 :
 nwc=3 : sp=reverse_arity : urr=on_258" reports "Finite Model Found!"
 and signals an SZS status of "CounterSatisfiable".</li>
@@ -1102,8 +1120,8 @@ however much they may overlap in principle.
 </div>
 </div>
 
-<div id="outline-container-orga8ffc63" class="outline-2">
-<h2 id="orga8ffc63"><span class="section-number-2">4.</span> A second Alloy model</h2>
+<div id="outline-container-orgaa0b242" class="outline-2">
+<h2 id="orgaa0b242"><span class="section-number-2">4.</span> A second Alloy model</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 The second model appears on slide 7 of van Eijck's presentation; it
@@ -1167,12 +1185,12 @@ much like work.  So we move on to van Eijck's third model.
 </div>
 </div>
 
-<div id="outline-container-org37806e6" class="outline-2">
-<h2 id="org37806e6"><span class="section-number-2">5.</span> A third model</h2>
+<div id="outline-container-org6e68f53" class="outline-2">
+<h2 id="org6e68f53"><span class="section-number-2">5.</span> A third model</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-org7aa7a98" class="outline-3">
-<h3 id="org7aa7a98"><span class="section-number-3">5.1.</span> The Alloy of slide 10</h3>
+<div id="outline-container-orgbd32f47" class="outline-3">
+<h3 id="orgbd32f47"><span class="section-number-3">5.1.</span> The Alloy of slide 10</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 On slide 9, van Eijck considers the definition of trees starting not
@@ -1210,8 +1228,8 @@ run show for 5
 </div>
 </div>
 
-<div id="outline-container-orgb39a108" class="outline-3">
-<h3 id="orgb39a108"><span class="section-number-3">5.2.</span> Equivalent in FOPC</h3>
+<div id="outline-container-org9b145c2" class="outline-3">
+<h3 id="org9b145c2"><span class="section-number-3">5.2.</span> Equivalent in FOPC</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 We can render this new model in first-order logic as follows.
@@ -1346,8 +1364,8 @@ TCP is the transitive closure of p.
 </div>
 
 <p>
-As a set, <i>TCP<sub>and</sub><sub>iden</sub></i> is the intersection of sets <i>TCP</i> and <i>iden</i>.
-In the predicate-based translation we are using, <i>TCP<sub>and</sub><sub>iden</sub></i> is the
+As a set, <i>TCP_and_iden</i> is the intersection of sets <i>TCP</i> and <i>iden</i>.
+In the predicate-based translation we are using, <i>TCP_and_iden</i> is the
 logical conjuntion of predicates <i>TCP</i> and <i>iden</i>.
 </p>
 <div class="org-src-container">
@@ -1358,8 +1376,8 @@ logical conjuntion of predicates <i>TCP</i> and <i>iden</i>.
 </div>
 
 <p>
-The set <i>TCP<sub>and</sub><sub>iden</sub></i> is empty (or equivalently:  the
-predicate <i>TCP<sub>and</sub><sub>iden</sub></i> is true of no (x, y) pairs).
+The set <i>TCP_and_iden</i> is empty (or equivalently:  the
+predicate <i>TCP_and_iden</i> is true of no (x, y) pairs).
 </p>
 <div class="org-src-container">
 <pre class="src src-fopc">¬(∃ x, y)(TCP_and_iden(x, y))
@@ -1392,8 +1410,8 @@ little wordier:
 </div>
 </div>
 
-<div id="outline-container-org5befef4" class="outline-3">
-<h3 id="org5befef4"><span class="section-number-3">5.3.</span> The modification and a new conjecture</h3>
+<div id="outline-container-org258f467" class="outline-3">
+<h3 id="org258f467"><span class="section-number-3">5.3.</span> The modification and a new conjecture</h3>
 <div class="outline-text-3" id="text-5-3">
 <p>
 At this point, van Eijck asks whether the fact <i>SingleParent</i> in its
@@ -1409,8 +1427,8 @@ model into TPTP notation.
 </div>
 </div>
 
-<div id="outline-container-org683a259" class="outline-3">
-<h3 id="org683a259"><span class="section-number-3">5.4.</span> A TPTP rendering in FOF</h3>
+<div id="outline-container-orgfe3e389" class="outline-3">
+<h3 id="orgfe3e389"><span class="section-number-3">5.4.</span> A TPTP rendering in FOF</h3>
 <div class="outline-text-3" id="text-5-4">
 <p>
 In the FOF (first-order formula) language of the TPTP project
@@ -1527,18 +1545,18 @@ fof(singleparent, conjecture,
 </div>
 </div>
 
-<div id="outline-container-orgeac3c7e" class="outline-3">
-<h3 id="orgeac3c7e"><span class="section-number-3">5.5.</span> Can <i>SingleParent</i> conjecture be proved?</h3>
+<div id="outline-container-org46e21f1" class="outline-3">
+<h3 id="org46e21f1"><span class="section-number-3">5.5.</span> Can <i>SingleParent</i> conjecture be proved?</h3>
 <div class="outline-text-3" id="text-5-5">
 <p>
 Both E and Vampire quickly prove the <i>SingleParent</i> conjecture, but each
 also reports:
 </p>
-<pre class="example" id="org2511b30">
+<pre class="example" id="org8126d96">
 % SZS status Unsatisfiable 
 </pre>
 <p>
-(Interestingly, this appears in the <code>--mode case\under()sat</code> output from
+(Interestingly, this appears in the <code>--mode case_sat</code> output from
 Vampire, but not in <code>--mode=casc</code>".)
 </p>
 
@@ -1571,8 +1589,8 @@ of TPTP.
 </div>
 </div>
 
-<div id="outline-container-org7ceae9c" class="outline-3">
-<h3 id="org7ceae9c"><span class="section-number-3">5.6.</span> A TPTP rendering in TFF</h3>
+<div id="outline-container-orgbc5161c" class="outline-3">
+<h3 id="orgbc5161c"><span class="section-number-3">5.6.</span> A TPTP rendering in TFF</h3>
 <div class="outline-text-3" id="text-5-6">
 <p>
 In the TFF (typed first-order formula) language of the TPTP project,
@@ -1750,8 +1768,8 @@ proved it, in both <code>--auto</code> and <code>--auto-schedule</code>.
 </div>
 </div>
 
-<div id="outline-container-orgfcb2668" class="outline-2">
-<h2 id="orgfcb2668"><span class="section-number-2">6.</span> Tentative conclusions</h2>
+<div id="outline-container-orge92c165" class="outline-2">
+<h2 id="orge92c165"><span class="section-number-2">6.</span> Tentative conclusions</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 The work described here seems to provide a rudimentary demonstration
@@ -1890,8 +1908,8 @@ lists and so on.)
 
 
 
-<div id="outline-container-org177003e" class="outline-2">
-<h2 id="org177003e"><span class="section-number-2">7.</span> References</h2>
+<div id="outline-container-org5e321d6" class="outline-2">
+<h2 id="org5e321d6"><span class="section-number-2">7.</span> References</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li><p>
@@ -1912,7 +1930,7 @@ On the Web at various places including
 <div id="postamble" class="status">
 <p class="date">Date: 28 March - 12 April 2024, resumed 2-4 May 2024</p>
 <p class="author">Author: CMSMcQ</p>
-<p class="date">Created: 2024-05-07 Tue 12:39</p>
+<p class="date">Created: 2024-05-16 Thu 13:17</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
