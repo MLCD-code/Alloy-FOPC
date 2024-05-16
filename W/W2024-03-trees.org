@@ -200,6 +200,19 @@ holds for the pairs (x, y) and (y, z).
 #+begin_src fopc
 (∀x : B)(∀y : C)(∀z : D)(b(x, y) ∧ b(y, z))
 #+end_src
+/Later note:/ The formulation just given exploits our knowledge of the
+cardinalities in a way that makes it hard to produce mechanically.  If
+we stick to the surface meaning of the Alloy formulation ~C in B.b and
+D in C.b~, without applying other knowledge, we would want something
+more like the following.
+#+begin_src fopc
+(all x : B)(some y : C)(b(x, y))
+and
+(all y : C)(some z : D)(b(y, z))
+#+end_src
+It ought to be possible to show that from the more elaborate
+translation just given and the signature facts that say that
+/B/, /C/, and /D/ are singletons, the earlier statement follows.
 
 
 * Checking an example
