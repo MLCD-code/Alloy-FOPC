@@ -51,6 +51,10 @@ rule applies to quantifications: we can write ∃x P(x), or (∃x)P(x),
 but if the quantifier's scope includes an operator, parentheses are
 needed:  ∃x (P(x) ∧ Q(x)).
 
+We assume that for applications of logic to a domain (what Quine calls
+post-foundational systems), it is important for identifiers to be
+mnemonic, and (thus) that identifiers will often be longer than one
+character.  
 
 * Language XS:  sentential logic
 
@@ -391,7 +395,7 @@ For the record, a survey of some sources shows the following:
 |            | \neg   | \wedge  | \vee |             |          |        |        |
 |------------+--------+---------+------+-------------+----------+--------+--------|
 
-* Notes:
+,* Notes:
 - The row labeled 'unnamed' is from Jeffrey's appendix on notation.
 - Quine 1941 is /Element logic/, revised edition.
 - Smullyan is /First-order logic/.
@@ -521,6 +525,101 @@ Some negative examples should be added.  But for
 now, this may suffice.
 
 * Language S:  first-order logic
+
+Language S adds the following constructs to language XS:
+- universal and existential quantification
+- constants and variables denoting individuals rather than propositions
+
+** Note on different uses of identifiers 
+We can thus distinguish several classes of names:
+- propositional variables
+- propositional constants
+- predicate names (always constants)
+- functors (always constants)
+
+|--------------+---------------+---------------|
+|              | Propositions  | Individuals   |
+|--------------+---------------+---------------|
+| no arguments | Propositional | (Individual)  |
+|              | variables     | variables     |
+|              | and constants | and constants |
+|--------------+---------------+---------------|
+| /n/-ary      | Predicate     | Functors      |
+|              | names         |               |
+|--------------+---------------+---------------|
+
+In some usages, syntactic distinctions are made for these classes of
+names (lower- vs upper-case, regions of the alphabet, Latin vs Greek
+letters), but in those usages identifiers are typically also limited
+to single characters and empirically the identifiers seldom have much
+mnemonic value.  Here, the distinctions are made as follows:
+- Expressions denoting individuals and those denoting propositions are
+  distinguished by context: an entire formula expresses a proposition,
+  while an argument to a predicate or functor denotes an individual.
+- For expressions with arguments, the functor or predicate name is
+  always taken to be a constant: allowing variables would make it a
+  higher-order logic.
+- In expressions without arguments, the distinction between variables
+  and constants is made as above in XS: variables are unmarked,
+  constants marked.
+ 
+** Variables and constants
+[to be supplied]
+** Quantification
+[to be supplied]
+  
+
 * Language M:  first-order logic with identity and functions
+
+Vis-a-vis language S, language M adds:
+- identity and the symbol "~=~"
+- functions
+
+Since the function syntax always uses parentheses, and functors are
+always constants, language M extends the mechanisms for referring to
+an individual: a specific individual can be referred to either by
+using a constant like "~'f'~" or "~‹f›~" or by using a zero-argument
+function expression like "~f()~".
+
+[Full definition to be supplied.]
+
 * Language L:  additional convenience features
+
+Language L adds a number of convenience features to language M:
+- typed quantifications (for all /x/ of type /T/, ...; there is
+  some /x/ of type /T/ such that ...)
+- unique existential quantification (there exists exactly one
+  individual such that ...)
+- Skolem expressions (the unique individual who ...)
+- negated existential quantification (there is no /x/ such that ...)
+- /lone/ existential quantification (there is at most one /x/ such
+  that ...)
+
+These are all intended as idioms for concise expression of commonly
+used patterns; for each new construct, we specify a standard
+translation into language M.
+
+[Full definition to be supplied.]
+
 * Language XS: first-order logic plus set theory
+
+Language XS adds sets /(and tuples? tbd)/ to the universe of
+discourse.  Concretely it adds:
+- the ability to declare variables as denoting sets of a given type
+- syntax for tuples
+- the ability to declare variables as denoting tuples in a given
+  relation (with symbols allowing the user to distinguish total
+  from partial functions, injections, and bijections) 
+- symbols for standard set operations (membership, complementation,
+  union, intersection, subset relation, set difference)
+- set comprehensions
+
+/(The inclusion of tuples, set comprehensions, and various forms of
+functions and relations is uncertain.  Our initial instinct was to
+exclude them for simplicity and reliability, since the ground has
+proved so treacherous for so many.  But it may be that once sets are
+added, we have tuples and relations whether we want them or not.  And
+in that case, we might as well have set comprehensions to make them
+easier to talk about.)/
+
+[Full definition to be supplied.]
