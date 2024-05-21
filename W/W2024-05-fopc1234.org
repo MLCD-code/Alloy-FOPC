@@ -97,9 +97,10 @@ whitespace characters or comments; optional space is zero or more.
 #+end_src
 
 *** Comments
-A comment is a string of characters beginning with "/*" and ending
-with "*/" which can contain other comments, but not unmatched occurrences
-of those delimiter strings.  Experience shows that this can easily be
+A comment is a string of characters beginning with "\zwnj/\zwnj*"
+(slash + asterisk) and ending with "\zwnj*\zwnj/" (asterisk + slash).
+Comments may contain other comments, but not unmatched occurrences of
+those delimiter strings.  Experience shows that this can easily be
 formulated wrong, so we will start with a step-by-step development.
 Within the comment, we can be in any of several states:
 - *default*: the default state: nothing special has happened -- in
@@ -249,7 +250,7 @@ check can be done with
 grep ixml:state comments-*.xml
 #+end_example
 
-*** Recapitulation
+*** Recapitulation (comments)
 We can sum up these low-level rules thus:
 #+name: Basics
 #+begin_src ixml :noweb-ref Basics :noweb yes
@@ -279,11 +280,16 @@ but we believe we have seen both forms in German typesetting.)
 { XS Atomics:  propositional variables and constants }
 prop-var = @name.
 prop-constant = quoted-name; quoted-string.
--quoted-name = -#27, @name, -#27 { #27 is typewriter apostrophe }
-             | -#60, @name, -#27 { #60 is typewriter grave accent }
-             | -#2018, @name, -#2019 { hi 6, hi 9 }
-             | -#203A, @name, -#2039 { single guillemets pointing in }
-             | -#2039, @name, -#203A { single guillemets pointing out }
+-quoted-name = -#27, @name, -#27 
+               { #27 is typewriter apostrophe }
+             | -#60, @name, -#27 
+               { #60 is typewriter grave accent }
+             | -#2018, @name, -#2019 
+               { hi 6, hi 9 }
+             | -#203A, @name, -#2039 
+               { single guillemets pointing in }
+             | -#2039, @name, -#203A 
+               { single guillemets pointing out }
              .
 #+end_src
 
@@ -293,8 +299,8 @@ enclosed in double quotes, so as to make ~"Socrates is a Greek."~ and
 after all, why not?
 #+name: Quoted-strings
 #+begin_src ixml
-@quoted-string > string =
-                 -#22, (~[#22; #A]; (#22, #22))*, -#22
+@quoted-string
+      > string = -#22, (~[#22; #A]; (#22, #22))*, -#22
                | -#60, -#60, ~[#22; #60; #A]*, -#27, -#27 
                | -#60, -#60, ~[#22; #60; #A]*, -#22 
                | -#201C, ~[#201C; #201D; #A]*, -#201D
@@ -331,11 +337,17 @@ and square brackets, to ease the reading of complex formulas.
                | -"[", os, -formula, os, -"]".
 #+end_src
 
-A /formula/ in general is a basic formula or one of several kinds of compound
-formulas.  
+A /formula/ in general is a basic formula or one of several kinds of
+compound formulas.
 #+begin_src ixml :noweb-ref XS-Formulas
-{ Formulas in general }
-formula = basic-formula | not | and | or | implies | iff.
+{ XS Formulas in general }
+formula = basic-formula | compound-formula.
+-compound-formula = not | and | or | implies | iff.
+#+end_src
+
+Each logical operator defines a distinct type of compound formula.
+#+begin_src ixml :noweb-ref XS-Compound-formulas
+{ Compound formulas }
     not = (NOT, os)+, basic-formula.
     and = basic-formula ++ (os, AND, os), os, AND, os, (basic-formula | not).
      or = basic-formula ++ (os, OR, os),  os, OR,  os, (basic-formula | not).
@@ -378,22 +390,23 @@ used in combination programming language / theorem provers like ACL2,
 Lean, and Agda.  /Not/ included: operators for C.
 
 For the record, a survey of some sources shows the following:
-|------------+--------+---------+------+-------------+----------+--------+--------|
-| Source     | not    | and     | or   | implies     | iff      | forall | exists |
-|------------+--------+---------+------+-------------+----------+--------+--------|
-| Jeffrey    | —      | &       | ∨    | →           | ↔        | (x)    | (∃x)   |
-| unnamed*   | ~, ⁓   | ·       | +    | ⊃           | ≡        | ⋀x, Πx | ⋁x, Σx |
-| Quine 1941 | ⁓, p̄   | ·       | ∨    | ⊃           | ≡        | (x)    | (∃x)   |
-| Smullyan   | ⁓      | ∧       | ∨    | ⊃           | ↔        | ∀x     | ∃x     |
-| Quine 1950 | —, p̄   |         | ∨    | →           | ↔        | ∀x     | ∃x     |
-| Alloy      | not, ! | and, && | or* ​ | implies, => | iff, <=> | all x  | some x |
-| TLA+       | ¬      | ∧       | ∨    | ⇒           | ≡        | ∀x     | ∃x     |
-| TLA+ ASCII | ~      | /\      | \/   | ﻿=>          | <=>      |        |        |
-|            | \lnot  | \land   | \lor |             | \equiv   |        |        |
-|            | \neg   |         |      |             |          |        |        |
-| Agda ASCII | \lnot  | \and    | \or  |             |          |        |        |
-|            | \neg   | \wedge  | \vee |             |          |        |        |
-|------------+--------+---------+------+-------------+----------+--------+--------|
+|------------+--------------+---------------+------------------+-----------+---------------+--------+--------|
+| Source     | not          | and           | or               | implies   | iff           | forall | exists |
+|------------+--------------+---------------+------------------+-----------+---------------+--------+--------|
+| Jeffrey    | —            | &             | ∨                | →         | ↔             | (x)    | (∃x)   |
+| unnamed*   | ~, ⁓         | ·             | +                | ⊃         | ≡             | ⋀x, Πx | ⋁x, Σx |
+| Quine 1941 | ⁓, p̄         | ·             | ∨                | ⊃         | ≡             | (x)    | (∃x)   |
+| Smullyan   | ⁓            | ∧             | ∨                | ⊃         | ↔             | ∀x     | ∃x     |
+| Quine 1950 | —, p̄         |               | ∨                | →         | ↔             | ∀x     | ∃x     |
+| Alloy      | not          | and           | or \zwnj         | implies   | iff           | all x  | some x |
+|            | !            | &&            | \vert\vert \zwnj | \zwnj{}=> | <=>           | all x  | some x |
+| TLA+       | ¬            | ∧             | ∨                | ⇒         | ≡             | ∀x     | ∃x     |
+| TLA+ ASCII | ~            | /\            | \/               | ﻿=>        | <=>           |        |        |
+|            | \lnot        | \\zwnj{}land  | \\zwnj{}lor      |           | \\zwnj{}equiv |        |        |
+|            | \\zwnj{}neg  |               |                  |           |               |        |        |
+| Agda ASCII | \\zwnj{}lnot | \\zwnj{}and   | \\zwnj{}or       |           |               |        |        |
+|            | \\zwnj{}neg  | \\zwnj{}wedge | \\zwnj{}vee      |           |               |        |        |
+|------------+--------------+---------------+------------------+-----------+---------------+--------+--------|
 
 ,* Notes:
 - The row labeled 'unnamed' is from Jeffrey's appendix on notation.
@@ -412,34 +425,37 @@ meaning 'iff'.
 
 #+begin_src ixml :noweb-ref Logical-operators
 { Logical operators }
-@NOT = "not"; "NOT";
-       "-"; "—" { #2014 em dash };
-       "¬" { #AC not sign }; 
-       "~" { #7E tilde }; 
-       "⁓" { #2053 swung dash }. 
-@AND = "and"; "AND"; 
-       "∧" { #2227 }; 
-       "&"; "&&"; "\lor"; "\or";
-       "/\" { emacs here wants a " };
-       "\land"; "\and"; "\wedge".
-@OR = "or"; "OR";
-      "|"; "||"; 
-      "∨" { #2228 logical or };
-      "\/"; "\lor"; "\or"; "\vee".
-@IMPLIES = "implies"; "IMPLIES"; 
-           "only", os, "if"; "ONLY", os, "IF";
-           "⊃" { #2283 superset of };
-           "→" { #2192 right arrow }; 
-           "->";
-           "⇒" { #21D2 right double arrow }; 
-           "=>".
-@IFF = "iff"; "IFF";
-       "↔" { #2194 left right arrow };
-       "<->";
-       "⇔" { #21D4 left right double arrow };
-       "<=>";
-       "≡" { #2261 identical to };
-       "\equiv".
+@NOT > op = "not"; "NOT";
+            "-"; 
+            "—" { #2014 em dash };
+            "¬" { #AC not sign }; 
+            "~" { #7E tilde }; 
+            "⁓" { #2053 swung dash }. 
+@AND > op = "and"; "AND"; 
+            "∧" { #2227 }; 
+            "&"; "&&"; "\lor"; "\or";
+            "/\" { emacs here wants a " };
+            "\land"; "\and"; "\wedge".
+@OR > op  = "or"; "OR";
+            "|"; 
+            "||"; 
+            "∨" { #2228 logical or };
+            "\/"; 
+            "\lor"; "\or"; "\vee".
+@IMPLIES > op = "implies"; "IMPLIES"; 
+            "only", os, "if"; "ONLY", os, "IF";
+            "⊃" { #2283 superset of };
+            "→" { #2192 right arrow }; 
+            "->";
+            "⇒" { #21D2 right double arrow }; 
+            "=>".
+@IFF > op = "iff"; "IFF";
+            "↔" { #2194 left right arrow };
+            "<->";
+            "⇔" { #21D4 left right double arrow };
+            "<=>";
+            "≡" { #2261 identical to };
+            "\equiv".
 #+end_src
 ** Recapitulation
 The entire XS grammar can now be summarized:
@@ -447,6 +463,7 @@ The entire XS grammar can now be summarized:
 { xs.ixml:  grammar for sentential logic }
 xs-formulas = os, formula++os, os.
 <<XS-Formulas>>
+<<XS-Compound-formulas>>
 <<XS-Basic-formulas>>
 
 <<XS-Atomics>>
@@ -486,7 +503,7 @@ Then, some propositional constants.
 ‹Russell-died-in-1970›
 `Prop-2b'
 
-/* quoted strings as propositional constants */
+/* Double-quoted strings as propositional constants */
 "Frege was born in 1848"
 ``he is at his desk''
 “he is eating lunch”
@@ -531,11 +548,14 @@ Language S adds the following constructs to language XS:
 - constants and variables denoting individuals rather than propositions
 
 ** Note on different uses of identifiers 
-We can thus distinguish several classes of names:
-- propositional variables
-- propositional constants
+At thyis point, several classes of names must be distinguished:
+- variables ranging over propositions
+- constants denoting specific propositions
+- variables ranging over individuals
+- constants denoting specific individuals
 - predicate names (always constants)
-- functors (always constants)
+- functors (always constants; not present in language S,
+  but added in M)
 
 |--------------+---------------+---------------|
 |              | Propositions  | Individuals   |
@@ -562,12 +582,137 @@ mnemonic value.  Here, the distinctions are made as follows:
 - In expressions without arguments, the distinction between variables
   and constants is made as above in XS: variables are unmarked,
   constants marked.
- 
+
+/(TBD:  eliminate propositional variables and constants?)/
+
 ** Variables and constants
-[to be supplied]
+The definitions of /prop-var/ and /prop-constant/ from XS
+can be re-used without change.
+
+In addition, we will need variables and constants for
+individuals; they will have the same syntax.
+#+begin_src ixml :noweb-ref S-Atomics
+{ S-Atomics:  terms for individuals }
+var = @name.
+constant = quoted-name.
+#+end_src
+
+** Predicates
+In language S, propositions can take the form of a predicate
+symbol followed by a parenthesized list of arguments separated
+by commas (and whitespace).  Arguments are variables or constants
+denoting individuals.
+#+begin_src ixml :noweb-ref Predicates
+{ Predicates }
+predicate = @name, -"(", os, arg**comma, os, -")".
+-arg = var; constant.
+-comma = os, -",", os.
+#+end_src
+
+Note:
+- No whitespace is allowed between the predicate name and the opening
+  parenthesis for the list of arguments.
+- The argument list must be surrounded by round parentheses; square
+  brackets or other forms of brackets are not accepted.
+
 ** Quantification
-[to be supplied]
+If /F/ is a formula, then /F/ preceded by a universal or existential
+quantifier is a formula.  This is a universal or existential
+quantification symbol (/FORALL/ or /THERE-EXIST/) followed by one or
+more variables, the entire quantifier enclosed in (round) parentheses.
+For universal quantification over a single variable, the operator can
+be omitted (so "~(x)~" is allowed as an alternate for "~(all x)~").
+Whitespace is optional after symbols, required after operators spelled
+out with letters.
+#+begin_src ixml :noweb-ref Quantification
+{ Quantified formulas }
+all = universal-quantifier, bracketed-formula.
+exist = existential-quantifier, bracketed-formula.
+
+-universal-quantifier = 
+        -"(", os, FORALL-sym, os, vars, os, -")"
+      | -"(", os, FORALL-lex, RS, vars, os, -")"
+      | -"(", os, one-var, os, -")"
+      .
+-existential-quantifier = 
+        -"(", os, EXIST-sym, os, vars, os, -")"
+      | -"(", os, EXIST-lex, RS, vars, os, -")"
+      .
+@vars = var ++ comma-space.
+@one-var > vars = var.
+-comma-space = os, -",", os, +" ".
+#+end_src
+
+As for the logical operators, we allow fairly wide variation in
+the spelling of the quantification symbols.
+#+begin_src ixml :noweb-ref Quantifier-ops
+{ Operators for quantifiers }
+@FORALL-lex > op = "all" | "ALL"
+      | "for", os, "all" | "FOR", os, "ALL"
+      | "A"
+      .
+@FORALL-sym > op = "∀" { #2200 for all }
+      .
+@EXIST-lex > op = "exists" | "EXISTS"
+      | "exist" | "EXIST"
+      | "some" | "SOME"
+      | "E"
+      .
+@EXIST-sym > op = "∃" { #2203 there exists }
+      .
+#+end_src
   
+** Formulas
+In language S, the set of basic formulas grows to include
+predicates.  
+#+begin_src ixml :noweb-ref S-Basic-formulas
+{ S: Basic formulas }
+-basic-formula = 
+        prop-var 
+      | prop-constant 
+      | predicate
+      | bracketed-formula
+      .
+-bracketed-formula =  
+        -"(", os, -formula, os, -")"
+      | -"[", os, -formula, os, -"]"
+      .
+#+end_src
+
+The set of all formulas grows to include quantified formulas.
+#+begin_src ixml :noweb-ref S-Formulas
+{ S: Formulas in general }
+formula = basic-formula | compound-formula.
+-compound-formula = 
+        not 
+      | and | or 
+      | implies | iff
+      | all | exist
+      .
+#+end_src
+
+** Recapitulation of language S
+The grammar of language S can be summarized:
+#+begin_src ixml :tangle s.ixml :noweb tangle
+{ s.ixml:  grammar for first-order logic
+  (without identity or functions) }
+s-formulas = os, formula++os, os.
+<<S-Formulas>>
+<<XS-Compound-formulas>>
+<<Quantification>>
+<<S-Basic-formulas>>
+
+<<S-Predicates>>
+<<S-Atomics>>
+<<Quoted-strings>>
+
+<<Logical-operators>>
+<<Quantifier-ops>>
+
+<<Basics>>
+#+end_src
+
+** Tests for language S
 
 * Language M:  first-order logic with identity and functions
 

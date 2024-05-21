@@ -1,7 +1,9 @@
 { xs.ixml:  grammar for sentential logic }
 xs-formulas = os, formula++os, os.
-{ Formulas in general }
-formula = basic-formula | not | and | or | implies | iff.
+{ XS Formulas in general }
+formula = basic-formula | compound-formula.
+-compound-formula = not | and | or | implies | iff.
+{ Compound formulas }
     not = (NOT, os)+, basic-formula.
     and = basic-formula ++ (os, AND, os), os, AND, os, (basic-formula | not).
      or = basic-formula ++ (os, OR, os),  os, OR,  os, (basic-formula | not).
@@ -15,14 +17,19 @@ implies = basic-formula, os, IMPLIES, os, (basic-formula | not).
 { XS Atomics:  propositional variables and constants }
 prop-var = @name.
 prop-constant = quoted-name; quoted-string.
--quoted-name = -#27, @name, -#27 { #27 is typewriter apostrophe }
-             | -#60, @name, -#27 { #60 is typewriter grave accent }
-             | -#2018, @name, -#2019 { hi 6, hi 9 }
-             | -#203A, @name, -#2039 { single guillemets pointing in }
-             | -#2039, @name, -#203A { single guillemets pointing out }
+-quoted-name = -#27, @name, -#27 
+               { #27 is typewriter apostrophe }
+             | -#60, @name, -#27 
+               { #60 is typewriter grave accent }
+             | -#2018, @name, -#2019 
+               { hi 6, hi 9 }
+             | -#203A, @name, -#2039 
+               { single guillemets pointing in }
+             | -#2039, @name, -#203A 
+               { single guillemets pointing out }
              .
-@quoted-string > string =
-                 -#22, (~[#22; #A]; (#22, #22))*, -#22
+@quoted-string
+      > string = -#22, (~[#22; #A]; (#22, #22))*, -#22
                | -#60, -#60, ~[#22; #60; #A]*, -#27, -#27 
                | -#60, -#60, ~[#22; #60; #A]*, -#22 
                | -#201C, ~[#201C; #201D; #A]*, -#201D
@@ -31,34 +38,37 @@ prop-constant = quoted-name; quoted-string.
                .
 
 { Logical operators }
-@NOT = "not"; "NOT";
-       "-"; "—" { #2014 em dash };
-       "¬" { #AC not sign }; 
-       "~" { #7E tilde }; 
-       "⁓" { #2053 swung dash }. 
-@AND = "and"; "AND"; 
-       "∧" { #2227 }; 
-       "&"; "&&"; "\lor"; "\or";
-       "/\" { emacs here wants a " };
-       "\land"; "\and"; "\wedge".
-@OR = "or"; "OR";
-      "|"; "||"; 
-      "∨" { #2228 logical or };
-      "\/"; "\lor"; "\or"; "\vee".
-@IMPLIES = "implies"; "IMPLIES"; 
-           "only", os, "if"; "ONLY", os, "IF";
-           "⊃" { #2283 superset of };
-           "→" { #2192 right arrow }; 
-           "->";
-           "⇒" { #21D2 right double arrow }; 
-           "=>".
-@IFF = "iff"; "IFF";
-       "↔" { #2194 left right arrow };
-       "<->";
-       "⇔" { #21D4 left right double arrow };
-       "<=>";
-       "≡" { #2261 identical to };
-       "\equiv".
+@NOT > op = "not"; "NOT";
+            "-"; 
+            "—" { #2014 em dash };
+            "¬" { #AC not sign }; 
+            "~" { #7E tilde }; 
+            "⁓" { #2053 swung dash }. 
+@AND > op = "and"; "AND"; 
+            "∧" { #2227 }; 
+            "&"; "&&"; "\lor"; "\or";
+            "/\" { emacs here wants a " };
+            "\land"; "\and"; "\wedge".
+@OR > op  = "or"; "OR";
+            "|"; 
+            "||"; 
+            "∨" { #2228 logical or };
+            "\/"; 
+            "\lor"; "\or"; "\vee".
+@IMPLIES > op = "implies"; "IMPLIES"; 
+            "only", os, "if"; "ONLY", os, "IF";
+            "⊃" { #2283 superset of };
+            "→" { #2192 right arrow }; 
+            "->";
+            "⇒" { #21D2 right double arrow }; 
+            "=>".
+@IFF > op = "iff"; "IFF";
+            "↔" { #2194 left right arrow };
+            "<->";
+            "⇔" { #21D4 left right double arrow };
+            "<=>";
+            "≡" { #2261 identical to };
+            "\equiv".
 
 
 { Basics:  names, whitespace, comments }

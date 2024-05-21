@@ -12,7 +12,7 @@ Prop-2a
 ‹Russell-died-in-1970›
 `Prop-2b'
 
-/* quoted strings as propositional constants */
+/* Double-quoted strings as propositional constants */
 "Frege was born in 1848"
 ``he is at his desk''
 “he is eating lunch”
