@@ -1,0 +1,31 @@
+/* Some basic formulas */
+/* Propositional variables */
+p
+q
+Prop-2a
+φ
+א
+/* and */
+/* Propositional constants */
+'Prop-2a'
+›Frege-was-born-in-1848‹
+‹Russell-died-in-1970›
+`Prop-2b'
+
+/* quoted strings as propositional constants */
+"Frege was born in 1848"
+``he is at his desk''
+“he is eating lunch”
+/* Parenthesized basic formulas */
+(q)
+( Prop-2a )
+[(φ)]
+['Prop-2a' ]
+/* Compound formulas */
+(p iff (q&r)) only if (p && q)
+(p implies (q & r)) iff (p ∧ q)
+(p ∨ q) implies r
+p ∨ (q implies r)
+p implies (q or r)
+"Jones is here" and "Smith is away"
+[([(p∨q) ∧ (p∨-q)] ∨ [(-p)∧q]) ⇔ q] ⇒ [(p∧r) ∨ (p∧~r)]

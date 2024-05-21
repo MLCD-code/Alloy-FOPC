@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tests>
+   <comment/>
+   <comment> </comment>
+   <comment> this is a comment </comment>
+   <comment> *this* example/test case contains nested stars and a slash (/) </comment>
+   <comment>
+      <comment> a nested comment</comment> and more
+   </comment>
+   <comment>
+      <comment> a nested comment</comment>*** and ///
+      <comment> another </comment>
+   </comment>
+   <comment>*****</comment>
+   <comment>/////
+      <comment> test </comment>  **
+   </comment>
+</tests>

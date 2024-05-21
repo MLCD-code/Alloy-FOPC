@@ -1,0 +1,1116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-05-20 Mon 19:56 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Five varieties of first-order predicate calculus</title>
+<meta name="author" content="CMSMcQ and CH" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Five varieties of first-order predicate calculus</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org72df6a2">1. Design goals and design decisions</a></li>
+<li><a href="#org3dba3e2">2. Language XS:  sentential logic</a>
+<ul>
+<li><a href="#org08d107a">2.1. Basics: Names, whitespace, comments</a>
+<ul>
+<li><a href="#org2eebe78">2.1.1. Names</a></li>
+<li><a href="#orgc0c7b7f">2.1.2. Whitespace</a></li>
+<li><a href="#org64ac536">2.1.3. Comments</a></li>
+<li><a href="#orgf0130c6">2.1.4. Recapitulation</a></li>
+</ul>
+</li>
+<li><a href="#org95aba9a">2.2. Propositional variables and constants</a></li>
+<li><a href="#org08d4dc5">2.3. Formulas</a></li>
+<li><a href="#org27bae92">2.4. Logical Operators</a></li>
+</ul>
+</li>
+<li><a href="#orgbbe7e75">3. Notes:</a>
+<ul>
+<li><a href="#org20c72ba">3.1. Recapitulation</a></li>
+<li><a href="#org15ae685">3.2. Tests</a></li>
+</ul>
+</li>
+<li><a href="#orgdbd740e">4. Language S:  first-order logic</a></li>
+<li><a href="#org10b7f45">5. Language M:  first-order logic with identity and functions</a></li>
+<li><a href="#org1ef0dab">6. Language L:  additional convenience features</a></li>
+<li><a href="#org2851327">7. Language XS: first-order logic plus set theory</a></li>
+</ul>
+</div>
+</div>
+<p>
+This document describes several languages for the expression of
+logical formulas, each containing the preceding.  For convenient
+reference, the languages are given names chosen to suggest their
+relative sizes:
+</p>
+
+<ul class="org-ul">
+<li><b>XS</b> (extra-small), the first language, is for sentential logic.</li>
+<li><b>S</b> (small) is for first-order logic without identity.</li>
+<li><b>M</b> (medium) is for first-order logic with functions and identity.
+We believe but have not undertaken to prove that M is equivalent to
+the TPTP language of first-order formulas, FOF.</li>
+<li><b>L</b> (large) adds some convenience features: typed quantification,
+unique existential quantification, and skolem functions.  It is at
+least roughly comparable to the TFF (typed first-order formulas)
+language of TPTP.</li>
+<li><b>XL</b> (extra-large) adds sets and set operations.  <i>Open question:
+add tuples?</i></li>
+</ul>
+
+<div id="outline-container-org72df6a2" class="outline-2">
+<h2 id="org72df6a2"><span class="section-number-2">1.</span> Design goals and design decisions</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+One goal of the paper is to provide a more precise description of the
+target language(s) for our work translating Alloy models into
+first-order logic.
+</p>
+
+<p>
+A secondary goal is to provide a convenient syntax for presentation
+and discussion of formulas that is as far as possible agnostic on the
+particular symbols used for quantification and logical operators.
+Textbooks on logic are notoriously divergent in their choices of
+symbols, and so are those who publish papers containing logical
+formulas.  Software for dealing with formulas is equally various in
+its choices.  We see no reason to insist that logical conjunction be
+expressed with "&amp;" but not with "/\" or "∧" or even just "and", and so
+on.
+</p>
+
+<p>
+Because different people seem to have different intuitions about which
+logical operators should bind more tightly and which less tightly, we
+do not attempt an elaborate set of operator priorities.  We allow (A
+and (B and C)) to be writte (A and B and C), and similarly for (A or
+(B or C)), but otherwise all nested compound expressions must be
+parenthesized.  (This is a change from the grammar we worked on in
+2021 and 2022.)
+</p>
+
+<p>
+To avoid possible confusion over the scope of quantifiers, the same
+rule applies to quantifications: we can write ∃x P(x), or (∃x)P(x),
+but if the quantifier's scope includes an operator, parentheses are
+needed:  ∃x (P(x) ∧ Q(x)).
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org3dba3e2" class="outline-2">
+<h2 id="org3dba3e2"><span class="section-number-2">2.</span> Language XS:  sentential logic</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Language XS is for sentential logic.
+</p>
+</div>
+
+<div id="outline-container-org08d107a" class="outline-3">
+<h3 id="org08d107a"><span class="section-number-3">2.1.</span> Basics: Names, whitespace, comments</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+The basic symbols of the language are Unicode characters.
+</p>
+</div>
+
+<div id="outline-container-org2eebe78" class="outline-4">
+<h4 id="org2eebe78"><span class="section-number-4">2.1.1.</span> Names</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<p>
+A name is a sequence of characters beginning with a letter and containing
+only letters, numeric digits, hyphens, and underscores.
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml" id="orge28daf4">name = letter, namechar*.
+-letter = [L].
+-namechar = letter; digit; ["-_"].
+-digit = [Nd].
+</pre>
+</div>
+
+<p>
+Example names:
+</p>
+<pre class="example" id="org12038a3">
+p
+q
+Prop-2a
+φ
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgc0c7b7f" class="outline-4">
+<h4 id="orgc0c7b7f"><span class="section-number-4">2.1.2.</span> Whitespace</h4>
+<div class="outline-text-4" id="text-2-1-2">
+<p>
+Whitespace is any member of Unicode class Zs (Separator, space), as
+well as a few control characters.  Required space is one or more
+whitespace characters or comments; optional space is zero or more.
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml" id="org87e025b">-whitespace = -[Zs; #9; #A; #D].
+-RS = (whitespace; comment)+.
+-os = (whitespace; comment)*.
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org64ac536" class="outline-4">
+<h4 id="org64ac536"><span class="section-number-4">2.1.3.</span> Comments</h4>
+<div class="outline-text-4" id="text-2-1-3">
+<p>
+A comment is a string of characters beginning with "<i><b>" and ending
+with "</b></i>" which can contain other comments, but not unmatched occurrences
+of those delimiter strings.  Experience shows that this can easily be
+formulated wrong, so we will start with a step-by-step development.
+Within the comment, we can be in any of several states:
+</p>
+<ul class="org-ul">
+<li><b>default</b>: the default state: nothing special has happened &#x2013; in
+particular, we have not seen a star or a slash.  In this state,
+several things can happen:
+<ul class="org-ul">
+<li>The empty string is acceptable (i.e. this can be the last state
+of the comment data.)</li>
+<li>A character other than slash or asterisk returns us to this state.</li>
+<li>A nested comment returns us to this state.</li>
+<li>A slash that does not start a nested comment takes us to state
+<b>slash-seen</b>.</li>
+<li>An asterisk not followed by a slash takes us to state <b>star-seen</b>.</li>
+</ul></li>
+<li><b>star-seen</b>:  we have seen an asterisk, and must not see a slash
+next.  (If a slash is next, this is the wrong state.)
+<ul class="org-ul">
+<li>The empty string is acceptable (i.e. this can be the last state
+of the comment data).</li>
+<li>An asterisk that is not part of the comment-closing delimiter
+returns us to this state.</li>
+<li>Any character other than a slash or an asteriak returns us to
+the <b>default</b> state.</li>
+</ul></li>
+<li><b>slash-seen</b>:  we have seen a slash, and must not now see an asterisk.
+(If an asterisk is next, this is the wrong state.)
+<ul class="org-ul">
+<li>The empty string is not acceptable; this must <i>not</i> be the last
+state of the comment data (since the closing delimiter starts
+with the asterisk, which we must not see).</li>
+<li>A nested comment returns us to the <b>default</b> state.</li>
+<li>A slash that does not start a comment returns us to this state.</li>
+<li>Any character other than a slash or star returns us to the
+<b>default</b> state.</li>
+</ul></li>
+</ul>
+
+<p>
+We can describe this with a pseudo-regular grammar for <i>comment-data</i>.
+(Why "pseudo-regular"?  like a regular grammar, it has rules whose
+right-hand sides have a single symbol followed by a non-terminal
+naming the next state, but it is not truly regular because <i>comment</i>
+is not a terminal symbol; it's just treated as if it were one.)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ixml">      comment = "/*", comment-data, "*/".
+ comment-data = default-state.
+default-state = ()
+              | ~["/*"], default-state
+              | comment, default-state
+              | "/", slash-seen
+              | "*", star-seen
+              .
+    star-seen = ()
+              | "*", star-seen
+              | ~["/*"], default-state
+              .
+   slash-seen = comment, default-state
+              | "/", slash-seen
+              | ~["/*"], default-state
+              .
+</pre>
+</div>
+
+<p>
+The rules for <i>star-seen</i> and <i>slash-seen</i> can be simplified by
+applying Arden's Lemma. (<i>A = X, A; B.</i> can be rewritten <i>A = X*, B.</i>)
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">default-state = ()
+              | ~["/*"], default-state
+              | comment, default-state
+              | "/", slash-seen
+              | "*", star-seen
+              .          
+   star-seen = "*"*, (~["/*"], default-state)?.
+  slash-seen = "/"*, (comment | ~["/*"]), default-state.
+</pre>
+</div>
+
+<p>
+Now the references to <i>star-seen</i> and <i>slash-seen</i> can be expanded
+in place.  We then replace the right-hand side beginning with "*" 
+with two simpler right-hand sides.
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">default-state = ()
+              | ~["/*"], default-state
+              | comment, default-state
+              | "/", "/"*, (comment | ~["/*"]), default-state
+              | "*", "*"*, ~["/*"], default-state
+              | "*", "*"*
+              .          
+</pre>
+</div>
+
+<p>
+Further simplification produces:
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">default-state = "/"*, (comment | ~["/*"]), default-state
+              | "*"+, ~["/*"], default-state
+              | "*"*
+              .          
+</pre>
+</div>
+
+<p>
+We can now apply Arden's Lemma to <i>default-state</i> to
+produce a 
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">default-state = ("*"+, ~["/*"] | "/"*, (comment | ~["/*"]))*, "*"*.          
+</pre>
+</div>
+
+<p>
+With that development providing some confidence in the
+rule, we can write the comment rules for real now:
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml" id="org32c38ad">      comment = -"/*", comment-data, -"*/".
+-comment-data = ("*"+, ~["/*"] 
+                | "/"*, (comment | ~["/*"]))*, 
+                "*"*.
+</pre>
+</div>
+
+<p>
+This is complicated enough that it may be worth writing down
+some positive and negative test cases.  Positive examples include:
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/**/
+/* */
+/* this is a comment */
+/* *this* example/test case contains nested stars and a slash (/) */
+/*/* a nested comment*/ and more*/
+/*/* a nested comment*/*** and ////* another */*/
+/*******/
+/*//////* test */  ***/
+</pre>
+</div>
+
+<p>
+Negative examples:
+(1) An asterisk followed by a slash.
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* A slash (*/*) cannot be emphasized here. */
+</pre>
+</div>
+<p>
+(2) Comment data ending with a slash.
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/*///*/
+</pre>
+</div>
+
+<p>
+An ad-hoc test grammar will allow us to run these test cases:
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">tests = (whitespace; comment)*.
+&lt;&lt;Comments&gt;&gt;
+&lt;&lt;Whitespace&gt;&gt;
+</pre>
+</div>
+
+<p>
+These tests can be run manually in a shell:
+</p>
+<pre class="example" id="org87ec6f0">
+for f in comments-*.txt ; \
+    do markup-blitz.sh $f comment-tests.ixml ${f%.txt}.xml; \
+    done
+</pre>
+<p>
+I have no automatic checking of results:  the positive
+examples should produce XML results which look plausible,
+and the negative examples should all fail to parse.  A quick
+check can be done with
+</p>
+<pre class="example" id="org65be17f">
+grep ixml:state comments-*.xml
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgf0130c6" class="outline-4">
+<h4 id="orgf0130c6"><span class="section-number-4">2.1.4.</span> Recapitulation</h4>
+<div class="outline-text-4" id="text-2-1-4">
+<p>
+We can sum up these low-level rules thus:
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml" id="org5ddfb15">
+{ Basics:  names, whitespace, comments }
+name = letter, namechar*.
+-letter = [L].
+-namechar = letter; digit; ["-_"].
+-digit = [Nd].
+-whitespace = -[Zs; #9; #A; #D].
+-RS = (whitespace; comment)+.
+-os = (whitespace; comment)*.
+      comment = -"/*", comment-data, -"*/".
+-comment-data = ("*"+, ~["/*"] 
+                | "/"*, (comment | ~["/*"]))*, 
+                "*"*.
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org95aba9a" class="outline-3">
+<h3 id="org95aba9a"><span class="section-number-3">2.2.</span> Propositional variables and constants</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+A propositional variable is a name.
+</p>
+
+<p>
+In language XS, a propositional constant is a name enclosed in single
+quotes.  In practice, we'll use typewriter apostrophes, but to allow
+formulas to be copy-pasted from contexts which use proper quotation
+marks, typeset quotation marks are also allowed (<code>‘...’</code>, <code>‹...›</code>,
+<code>›...‹</code>), as are (sigh) TeX-style single quotation marks (<code>`...'</code>).
+We allow single guillemets in either order, because both
+inward-pointing pairs and outward-pointing pairs are used.  (We have
+seen claims that one is French practice and the other German practice,
+but we believe we have seen both forms in German typesetting.)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ixml" id="orgc5e70ef">{ XS Atomics:  propositional variables and constants }
+prop-var = @name.
+prop-constant = quoted-name; quoted-string.
+-quoted-name = -#27, @name, -#27 { #27 is typewriter apostrophe }
+             | -#60, @name, -#27 { #60 is typewriter grave accent }
+             | -#2018, @name, -#2019 { hi 6, hi 9 }
+             | -#203A, @name, -#2039 { single guillemets pointing in }
+             | -#2039, @name, -#203A { single guillemets pointing out }
+             .
+</pre>
+</div>
+
+<p>
+At this point, I am mildly tempted to allow arbitrary one-line strings
+enclosed in double quotes, so as to make <code>"Socrates is a Greek."</code> and
+<code>"All Greeks are mortal."</code> allowable as propositional constants.  And,
+after all, why not?
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml" id="orgee60dfe">@quoted-string &gt; string =
+                 -#22, (~[#22; #A]; (#22, #22))*, -#22
+               | -#60, -#60, ~[#22; #60; #A]*, -#27, -#27 
+               | -#60, -#60, ~[#22; #60; #A]*, -#22 
+               | -#201C, ~[#201C; #201D; #A]*, -#201D
+               | -#AB, ~[#AB; #BB; #A]*, -#BB
+               | -#BB, ~[#AB; #BB; #A]*, -#AB
+               .
+</pre>
+</div>
+<p>
+For the record:
+</p>
+<ul class="org-ul">
+<li>#22 is a straight typewriter double quotation mark.</li>
+<li>#60 is a grave accent, often used doubled for
+a left double quotation mark by TeX users.</li>
+<li>#201C and #201D are typeset double quotation marks
+conventional in English-language typesetting
+(high 66, high 99).</li>
+<li>#AB and #BB are left- and right-pointing guillemets.
+We allow them to be paired pointing in or pointing
+out, because both styles may be encountered in
+European typesetting.</li>
+</ul>
+
+<p>
+In the first form of quoted string, a double quotation mark in the
+string may be represented by two double quotation marks in a row.  We
+have not bothered with similar escape mechanisms in the other forms.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org08d4dc5" class="outline-3">
+<h3 id="org08d4dc5"><span class="section-number-3">2.3.</span> Formulas</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+In language XS, a basic formula is a propositional variable, a propositional
+constant, or a formula enclosed in parentheses.  We allow both round parentheses
+and square brackets, to ease the reading of complex formulas.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ixml">{ XS Basic formulas }
+-basic-formula = prop-var | prop-constant 
+               | -"(", os, -formula, os, -")"
+               | -"[", os, -formula, os, -"]".
+</pre>
+</div>
+
+<p>
+A <i>formula</i> in general is a basic formula or one of several kinds of compound
+formulas.  
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">{ Formulas in general }
+formula = basic-formula | not | and | or | implies | iff.
+    not = (NOT, os)+, basic-formula.
+    and = basic-formula ++ (os, AND, os), os, AND, os, (basic-formula | not).
+     or = basic-formula ++ (os, OR, os),  os, OR,  os, (basic-formula | not).
+implies = basic-formula, os, IMPLIES, os, (basic-formula | not).
+    iff = basic-formula, os, IFF, os, (basic-formula | not).
+</pre>
+</div>
+
+<p>
+Note that <i>not</i>, <i>and</i>, and <i>or</i> all allow multiple repetitions of the
+operator without parentheses.  Since <i>and</i> and <i>or</i> are associative,
+expressions like <i>A ∧ (B ∧ C)</i> and <i>(A ∧ B) ∧ C</i> always have the same
+truth value, so there is no reason to require parentheses to specify
+one structure or the other.
+</p>
+
+<p>
+For conditionals and biconditionals, however, the left- and
+right-associative interpretations of expressions like <i>A implies B
+implies C</i> or <i>A iff B if C</i> are not equivalent.  If there were a
+principled, easily remembered rationale for choosing left or right
+associativity, it would make sense to chose one or the other.  But we
+see no such rationale.  To avoid confusion, we require parentheses
+around nested occurrences of <i>implies</i> and <i>iff</i>.
+</p>
+
+<p>
+For the <i>not</i> operator, there is only one imaginable structure, so the
+parentheses in an expression like <i>¬(¬(¬p))</i> are optional.  Similarly,
+the scope of a negation symbol is clear if it applies to the
+right-most operand of an <i>n</i>-ary or binary operator.  So <i>not</i>
+expressions are allowed in those positions.  As a result, the
+parentheses are necessary in <code>(¬p)∨q</code> and <code>¬(p∨q)</code> &#x2013; the
+expression <code>¬p∨q</code> is ungrammatical &#x2013; but no parentheses are needed
+in <code>p∨¬q</code>.
+</p>
+
+<p>
+We might wish to consider adding other operators: <i>xor</i> (or <i>aut</i>),
+<i>nor</i>, <i>nand</i>.  But since we do not want those operators in language
+M, and we want M to be a proper superset of XS, we leave them out.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org27bae92" class="outline-3">
+<h3 id="org27bae92"><span class="section-number-3">2.4.</span> Logical Operators</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+For each operator, we seek to allow a wide variety of different forms:
+symbols used in logic textbooks, symbols and keywords used in systems
+like Alloy or TLA+ or Z, symbols, keywords, and character sequences
+used in combination programming language / theorem provers like ACL2,
+Lean, and Agda.  <i>Not</i> included: operators for C.
+</p>
+
+<p>
+For the record, a survey of some sources shows the following:
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Source</th>
+<th scope="col" class="org-left">not</th>
+<th scope="col" class="org-left">and</th>
+<th scope="col" class="org-left">or</th>
+<th scope="col" class="org-left">implies</th>
+<th scope="col" class="org-left">iff</th>
+<th scope="col" class="org-left">forall</th>
+<th scope="col" class="org-left">exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Jeffrey</td>
+<td class="org-left">—</td>
+<td class="org-left">&amp;</td>
+<td class="org-left">∨</td>
+<td class="org-left">→</td>
+<td class="org-left">↔</td>
+<td class="org-left">(x)</td>
+<td class="org-left">(∃x)</td>
+</tr>
+
+<tr>
+<td class="org-left">unnamed*</td>
+<td class="org-left">~, ⁓</td>
+<td class="org-left">·</td>
+<td class="org-left">+</td>
+<td class="org-left">⊃</td>
+<td class="org-left">≡</td>
+<td class="org-left">⋀x, Πx</td>
+<td class="org-left">⋁x, Σx</td>
+</tr>
+
+<tr>
+<td class="org-left">Quine 1941</td>
+<td class="org-left">⁓, p̄</td>
+<td class="org-left">·</td>
+<td class="org-left">∨</td>
+<td class="org-left">⊃</td>
+<td class="org-left">≡</td>
+<td class="org-left">(x)</td>
+<td class="org-left">(∃x)</td>
+</tr>
+
+<tr>
+<td class="org-left">Smullyan</td>
+<td class="org-left">⁓</td>
+<td class="org-left">∧</td>
+<td class="org-left">∨</td>
+<td class="org-left">⊃</td>
+<td class="org-left">↔</td>
+<td class="org-left">∀x</td>
+<td class="org-left">∃x</td>
+</tr>
+
+<tr>
+<td class="org-left">Quine 1950</td>
+<td class="org-left">—, p̄</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">∨</td>
+<td class="org-left">→</td>
+<td class="org-left">↔</td>
+<td class="org-left">∀x</td>
+<td class="org-left">∃x</td>
+</tr>
+
+<tr>
+<td class="org-left">Alloy</td>
+<td class="org-left">not, !</td>
+<td class="org-left">and, &amp;&amp;</td>
+<td class="org-left">or* ​</td>
+<td class="org-left">implies, =&gt;</td>
+<td class="org-left">iff, &lt;=&gt;</td>
+<td class="org-left">all x</td>
+<td class="org-left">some x</td>
+</tr>
+
+<tr>
+<td class="org-left">TLA+</td>
+<td class="org-left">¬</td>
+<td class="org-left">∧</td>
+<td class="org-left">∨</td>
+<td class="org-left">⇒</td>
+<td class="org-left">≡</td>
+<td class="org-left">∀x</td>
+<td class="org-left">∃x</td>
+</tr>
+
+<tr>
+<td class="org-left">TLA+ ASCII</td>
+<td class="org-left">~</td>
+<td class="org-left">/\</td>
+<td class="org-left">\/</td>
+<td class="org-left">﻿=&gt;</td>
+<td class="org-left">&lt;=&gt;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">\lnot</td>
+<td class="org-left">&and;</td>
+<td class="org-left">&or;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&equiv;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&not;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">Agda ASCII</td>
+<td class="org-left">\lnot</td>
+<td class="org-left">\and</td>
+<td class="org-left">\or</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&not;</td>
+<td class="org-left">&and;</td>
+<td class="org-left">&or;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbbe7e75" class="outline-2">
+<h2 id="orgbbe7e75"><span class="section-number-2">3.</span> Notes:</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>The row labeled 'unnamed' is from Jeffrey's appendix on notation.</li>
+<li>Quine 1941 is <i>Element logic</i>, revised edition.</li>
+<li>Smullyan is <i>First-order logic</i>.</li>
+<li>Quine 1950 is <i>Methods of logic</i>. Conjunction is expressed by
+juxtaposition (and identifiers for propositions are in consequence
+restricted to single characters).</li>
+<li>Alloy also allows double bar (<code>||</code>) for disjunction.  It defines
+the additional quantifiers <b>no</b>, <b>lone</b>, and <b>one</b>.</li>
+<li>Agda presumably does have an implication symbol (and equivalence,
+and so on), but I have not progressed far enough to know what it is.</li>
+</ul>
+
+<p>
+Quine notes that swung dash (⁓) sometimes is used with the
+meaning 'iff'.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ixml">{ Logical operators }
+@NOT = "not"; "NOT";
+       "-"; "—" { #2014 em dash };
+       "¬" { #AC not sign }; 
+       "~" { #7E tilde }; 
+       "⁓" { #2053 swung dash }. 
+@AND = "and"; "AND"; 
+       "∧" { #2227 }; 
+       "&amp;"; "&amp;&amp;"; "\lor"; "\or";
+       "/\" { emacs here wants a " };
+       "\land"; "\and"; "\wedge".
+@OR = "or"; "OR";
+      "|"; "||"; 
+      "∨" { #2228 logical or };
+      "\/"; "\lor"; "\or"; "\vee".
+@IMPLIES = "implies"; "IMPLIES"; 
+           "only", os, "if"; "ONLY", os, "IF";
+           "⊃" { #2283 superset of };
+           "→" { #2192 right arrow }; 
+           "-&gt;";
+           "⇒" { #21D2 right double arrow }; 
+           "=&gt;".
+@IFF = "iff"; "IFF";
+       "↔" { #2194 left right arrow };
+       "&lt;-&gt;";
+       "⇔" { #21D4 left right double arrow };
+       "&lt;=&gt;";
+       "≡" { #2261 identical to };
+       "\equiv".
+</pre>
+</div>
+</div>
+<div id="outline-container-org20c72ba" class="outline-3">
+<h3 id="org20c72ba"><span class="section-number-3">3.1.</span> Recapitulation</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+The entire XS grammar can now be summarized:
+</p>
+<div class="org-src-container">
+<pre class="src src-ixml">{ xs.ixml:  grammar for sentential logic }
+xs-formulas = os, formula++os, os.
+&lt;&lt;XS-Formulas&gt;&gt;
+&lt;&lt;XS-Basic-formulas&gt;&gt;
+
+&lt;&lt;XS-Atomics&gt;&gt;
+&lt;&lt;Quoted-strings&gt;&gt;
+
+&lt;&lt;Logical-operators&gt;&gt;
+
+&lt;&lt;Basics&gt;&gt;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org15ae685" class="outline-3">
+<h3 id="org15ae685"><span class="section-number-3">3.2.</span> Tests</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Some simple positive tests for language XS follow.
+First, some propositional variables.
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* Some basic formulas */
+/* Propositional variables */
+p
+q
+Prop-2a
+φ
+א
+/* and */
+</pre>
+</div>
+<p>
+Note that the string "and" is a propositional
+variable as well as a logical operator for
+conjunction. Parsed as a formula, however, it
+can only be the latter.  In the context "A and B"
+or "p and q", it can only be the former.
+(In the test context, it can be either, however,
+so I commented it back out.)
+</p>
+
+<p>
+Then, some propositional constants.
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* Propositional constants */
+'Prop-2a'
+›Frege-was-born-in-1848‹
+‹Russell-died-in-1970›
+`Prop-2b'
+
+/* quoted strings as propositional constants */
+"Frege was born in 1848"
+``he is at his desk''
+“he is eating lunch”
+</pre>
+</div>
+
+<p>
+Then, some propositional constants.
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* Parenthesized basic formulas */
+(q)
+( Prop-2a )
+[(φ)]
+['Prop-2a' ]
+</pre>
+</div>
+
+<p>
+And now, finally, some compound formulas:
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* Compound formulas */
+(p iff (q&amp;r)) only if (p &amp;&amp; q)
+(p implies (q &amp; r)) iff (p ∧ q)
+(p ∨ q) implies r
+p ∨ (q implies r)
+p implies (q or r)
+"Jones is here" and "Smith is away"
+[([(p∨q) ∧ (p∨-q)] ∨ [(-p)∧q]) ⇔ q] ⇒ [(p∧r) ∨ (p∧~r)]
+</pre>
+</div>
+
+<p>
+Bringing all the positive examples together,
+we have:
+</p>
+<div class="org-src-container">
+<pre class="src src-data">&lt;&lt;XS-Tests-vars&gt;&gt;
+&lt;&lt;XS-Tests-constants&gt;&gt;
+&lt;&lt;XS-Tests-parens-basic&gt;&gt;
+&lt;&lt;XS-Tests-compounds&gt;&gt;
+</pre>
+</div>
+<p>
+Some negative examples should be added.  But for
+now, this may suffice.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdbd740e" class="outline-2">
+<h2 id="orgdbd740e"><span class="section-number-2">4.</span> Language S:  first-order logic</h2>
+</div>
+<div id="outline-container-org10b7f45" class="outline-2">
+<h2 id="org10b7f45"><span class="section-number-2">5.</span> Language M:  first-order logic with identity and functions</h2>
+</div>
+<div id="outline-container-org1ef0dab" class="outline-2">
+<h2 id="org1ef0dab"><span class="section-number-2">6.</span> Language L:  additional convenience features</h2>
+</div>
+<div id="outline-container-org2851327" class="outline-2">
+<h2 id="org2851327"><span class="section-number-2">7.</span> Language XS: first-order logic plus set theory</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 16 May 2024</p>
+<p class="author">Author: CMSMcQ and CH</p>
+<p class="date">Created: 2024-05-20 Mon 19:56</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

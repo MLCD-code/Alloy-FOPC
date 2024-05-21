@@ -1,0 +1,8 @@
+tests = (whitespace; comment)*.
+      comment = -"/*", comment-data, -"*/".
+-comment-data = ("*"+, ~["/*"] 
+                | "/"*, (comment | ~["/*"]))*, 
+                "*"*.
+-whitespace = -[Zs; #9; #A; #D].
+-RS = (whitespace; comment)+.
+-os = (whitespace; comment)*.

@@ -1,0 +1,8 @@
+/**/
+/* */
+/* this is a comment */
+/* *this* example/test case contains nested stars and a slash (/) */
+/*/* a nested comment*/ and more*/
+/*/* a nested comment*/*** and ////* another */*/
+/*******/
+/*//////* test */  ***/

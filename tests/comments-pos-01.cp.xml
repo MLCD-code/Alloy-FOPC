@@ -1,0 +1,9 @@
+<tests><comment>/*<comment-data/>*/</comment>
+<comment>/*<comment-data> </comment-data>*/</comment>
+<comment>/*<comment-data> this is a comment </comment-data>*/</comment>
+<comment>/*<comment-data> *this* example/test case contains nested stars and a slash (/) </comment-data>*/</comment>
+<comment>/*<comment-data><comment>/*<comment-data> a nested comment</comment-data>*/</comment> and more</comment-data>*/</comment>
+<comment>/*<comment-data><comment>/*<comment-data> a nested comment</comment-data>*/</comment>*** and ///<comment>/*<comment-data> another </comment-data>*/</comment></comment-data>*/</comment>
+<comment>/*<comment-data>*****</comment-data>*/</comment>
+<comment>/*<comment-data>/////<comment>/*<comment-data> test </comment-data>*/</comment>  **</comment-data>*/</comment>
+</tests>

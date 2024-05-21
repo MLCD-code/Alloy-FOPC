@@ -19,12 +19,16 @@ relative sizes:
 - *XL* (extra-large) adds sets and set operations.  /Open question:
   add tuples?/
 
+# The grammars given here are adapted from a grammar developed by the
+# authors in 2021 and 2022.
+
+* Design goals and design decisions
+
 One goal of the paper is to provide a more precise description of the
 target language(s) for our work translating Alloy models into
 first-order logic.
 
-* Design goals
-The primary goal is to provide a convenient syntax for presentation
+A secondary goal is to provide a convenient syntax for presentation
 and discussion of formulas that is as far as possible agnostic on the
 particular symbols used for quantification and logical operators.
 Textbooks on logic are notoriously divergent in their choices of
@@ -34,7 +38,488 @@ its choices.  We see no reason to insist that logical conjunction be
 expressed with "&" but not with "/\" or "∧" or even just "and", and so
 on.
 
+Because different people seem to have different intuitions about which
+logical operators should bind more tightly and which less tightly, we
+do not attempt an elaborate set of operator priorities.  We allow (A
+and (B and C)) to be writte (A and B and C), and similarly for (A or
+(B or C)), but otherwise all nested compound expressions must be
+parenthesized.  (This is a change from the grammar we worked on in
+2021 and 2022.)
+
+To avoid possible confusion over the scope of quantifiers, the same
+rule applies to quantifications: we can write ∃x P(x), or (∃x)P(x),
+but if the quantifier's scope includes an operator, parentheses are
+needed:  ∃x (P(x) ∧ Q(x)).
+
+
 * Language XS:  sentential logic
+
+Language XS is for sentential logic.
+
+** Basics: Names, whitespace, comments
+
+The basic symbols of the language are Unicode characters.
+
+*** Names
+
+A name is a sequence of characters beginning with a letter and containing
+only letters, numeric digits, hyphens, and underscores.
+#+name: Names 
+#+begin_src ixml :noweb-ref Names
+name = letter, namechar*.
+-letter = [L].
+-namechar = letter; digit; ["-_"].
+-digit = [Nd].
+#+end_src
+
+Example names:
+#+begin_example
+p
+q
+Prop-2a
+φ
+#+end_example
+
+*** Whitespace
+
+Whitespace is any member of Unicode class Zs (Separator, space), as
+well as a few control characters.  Required space is one or more
+whitespace characters or comments; optional space is zero or more.
+#+name: Whitespace
+#+begin_src ixml :noweb-ref Whitespace
+-whitespace = -[Zs; #9; #A; #D].
+-RS = (whitespace; comment)+.
+-os = (whitespace; comment)*.
+#+end_src
+
+*** Comments
+A comment is a string of characters beginning with "/*" and ending
+with "*/" which can contain other comments, but not unmatched occurrences
+of those delimiter strings.  Experience shows that this can easily be
+formulated wrong, so we will start with a step-by-step development.
+Within the comment, we can be in any of several states:
+- *default*: the default state: nothing special has happened -- in
+  particular, we have not seen a star or a slash.  In this state,
+  several things can happen:
+  + The empty string is acceptable (i.e. this can be the last state
+    of the comment data.)
+  + A character other than slash or asterisk returns us to this state.
+  + A nested comment returns us to this state.
+  + A slash that does not start a nested comment takes us to state
+    *slash-seen*.
+  + An asterisk not followed by a slash takes us to state *star-seen*.  
+- *star-seen*:  we have seen an asterisk, and must not see a slash
+  next.  (If a slash is next, this is the wrong state.)
+  + The empty string is acceptable (i.e. this can be the last state
+    of the comment data).
+  + An asterisk that is not part of the comment-closing delimiter
+    returns us to this state.
+  + Any character other than a slash or an asteriak returns us to
+    the *default* state.
+- *slash-seen*:  we have seen a slash, and must not now see an asterisk.
+  (If an asterisk is next, this is the wrong state.)
+  + The empty string is not acceptable; this must /not/ be the last
+    state of the comment data (since the closing delimiter starts
+    with the asterisk, which we must not see).
+  + A nested comment returns us to the *default* state.
+  + A slash that does not start a comment returns us to this state.
+  + Any character other than a slash or star returns us to the
+    *default* state.
+
+We can describe this with a pseudo-regular grammar for /comment-data/.
+(Why "pseudo-regular"?  like a regular grammar, it has rules whose
+right-hand sides have a single symbol followed by a non-terminal
+naming the next state, but it is not truly regular because /comment/
+is not a terminal symbol; it's just treated as if it were one.)
+
+#+begin_src ixml :tangle no
+      comment = "/*", comment-data, "*/".
+ comment-data = default-state.
+default-state = ()
+              | ~["/*"], default-state
+              | comment, default-state
+              | "/", slash-seen
+              | "*", star-seen
+              .
+    star-seen = ()
+              | "*", star-seen
+              | ~["/*"], default-state
+              .
+   slash-seen = comment, default-state
+              | "/", slash-seen
+              | ~["/*"], default-state
+              .
+#+end_src
+
+The rules for /star-seen/ and /slash-seen/ can be simplified by
+applying Arden's Lemma. (/A = X, A; B./ can be rewritten /A = X*, B./)
+#+begin_src ixml :tangle no
+default-state = ()
+              | ~["/*"], default-state
+              | comment, default-state
+              | "/", slash-seen
+              | "*", star-seen
+              .          
+   star-seen = "*"*, (~["/*"], default-state)?.
+  slash-seen = "/"*, (comment | ~["/*"]), default-state.
+#+end_src
+
+Now the references to /star-seen/ and /slash-seen/ can be expanded
+in place.  We then replace the right-hand side beginning with "*" 
+with two simpler right-hand sides.
+#+begin_src ixml :tangle no
+default-state = ()
+              | ~["/*"], default-state
+              | comment, default-state
+              | "/", "/"*, (comment | ~["/*"]), default-state
+              | "*", "*"*, ~["/*"], default-state
+              | "*", "*"*
+              .          
+#+end_src
+
+Further simplification produces:
+#+begin_src ixml :tangle no
+default-state = "/"*, (comment | ~["/*"]), default-state
+              | "*"+, ~["/*"], default-state
+              | "*"*
+              .          
+#+end_src
+
+We can now apply Arden's Lemma to /default-state/ to
+produce a 
+#+begin_src ixml :tangle no
+default-state = ("*"+, ~["/*"] | "/"*, (comment | ~["/*"]))*, "*"*.          
+#+end_src
+
+With that development providing some confidence in the
+rule, we can write the comment rules for real now:
+#+name: Comments
+#+begin_src ixml :noweb-ref Comments
+      comment = -"/*", comment-data, -"*/".
+-comment-data = ("*"+, ~["/*"] 
+                | "/"*, (comment | ~["/*"]))*, 
+                "*"*.
+#+end_src
+
+This is complicated enough that it may be worth writing down
+some positive and negative test cases.  Positive examples include:
+#+begin_src data :tangle ../tests/comments-pos-01.txt
+/**/
+/* */
+/* this is a comment */
+/* *this* example/test case contains nested stars and a slash (/) */
+/*/* a nested comment*/ and more*/
+/*/* a nested comment*/*** and ////* another */*/
+/*******/
+/*//////* test */  ***/
+#+end_src
+
+Negative examples:
+(1) An asterisk followed by a slash.
+#+begin_src data :tangle ../tests/comments-neg-01.txt
+/* A slash (*/*) cannot be emphasized here. */
+#+end_src
+(2) Comment data ending with a slash.
+#+begin_src data :tangle ../tests/comments-neg-02.txt
+/*///*/
+#+end_src
+
+An ad-hoc test grammar will allow us to run these test cases:
+#+begin_src ixml :tangle ../tests/comment-tests.ixml :noweb tangle
+tests = (whitespace; comment)*.
+<<Comments>>
+<<Whitespace>>
+#+end_src
+
+These tests can be run manually in a shell:
+#+begin_example
+for f in comments-*.txt ; \
+    do markup-blitz.sh $f comment-tests.ixml ${f%.txt}.xml; \
+    done
+#+end_example
+I have no automatic checking of results:  the positive
+examples should produce XML results which look plausible,
+and the negative examples should all fail to parse.  A quick
+check can be done with
+#+begin_example
+grep ixml:state comments-*.xml
+#+end_example
+
+*** Recapitulation
+We can sum up these low-level rules thus:
+#+name: Basics
+#+begin_src ixml :noweb-ref Basics :noweb yes
+
+{ Basics:  names, whitespace, comments }
+<<Names>>
+<<Whitespace>>
+<<Comments>>
+#+end_src
+
+** Propositional variables and constants
+
+A propositional variable is a name.
+
+In language XS, a propositional constant is a name enclosed in single
+quotes.  In practice, we'll use typewriter apostrophes, but to allow
+formulas to be copy-pasted from contexts which use proper quotation
+marks, typeset quotation marks are also allowed (~‘...’~, ~‹...›~,
+~›...‹~), as are (sigh) TeX-style single quotation marks (~`...'~).
+We allow single guillemets in either order, because both
+inward-pointing pairs and outward-pointing pairs are used.  (We have
+seen claims that one is French practice and the other German practice,
+but we believe we have seen both forms in German typesetting.)
+
+#+name: XS-Atomics
+#+begin_src ixml
+{ XS Atomics:  propositional variables and constants }
+prop-var = @name.
+prop-constant = quoted-name; quoted-string.
+-quoted-name = -#27, @name, -#27 { #27 is typewriter apostrophe }
+             | -#60, @name, -#27 { #60 is typewriter grave accent }
+             | -#2018, @name, -#2019 { hi 6, hi 9 }
+             | -#203A, @name, -#2039 { single guillemets pointing in }
+             | -#2039, @name, -#203A { single guillemets pointing out }
+             .
+#+end_src
+
+At this point, I am mildly tempted to allow arbitrary one-line strings
+enclosed in double quotes, so as to make ~"Socrates is a Greek."~ and
+="All Greeks are mortal."= allowable as propositional constants.  And,
+after all, why not?
+#+name: Quoted-strings
+#+begin_src ixml
+@quoted-string > string =
+                 -#22, (~[#22; #A]; (#22, #22))*, -#22
+               | -#60, -#60, ~[#22; #60; #A]*, -#27, -#27 
+               | -#60, -#60, ~[#22; #60; #A]*, -#22 
+               | -#201C, ~[#201C; #201D; #A]*, -#201D
+               | -#AB, ~[#AB; #BB; #A]*, -#BB
+               | -#BB, ~[#AB; #BB; #A]*, -#AB
+               .
+#+end_src
+For the record:
+- #22 is a straight typewriter double quotation mark.
+- #60 is a grave accent, often used doubled for
+  a left double quotation mark by TeX users.
+- #201C and #201D are typeset double quotation marks
+  conventional in English-language typesetting
+  (high 66, high 99).
+- #AB and #BB are left- and right-pointing guillemets.
+  We allow them to be paired pointing in or pointing
+  out, because both styles may be encountered in
+  European typesetting.
+  
+In the first form of quoted string, a double quotation mark in the
+string may be represented by two double quotation marks in a row.  We
+have not bothered with similar escape mechanisms in the other forms.
+
+** Formulas
+
+In language XS, a basic formula is a propositional variable, a propositional
+constant, or a formula enclosed in parentheses.  We allow both round parentheses
+and square brackets, to ease the reading of complex formulas.
+
+#+begin_src ixml :noweb-ref XS-Basic-formulas
+{ XS Basic formulas }
+-basic-formula = prop-var | prop-constant 
+               | -"(", os, -formula, os, -")"
+               | -"[", os, -formula, os, -"]".
+#+end_src
+
+A /formula/ in general is a basic formula or one of several kinds of compound
+formulas.  
+#+begin_src ixml :noweb-ref XS-Formulas
+{ Formulas in general }
+formula = basic-formula | not | and | or | implies | iff.
+    not = (NOT, os)+, basic-formula.
+    and = basic-formula ++ (os, AND, os), os, AND, os, (basic-formula | not).
+     or = basic-formula ++ (os, OR, os),  os, OR,  os, (basic-formula | not).
+implies = basic-formula, os, IMPLIES, os, (basic-formula | not).
+    iff = basic-formula, os, IFF, os, (basic-formula | not).
+#+end_src
+
+Note that /not/, /and/, and /or/ all allow multiple repetitions of the
+operator without parentheses.  Since /and/ and /or/ are associative,
+expressions like /A ∧ (B ∧ C)/ and /(A ∧ B) ∧ C/ always have the same
+truth value, so there is no reason to require parentheses to specify
+one structure or the other.
+
+For conditionals and biconditionals, however, the left- and
+right-associative interpretations of expressions like /A implies B
+implies C/ or /A iff B if C/ are not equivalent.  If there were a
+principled, easily remembered rationale for choosing left or right
+associativity, it would make sense to chose one or the other.  But we
+see no such rationale.  To avoid confusion, we require parentheses
+around nested occurrences of /implies/ and /iff/.
+
+For the /not/ operator, there is only one imaginable structure, so the
+parentheses in an expression like /¬(¬(¬p))/ are optional.  Similarly,
+the scope of a negation symbol is clear if it applies to the
+right-most operand of an /n/-ary or binary operator.  So /not/
+expressions are allowed in those positions.  As a result, the
+parentheses are necessary in =(¬p)∨q= and =¬(p∨q)= -- the
+expression =¬p∨q= is ungrammatical -- but no parentheses are needed
+in =p∨¬q=.
+
+We might wish to consider adding other operators: /xor/ (or /aut/),
+/nor/, /nand/.  But since we do not want those operators in language
+M, and we want M to be a proper superset of XS, we leave them out.
+
+** Logical Operators
+For each operator, we seek to allow a wide variety of different forms:
+symbols used in logic textbooks, symbols and keywords used in systems
+like Alloy or TLA+ or Z, symbols, keywords, and character sequences
+used in combination programming language / theorem provers like ACL2,
+Lean, and Agda.  /Not/ included: operators for C.
+
+For the record, a survey of some sources shows the following:
+|------------+--------+---------+------+-------------+----------+--------+--------|
+| Source     | not    | and     | or   | implies     | iff      | forall | exists |
+|------------+--------+---------+------+-------------+----------+--------+--------|
+| Jeffrey    | —      | &       | ∨    | →           | ↔        | (x)    | (∃x)   |
+| unnamed*   | ~, ⁓   | ·       | +    | ⊃           | ≡        | ⋀x, Πx | ⋁x, Σx |
+| Quine 1941 | ⁓, p̄   | ·       | ∨    | ⊃           | ≡        | (x)    | (∃x)   |
+| Smullyan   | ⁓      | ∧       | ∨    | ⊃           | ↔        | ∀x     | ∃x     |
+| Quine 1950 | —, p̄   |         | ∨    | →           | ↔        | ∀x     | ∃x     |
+| Alloy      | not, ! | and, && | or* ​ | implies, => | iff, <=> | all x  | some x |
+| TLA+       | ¬      | ∧       | ∨    | ⇒           | ≡        | ∀x     | ∃x     |
+| TLA+ ASCII | ~      | /\      | \/   | ﻿=>          | <=>      |        |        |
+|            | \lnot  | \land   | \lor |             | \equiv   |        |        |
+|            | \neg   |         |      |             |          |        |        |
+| Agda ASCII | \lnot  | \and    | \or  |             |          |        |        |
+|            | \neg   | \wedge  | \vee |             |          |        |        |
+|------------+--------+---------+------+-------------+----------+--------+--------|
+
+* Notes:
+- The row labeled 'unnamed' is from Jeffrey's appendix on notation.
+- Quine 1941 is /Element logic/, revised edition.
+- Smullyan is /First-order logic/.
+- Quine 1950 is /Methods of logic/. Conjunction is expressed by
+  juxtaposition (and identifiers for propositions are in consequence
+  restricted to single characters).
+- Alloy also allows double bar (~||~) for disjunction.  It defines
+  the additional quantifiers *no*, *lone*, and *one*.
+- Agda presumably does have an implication symbol (and equivalence,
+  and so on), but I have not progressed far enough to know what it is.
+
+Quine notes that swung dash (⁓) sometimes is used with the
+meaning 'iff'.
+
+#+begin_src ixml :noweb-ref Logical-operators
+{ Logical operators }
+@NOT = "not"; "NOT";
+       "-"; "—" { #2014 em dash };
+       "¬" { #AC not sign }; 
+       "~" { #7E tilde }; 
+       "⁓" { #2053 swung dash }. 
+@AND = "and"; "AND"; 
+       "∧" { #2227 }; 
+       "&"; "&&"; "\lor"; "\or";
+       "/\" { emacs here wants a " };
+       "\land"; "\and"; "\wedge".
+@OR = "or"; "OR";
+      "|"; "||"; 
+      "∨" { #2228 logical or };
+      "\/"; "\lor"; "\or"; "\vee".
+@IMPLIES = "implies"; "IMPLIES"; 
+           "only", os, "if"; "ONLY", os, "IF";
+           "⊃" { #2283 superset of };
+           "→" { #2192 right arrow }; 
+           "->";
+           "⇒" { #21D2 right double arrow }; 
+           "=>".
+@IFF = "iff"; "IFF";
+       "↔" { #2194 left right arrow };
+       "<->";
+       "⇔" { #21D4 left right double arrow };
+       "<=>";
+       "≡" { #2261 identical to };
+       "\equiv".
+#+end_src
+** Recapitulation
+The entire XS grammar can now be summarized:
+#+begin_src ixml :tangle xs.ixml :noweb tangle
+{ xs.ixml:  grammar for sentential logic }
+xs-formulas = os, formula++os, os.
+<<XS-Formulas>>
+<<XS-Basic-formulas>>
+
+<<XS-Atomics>>
+<<Quoted-strings>>
+
+<<Logical-operators>>
+
+<<Basics>>
+#+end_src
+
+** Tests
+Some simple positive tests for language XS follow.
+First, some propositional variables.
+#+begin_src data :noweb-ref XS-Tests-vars
+/* Some basic formulas */
+/* Propositional variables */
+p
+q
+Prop-2a
+φ
+א
+/* and */
+#+end_src
+Note that the string "and" is a propositional
+variable as well as a logical operator for
+conjunction. Parsed as a formula, however, it
+can only be the latter.  In the context "A and B"
+or "p and q", it can only be the former.
+(In the test context, it can be either, however,
+so I commented it back out.)
+
+Then, some propositional constants.
+#+begin_src data :noweb-ref XS-Tests-constants
+/* Propositional constants */
+'Prop-2a'
+›Frege-was-born-in-1848‹
+‹Russell-died-in-1970›
+`Prop-2b'
+
+/* quoted strings as propositional constants */
+"Frege was born in 1848"
+``he is at his desk''
+“he is eating lunch”
+#+end_src
+
+Then, some propositional constants.
+#+begin_src data :noweb-ref XS-Tests-parens-basic
+/* Parenthesized basic formulas */
+(q)
+( Prop-2a )
+[(φ)]
+['Prop-2a' ]
+#+end_src
+
+And now, finally, some compound formulas:
+#+begin_src data :noweb-ref XS-Tests-compounds
+/* Compound formulas */
+(p iff (q&r)) only if (p && q)
+(p implies (q & r)) iff (p ∧ q)
+(p ∨ q) implies r
+p ∨ (q implies r)
+p implies (q or r)
+"Jones is here" and "Smith is away"
+[([(p∨q) ∧ (p∨-q)] ∨ [(-p)∧q]) ⇔ q] ⇒ [(p∧r) ∨ (p∧~r)]
+#+end_src
+
+Bringing all the positive examples together,
+we have:
+#+begin_src data :tangle ../tests/xs-pos-01.txt :noweb tangle
+<<XS-Tests-vars>>
+<<XS-Tests-constants>>
+<<XS-Tests-parens-basic>>
+<<XS-Tests-compounds>>
+#+end_src
+Some negative examples should be added.  But for
+now, this may suffice.
+
 * Language S:  first-order logic
 * Language M:  first-order logic with identity and functions
 * Language L:  additional convenience features
