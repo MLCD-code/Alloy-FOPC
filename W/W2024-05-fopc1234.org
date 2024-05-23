@@ -94,6 +94,8 @@ whitespace characters or comments; optional space is zero or more.
 -whitespace = -[Zs; #9; #A; #D].
 -RS = (whitespace; comment)+.
 -os = (whitespace; comment)*.
+{ NL for required line breaks }
+-NL = (-[Zs; #9] | comment)*, #A, os.
 #+end_src
 
 *** Comments
@@ -191,7 +193,7 @@ default-state = "/"*, (comment | ~["/*"]), default-state
 #+end_src
 
 We can now apply Arden's Lemma to /default-state/ to
-produce a 
+produce a single rule for comment data.
 #+begin_src ixml :tangle no
 default-state = ("*"+, ~["/*"] | "/"*, (comment | ~["/*"]))*, "*"*.          
 #+end_src
@@ -348,11 +350,11 @@ formula = basic-formula | compound-formula.
 Each logical operator defines a distinct type of compound formula.
 #+begin_src ixml :noweb-ref XS-Compound-formulas
 { Compound formulas }
-    not = (NOT, os)+, basic-formula.
-    and = basic-formula ++ (os, AND, os), os, AND, os, (basic-formula | not).
-     or = basic-formula ++ (os, OR, os),  os, OR,  os, (basic-formula | not).
-implies = basic-formula, os, IMPLIES, os, (basic-formula | not).
-    iff = basic-formula, os, IFF, os, (basic-formula | not).
+    not = NOT+, basic-formula.
+    and = basic-formula++AND, AND, (basic-formula | not).
+     or = basic-formula++OR,  OR,  (basic-formula | not).
+implies = basic-formula, IMPLIES, (basic-formula | not).
+    iff = basic-formula, IFF, (basic-formula | not).
 #+end_src
 
 Note that /not/, /and/, and /or/ all allow multiple repetitions of the
@@ -363,7 +365,7 @@ one structure or the other.
 
 For conditionals and biconditionals, however, the left- and
 right-associative interpretations of expressions like /A implies B
-implies C/ or /A iff B if C/ are not equivalent.  If there were a
+implies C/ or /A iff B iff C/ are not equivalent.  If there were a
 principled, easily remembered rationale for choosing left or right
 associativity, it would make sense to chose one or the other.  But we
 see no such rationale.  To avoid confusion, we require parentheses
@@ -425,43 +427,72 @@ meaning 'iff'.
 
 #+begin_src ixml :noweb-ref Logical-operators
 { Logical operators }
-@NOT > op = "not"; "NOT";
-            "-"; 
-            "—" { #2014 em dash };
-            "¬" { #AC not sign }; 
-            "~" { #7E tilde }; 
-            "⁓" { #2053 swung dash }. 
-@AND > op = "and"; "AND"; 
-            "∧" { #2227 }; 
-            "&"; "&&"; "\lor"; "\or";
-            "/\" { emacs here wants a " };
-            "\land"; "\and"; "\wedge".
-@OR > op  = "or"; "OR";
-            "|"; 
-            "||"; 
-            "∨" { #2228 logical or };
-            "\/"; 
-            "\lor"; "\or"; "\vee".
-@IMPLIES > op = "implies"; "IMPLIES"; 
-            "only", os, "if"; "ONLY", os, "IF";
-            "⊃" { #2283 superset of };
-            "→" { #2192 right arrow }; 
-            "->";
-            "⇒" { #21D2 right double arrow }; 
-            "=>".
-@IFF > op = "iff"; "IFF";
-            "↔" { #2194 left right arrow };
-            "<->";
-            "⇔" { #21D4 left right double arrow };
-            "<=>";
-            "≡" { #2261 identical to };
-            "\equiv".
+@NOT > op = NOT-sym, os
+          | NOT-alpha, RS
+          .
+NOT-alpha = "not" | "NOT".
+  NOT-sym = "¬" { #AC not sign }
+          | "-"
+          | "—" { #2014 em dash }
+          | "~" { #7E tilde }
+          | "⁓" { #2053 swung dash }
+          . 
+
+@AND > op = os, AND-sym, os
+          | RS, AND-alpha, RS
+          .
+AND-alpha = "and" | "AND"
+          | "\land" | "\and" 
+          | "\wedge"
+          .
+  AND-sym = "∧" { #2227 }
+          | "&"
+          | "&&"
+          | "/\" { emacs here wants a " }
+          .
+
+ @OR > op = os, OR-sym, os
+          | RS, OR-alpha, RS
+          .
+ OR-alpha = "or" | "OR" 
+          | "vel" | "VEL" 
+          | "\lor" | "\or" | "\vee"
+          .
+   OR-sym = "∨" { #2228 logical or }
+          | "|" 
+          | "||"
+          | "\/"
+          . 
+@IMPLIES > op = os, IMPLIES-sym, os
+              | RS, IMPLIES-alpha, RS. 
+IMPLIES-alpha = "implies" | "IMPLIES" 
+              | "only", os, "if" 
+              | "ONLY", os, "IF"
+              .
+  IMPLIES-sym = "⇒" { #21D2 right double arrow } 
+              | "⊃" { #2283 superset of }
+              | "→" { #2192 right arrow }
+              | "->"
+              | "=>"
+              .
+
+@IFF > op = os, IFF-sym, os
+          | RS, IFF-alpha, RS.
+IFF-alpha = "iff" | "IFF"; "\equiv".
+  IFF-sym = "⇔" { #21D4 left right double arrow }
+          | "↔" { #2194 left right arrow }
+          | "≡" { #2261 identical to }
+          | "<->"
+          | "<=>"
+          .
 #+end_src
 ** Recapitulation
 The entire XS grammar can now be summarized:
 #+begin_src ixml :tangle xs.ixml :noweb tangle
+ixml version "1.1".
+
 { xs.ixml:  grammar for sentential logic }
-xs-formulas = os, formula++os, os.
+xs-formulas = os, formula++NL, os.
 <<XS-Formulas>>
 <<XS-Compound-formulas>>
 <<XS-Basic-formulas>>
@@ -594,7 +625,8 @@ individuals; they will have the same syntax.
 #+begin_src ixml :noweb-ref S-Atomics
 { S-Atomics:  terms for individuals }
 var = @name.
-constant = quoted-name.
+constant = quoted-name; numeral.
+@numeral > name = digit+.
 #+end_src
 
 ** Predicates
@@ -664,7 +696,8 @@ the spelling of the quantification symbols.
   
 ** Formulas
 In language S, the set of basic formulas grows to include
-predicates.  
+predicates.  Since quantified formulas require bracketing,
+they are defined as bracketed formulas.
 #+begin_src ixml :noweb-ref S-Basic-formulas
 { S: Basic formulas }
 -basic-formula = 
@@ -676,10 +709,14 @@ predicates.
 -bracketed-formula =  
         -"(", os, -formula, os, -")"
       | -"[", os, -formula, os, -"]"
+      | all 
+      | exist
       .
 #+end_src
 
 The set of all formulas grows to include quantified formulas.
+(/Actually, this is now the same as XS, since quantification
+was introduced elsewhere./)
 #+begin_src ixml :noweb-ref S-Formulas
 { S: Formulas in general }
 formula = basic-formula | compound-formula.
@@ -687,22 +724,24 @@ formula = basic-formula | compound-formula.
         not 
       | and | or 
       | implies | iff
-      | all | exist
       .
 #+end_src
 
 ** Recapitulation of language S
 The grammar of language S can be summarized:
 #+begin_src ixml :tangle s.ixml :noweb tangle
+ixml version "1.1".
+
 { s.ixml:  grammar for first-order logic
   (without identity or functions) }
-s-formulas = os, formula++os, os.
+s-formulas = os, formula++NL, os.
 <<S-Formulas>>
 <<XS-Compound-formulas>>
 <<Quantification>>
 <<S-Basic-formulas>>
 
-<<S-Predicates>>
+<<Predicates>>
+<<XS-Atomics>>
 <<S-Atomics>>
 <<Quoted-strings>>
 
@@ -713,6 +752,52 @@ s-formulas = os, formula++os, os.
 #+end_src
 
 ** Tests for language S
+All tests for language XS can also serve as tests for language S.
+So the tests below focus on the new parts of XS.
+
+Let's show some simple predicates.
+#+begin_src data :noweb-ref XS-Tests-predicates
+/* Predicates */
+P(x)
+Q(x, y, z)
+born('Frege', 1848)
+born('Frege', ‹anno-1848›)
+born(`Frege', ١٨٤٨)
+p()
+Φ(x) /\ Δ(υ, ζ)
+#+end_src
+
+No whitespace before the parenthesis:
+#+begin_src data :tangle ../tests/s-neg-01.txt
+P (x)
+#+end_src
+
+Double-quoted constants denote propositions, not individuals.  So
+~logician("Frege")~ is not grammatical.
+#+begin_src data :tangle ../tests/s-neg-02.txt
+logician("Frege")
+#+end_src
+
+Single quoting is not required (and not allowed) for numerals:
+#+begin_src data :tangle ../tests/s-neg-03.txt
+born('Frege', ‹1848›)
+#+end_src
+
+Quantification is, of course, the main thing:
+#+begin_src data :noweb-ref XS-Tests-quantification
+(all p)(philosopher(p) implies (some d)(born(p, d)))
+(∀ p)(philosopher(p) ⇒ (∃ d)(born(p, d)))
+(forall n)(natural(n) implies (exists m)(next(n, m)))
+(A n)(natural(n) implies (E m)(next(n, m)))
+(~(ALL x)[P(x)]) → (EXISTS x)(~P(x))
+#+end_src
+
+Summing it up:
+#+begin_src data :tangle ../tests/s-pos-01.txt :noweb tangle
+<<XS-Tests-predicates>>
+
+<<XS-Tests-quantification>>
+#+end_src
 
 * Language M:  first-order logic with identity and functions
 
@@ -746,7 +831,7 @@ translation into language M.
 
 [Full definition to be supplied.]
 
-* Language XS: first-order logic plus set theory
+* Language XL: first-order logic plus set theory
 
 Language XS adds sets /(and tuples? tbd)/ to the universe of
 discourse.  Concretely it adds:
@@ -768,3 +853,77 @@ in that case, we might as well have set comprehensions to make them
 easier to talk about.)/
 
 [Full definition to be supplied.]
+
+* Concluding notes
+The grammars defined here have two intended functions:
+- They provide specific targets for programs we write
+  which are to translate some notation or other into
+  'conventional first-order logic'.  That is, they allow
+  that vague description to be replaced by a statement
+  that the program's output is or should be sentences
+  in one of the languages defined here.
+- They make it easy to translate formulas into XML form
+  so they can be processed by XSLT or XQuery programs.  
+  We may write pretty-printers, normalizers, and (of course)
+  translations into specific target notations like ACL2
+  or TPTP FOF or TFF.
+  
+** To do
+Watch this space.
+
+- Create minimal test case exhibiting /vars/ problem, report.
+  
+** Questions to consider
+At the time this paper was last revised (May 2024 or later), several
+questions seemed to merit further consideration.  They are not
+strictly speaking open questions, in so far as the grammars given here
+provide specific answers to them.  But they are questions in whose
+answers the authors do not currently feel completely confident.  Those
+we remembered to write down are:
+
+- Q. Should subscripts be allowed in identifiers?
+
+  A. They already are.  The only effective way to allow subscripts is
+  to provide some convenient typographic shorthand for them; the
+  obvious choice is to separate the base name from the subscript with
+  an underscore: thus /x/ with a subscribt of 1 can be written
+  ~x\zwnj{}_1~, which can in HTML or on paper be formatted as /x_1/.
+  But this is already allowed.
+
+  Perhaps underscore should be allowed in identifiers /only/ with the
+  meaning 'subscript'?  And thus only when followed by decimal digits?
+
+  Tentative answer:  unnecessary.
+
+- Q. Include an explicit notation for tuples in language XL?
+
+- Q. Include explicit notation(s) for sequences in language XL?
+
+- Q. Define variant grammars with less variation in the spelling of
+  operators?
+
+  Tentative answer: unnecessary.  Consistency of spelling is important
+  for presentation, but not for ingestion of formulas.  A normalizer
+  can easily be written to reserialize formula sequences in any
+  desired form with consistent spelling (and optionally
+  pretty-printing).
+
+- Add /xor/ (aka /aut/), /nand/, /nor/?
+  
+- Eliminate propositional terms in S through XL / allow them only in
+  XS?
+
+- Allow marking variables with "~$~"?
+
+- Allow other forms of numbers as individual constants? (Currently
+  only unsigned integers are allowed.  And it's only the sentence
+  about Frege being born in 1848 that motivates that.)
+
+** Done
+Temporary list of to-do items now completed.
+- Split all operators into symbolic and alphabetic forms.
+  Adjacent space is optional for symbolic form, required
+  for alphabetics.  I think this works already for quantifiers,
+  but the current grammar allows ~born('Frege', 1848)~ to be
+  parsed either as intended or as equivalent to
+  ~b ∨ n('Frege', 1848)~, which is going too far.

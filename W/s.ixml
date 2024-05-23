@@ -1,21 +1,55 @@
 ixml version "1.1".
 
-{ xs.ixml:  grammar for sentential logic }
-xs-formulas = os, formula++NL, os.
-{ XS Formulas in general }
+{ s.ixml:  grammar for first-order logic
+  (without identity or functions) }
+s-formulas = os, formula++NL, os.
+{ S: Formulas in general }
 formula = basic-formula | compound-formula.
--compound-formula = not | and | or | implies | iff.
+-compound-formula = 
+        not 
+      | and | or 
+      | implies | iff
+      .
 { Compound formulas }
     not = NOT+, basic-formula.
     and = basic-formula++AND, AND, (basic-formula | not).
      or = basic-formula++OR,  OR,  (basic-formula | not).
 implies = basic-formula, IMPLIES, (basic-formula | not).
     iff = basic-formula, IFF, (basic-formula | not).
-{ XS Basic formulas }
--basic-formula = prop-var | prop-constant 
-               | -"(", os, -formula, os, -")"
-               | -"[", os, -formula, os, -"]".
+{ Quantified formulas }
+all = universal-quantifier, bracketed-formula.
+exist = existential-quantifier, bracketed-formula.
 
+-universal-quantifier = 
+        -"(", os, FORALL-sym, os, vars, os, -")"
+      | -"(", os, FORALL-lex, RS, vars, os, -")"
+      | -"(", os, one-var, os, -")"
+      .
+-existential-quantifier = 
+        -"(", os, EXIST-sym, os, vars, os, -")"
+      | -"(", os, EXIST-lex, RS, vars, os, -")"
+      .
+@vars = var ++ comma-space.
+@one-var > vars = var.
+-comma-space = os, -",", os, +" ".
+{ S: Basic formulas }
+-basic-formula = 
+        prop-var 
+      | prop-constant 
+      | predicate
+      | bracketed-formula
+      .
+-bracketed-formula =  
+        -"(", os, -formula, os, -")"
+      | -"[", os, -formula, os, -"]"
+      | all 
+      | exist
+      .
+
+{ Predicates }
+predicate = @name, -"(", os, arg**comma, os, -")".
+-arg = var; constant.
+-comma = os, -",", os.
 { XS Atomics:  propositional variables and constants }
 prop-var = @name.
 prop-constant = quoted-name; quoted-string.
@@ -30,6 +64,10 @@ prop-constant = quoted-name; quoted-string.
              | -#2039, @name, -#203A 
                { single guillemets pointing out }
              .
+{ S-Atomics:  terms for individuals }
+var = @name.
+constant = quoted-name; numeral.
+@numeral > name = digit+.
 @quoted-string
       > string = -#22, (~[#22; #A]; (#22, #22))*, -#22
                | -#60, -#60, ~[#22; #60; #A]*, -#27, -#27 
@@ -98,6 +136,20 @@ IFF-alpha = "iff" | "IFF"; "\equiv".
           | "<->"
           | "<=>"
           .
+{ Operators for quantifiers }
+@FORALL-lex > op = "all" | "ALL"
+      | "for", os, "all" | "FOR", os, "ALL"
+      | "A"
+      .
+@FORALL-sym > op = "∀" { #2200 for all }
+      .
+@EXIST-lex > op = "exists" | "EXISTS"
+      | "exist" | "EXIST"
+      | "some" | "SOME"
+      | "E"
+      .
+@EXIST-sym > op = "∃" { #2203 there exists }
+      .
 
 
 { Basics:  names, whitespace, comments }

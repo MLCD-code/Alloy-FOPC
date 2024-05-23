@@ -6,3 +6,5 @@ tests = (whitespace; comment)*.
 -whitespace = -[Zs; #9; #A; #D].
 -RS = (whitespace; comment)+.
 -os = (whitespace; comment)*.
+{ NL for required line breaks }
+-NL = (-[Zs; #9] | comment)*, #A, os.

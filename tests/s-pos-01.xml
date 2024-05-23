@@ -1,0 +1,136 @@
+<s-formulas>
+   <comment> Predicates </comment>
+   <formula>
+      <predicate name='P'>
+         <var name='x'/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name='Q'>
+         <var name='x'/>
+         <var name='y'/>
+         <var name='z'/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name='born'>
+         <constant name='Frege'/>
+         <constant name='1848'/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name='born'>
+         <constant name='Frege'/>
+         <constant name='anno-1848'/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name='born'>
+         <constant name='Frege'/>
+         <constant name='١٨٤٨'/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name='p'/>
+   </formula>
+
+   <formula>
+      <and op='/\'>
+         <predicate name='Φ'>
+            <var name='x'/>
+         </predicate>
+         <predicate name='Δ'>
+            <var name='υ'/>
+            <var name='ζ'/>
+         </predicate>
+      </and>
+   </formula>
+
+   <formula>
+      <all op='all' vars='p'>
+         <implies op='implies'>
+            <predicate name='philosopher'>
+               <var name='p'/>
+            </predicate>
+            <exist op='some' vars='d'>
+               <predicate name='born'>
+                  <var name='p'/>
+                  <var name='d'/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <all op='∀' vars='p'>
+         <implies op='⇒'>
+            <predicate name='philosopher'>
+               <var name='p'/>
+            </predicate>
+            <exist op='∃' vars='d'>
+               <predicate name='born'>
+                  <var name='p'/>
+                  <var name='d'/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <all op='forall' vars='n'>
+         <implies op='implies'>
+            <predicate name='natural'>
+               <var name='n'/>
+            </predicate>
+            <exist op='exists' vars='m'>
+               <predicate name='next'>
+                  <var name='n'/>
+                  <var name='m'/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <all op='A' vars='n'>
+         <implies op='implies'>
+            <predicate name='natural'>
+               <var name='n'/>
+            </predicate>
+            <exist op='E' vars='m'>
+               <predicate name='next'>
+                  <var name='n'/>
+                  <var name='m'/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <implies op='→'>
+         <not op='~'>
+            <all op='ALL' vars='x'>
+               <predicate name='P'>
+                  <var name='x'/>
+               </predicate>
+            </all>
+         </not>
+         <exist op='EXISTS' vars='x'>
+            <not op='~'>
+               <predicate name='P'>
+                  <var name='x'/>
+               </predicate>
+            </not>
+         </exist>
+      </implies>
+   </formula>
+</s-formulas>

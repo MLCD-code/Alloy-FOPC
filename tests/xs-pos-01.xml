@@ -1,141 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs-formulas xmlns:ixml="http://invisiblexml.org/NS" ixml:state="ambiguous">
+<xs-formulas xmlns:ixml="http://invisiblexml.org/NS" ixml:state="version-mismatch">
    <comment> Some basic formulas </comment>
    <comment> Propositional variables </comment>
    <formula>
       <prop-var name="p"/>
    </formula>
+
    <formula>
       <prop-var name="q"/>
    </formula>
+
    <formula>
       <prop-var name="Prop-2a"/>
    </formula>
+
    <formula>
       <prop-var name="φ"/>
    </formula>
+
    <formula>
       <prop-var name="א"/>
    </formula>
+
    <comment> and </comment>
    <comment> Propositional constants </comment>
    <formula>
       <prop-constant name="Prop-2a"/>
    </formula>
+
    <formula>
       <prop-constant name="Frege-was-born-in-1848"/>
    </formula>
+
    <formula>
       <prop-constant name="Russell-died-in-1970"/>
    </formula>
+
    <formula>
       <prop-constant name="Prop-2b"/>
    </formula>
-   <comment> quoted strings as propositional constants </comment>
+
+   <comment> Double-quoted strings as propositional constants </comment>
    <formula>
       <prop-constant string="Frege was born in 1848"/>
    </formula>
+
    <formula>
       <prop-constant string="he is at his desk"/>
    </formula>
+
    <formula>
       <prop-constant string="he is eating lunch"/>
    </formula>
+
    <comment> Parenthesized basic formulas </comment>
    <formula>
       <prop-var name="q"/>
    </formula>
+
    <formula>
       <prop-var name="Prop-2a"/>
    </formula>
+
    <formula>
       <prop-var name="φ"/>
    </formula>
+
    <formula>
       <prop-constant name="Prop-2a"/>
    </formula>
+
    <comment> Compound formulas </comment>
    <formula>
-      <implies IMPLIES="onlyif">
-         <iff IFF="iff">
+      <implies op="onlyif">
+         <iff op="iff">
             <prop-var name="p"/>
-            <and AND="&amp;">
+            <and op="&amp;">
                <prop-var name="q"/>
                <prop-var name="r"/>
             </and>
          </iff>
-         <and AND="&amp;&amp;">
+         <and op="&amp;&amp;">
             <prop-var name="p"/>
             <prop-var name="q"/>
          </and>
       </implies>
    </formula>
+
    <formula>
-      <iff IFF="iff">
-         <implies IMPLIES="implies">
+      <iff op="iff">
+         <implies op="implies">
             <prop-var name="p"/>
-            <and AND="&amp;">
+            <and op="&amp;">
                <prop-var name="q"/>
                <prop-var name="r"/>
             </and>
          </implies>
-         <and AND="∧">
+         <and op="∧">
             <prop-var name="p"/>
             <prop-var name="q"/>
          </and>
       </iff>
    </formula>
+
    <formula>
-      <implies IMPLIES="implies">
-         <or OR="∨">
+      <implies op="implies">
+         <or op="∨">
             <prop-var name="p"/>
             <prop-var name="q"/>
          </or>
          <prop-var name="r"/>
       </implies>
    </formula>
+
    <formula>
-      <or OR="∨">
+      <or op="∨">
          <prop-var name="p"/>
-         <implies IMPLIES="implies">
+         <implies op="implies">
             <prop-var name="q"/>
             <prop-var name="r"/>
          </implies>
       </or>
    </formula>
+
    <formula>
-      <implies IMPLIES="implies">
+      <implies op="implies">
          <prop-var name="p"/>
-         <or OR="or">
+         <or op="or">
             <prop-var name="q"/>
             <prop-var name="r"/>
          </or>
       </implies>
    </formula>
+
    <formula>
-      <and AND="and">
+      <and op="and">
          <prop-constant string="Jones is here"/>
          <prop-constant string="Smith is away"/>
       </and>
    </formula>
+
    <formula>
-      <implies IMPLIES="⇒">
-         <iff IFF="⇔">
-            <or OR="∨">
-               <and AND="∧">
-                  <or OR="∨">
+      <implies op="⇒">
+         <iff op="⇔">
+            <or op="∨">
+               <and op="∧">
+                  <or op="∨">
                      <prop-var name="p"/>
                      <prop-var name="q"/>
                   </or>
-                  <or OR="∨">
+                  <or op="∨">
                      <prop-var name="p"/>
-                     <not NOT="-">
+                     <not op="-">
                         <prop-var name="q"/>
                      </not>
                   </or>
                </and>
-               <and AND="∧">
-                  <not NOT="-">
+               <and op="∧">
+                  <not op="-">
                      <prop-var name="p"/>
                   </not>
                   <prop-var name="q"/>
@@ -143,14 +165,14 @@
             </or>
             <prop-var name="q"/>
          </iff>
-         <or OR="∨">
-            <and AND="∧">
+         <or op="∨">
+            <and op="∧">
                <prop-var name="p"/>
                <prop-var name="r"/>
             </and>
-            <and AND="∧">
+            <and op="∧">
                <prop-var name="p"/>
-               <not NOT="~">
+               <not op="~">
                   <prop-var name="r"/>
                </not>
             </and>

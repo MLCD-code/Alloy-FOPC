@@ -1,0 +1,14 @@
+/* Predicates */
+P(x)
+Q(x, y, z)
+born('Frege', 1848)
+born('Frege', ‹anno-1848›)
+born(`Frege', ١٨٤٨)
+p()
+Φ(x) /\ Δ(υ, ζ)
+
+(all p)(philosopher(p) implies (some d)(born(p, d)))
+(∀ p)(philosopher(p) ⇒ (∃ d)(born(p, d)))
+(forall n)(natural(n) implies (exists m)(next(n, m)))
+(A n)(natural(n) implies (E m)(next(n, m)))
+(~(ALL x)[P(x)]) → (EXISTS x)(~P(x))
