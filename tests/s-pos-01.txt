@@ -12,3 +12,21 @@ p()
 (forall n)(natural(n) implies (exists m)(next(n, m)))
 (A n)(natural(n) implies (E m)(next(n, m)))
 (~(ALL x)[P(x)]) → (EXISTS x)(~P(x))
+/* Some examples from Smullyan */
+(ψ ⇒ (∀x)(φ(x))) ≡ (∀y)[ψ ⇒ (φ(y))]
+(psi implies (x)(phi(x))) iff (all y)[psi only if (phi(y))]
+/* R symmetric: */
+(A x)(A y)[R(x,y) implies R(y,x)] 
+(FORALL x, y)[R(x,y) implies R(y,x)] 
+/* R transitive: */
+(x)(y)(z)[(R(x,y) & R(y,z)) implies R(x,z)] 
+(all x, y, z)[(R(x,y) & R(y,z)) implies R(x,z)] 
+/* R reflexive */
+(∀ x, y)(R(x, y) ⇒ R(x, x))
+
+/* Some examples from Quine */
+(all y)(some x)((F(y,y) and F(y, x)) or F(x, y))
+
+(all w)(all x)(-[F(x,y) & F(x,w) & F(w,x)])
+(ALL w, x)(-[F(x,y) & F(x,w) & F(w,x)])
+(E x)(A w)[(-F(x,y)) & ([~F(x,w)] vel not F(w,x) )]

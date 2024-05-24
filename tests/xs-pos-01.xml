@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs-formulas xmlns:ixml="http://invisiblexml.org/NS" ixml:state="version-mismatch">
+<s-formulas>
    <comment> Some basic formulas </comment>
    <comment> Propositional variables </comment>
    <formula>
@@ -179,4 +179,4 @@
          </or>
       </implies>
    </formula>
-</xs-formulas>
+</s-formulas>

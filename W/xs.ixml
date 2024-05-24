@@ -7,8 +7,8 @@ formula = basic-formula | compound-formula.
 -compound-formula = not | and | or | implies | iff.
 { Compound formulas }
     not = NOT+, basic-formula.
-    and = basic-formula++AND, AND, (basic-formula | not).
-     or = basic-formula++OR,  OR,  (basic-formula | not).
+    and = basic-formula++(-AND), AND, (basic-formula | not).
+     or = basic-formula++(-OR),  OR,  (basic-formula | not).
 implies = basic-formula, IMPLIES, (basic-formula | not).
     iff = basic-formula, IFF, (basic-formula | not).
 { XS Basic formulas }

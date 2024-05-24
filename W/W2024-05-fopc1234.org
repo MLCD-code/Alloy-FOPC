@@ -351,8 +351,8 @@ Each logical operator defines a distinct type of compound formula.
 #+begin_src ixml :noweb-ref XS-Compound-formulas
 { Compound formulas }
     not = NOT+, basic-formula.
-    and = basic-formula++AND, AND, (basic-formula | not).
-     or = basic-formula++OR,  OR,  (basic-formula | not).
+    and = basic-formula++(-AND), AND, (basic-formula | not).
+     or = basic-formula++(-OR),  OR,  (basic-formula | not).
 implies = basic-formula, IMPLIES, (basic-formula | not).
     iff = basic-formula, IFF, (basic-formula | not).
 #+end_src
@@ -383,6 +383,13 @@ in =p∨¬q=.
 We might wish to consider adding other operators: /xor/ (or /aut/),
 /nor/, /nand/.  But since we do not want those operators in language
 M, and we want M to be a proper superset of XS, we leave them out.
+
+One minor technical point may be worth making: in general the grammar
+tries to retain information about how the input spells the operators,
+in case a downstream process wants to preserve those spellings in its
+output.  But since we record the operators in an attribute (/@op/),
+only one operator spelling can be recorded; the /n/-ary conjunction
+and disjunction can have several.  We choose to record the last.
 
 ** Logical Operators
 For each operator, we seek to allow a wide variety of different forms:
@@ -792,11 +799,42 @@ Quantification is, of course, the main thing:
 (~(ALL x)[P(x)]) → (EXISTS x)(~P(x))
 #+end_src
 
+And we need to test at least some quantifications
+with multiple variables.
+#+begin_src data :noweb-ref XS-Tests-multiple-quantification
+/* Some examples from Smullyan */
+(ψ ⇒ (∀x)(φ(x))) ≡ (∀y)[ψ ⇒ (φ(y))]
+(psi implies (x)(phi(x))) iff (all y)[psi only if (phi(y))]
+/* R symmetric: */
+(A x)(A y)[R(x,y) implies R(y,x)] 
+(FORALL x, y)[R(x,y) implies R(y,x)] 
+/* R transitive: */
+(x)(y)(z)[(R(x,y) & R(y,z)) implies R(x,z)] 
+(all x, y, z)[(R(x,y) & R(y,z)) implies R(x,z)] 
+/* R reflexive */
+(∀ x, y)(R(x, y) ⇒ R(x, x))
+
+/* Some examples from Quine */
+(all y)(some x)((F(y,y) and F(y, x)) or F(x, y))
+
+(all w)(all x)(-[F(x,y) & F(x,w) & F(w,x)])
+(ALL w, x)(-[F(x,y) & F(x,w) & F(w,x)])
+(E x)(A w)[(-F(x,y)) & ([~F(x,w)] vel not F(w,x) )]
+#+end_src
+Note that for the last formula, my initial formulation
+was "~(E x)(A w)[-F(x,y) & (~F(x,w) vel not F(w,x) )]~",
+which suggests I find it natural to assume a tighter
+binding for negation than for conjunction.  The same
+thing happened on at least one earlier test case; it
+suggests we should contemplate making negation bind
+more tightly than the binary operators.
+
 Summing it up:
 #+begin_src data :tangle ../tests/s-pos-01.txt :noweb tangle
 <<XS-Tests-predicates>>
 
 <<XS-Tests-quantification>>
+<<XS-Tests-multiple-quantification>>
 #+end_src
 
 * Language M:  first-order logic with identity and functions
@@ -813,6 +851,10 @@ function expression like "~f()~".
 
 [Full definition to be supplied.]
 
+** Identity as a basic formula
+
+** Functions
+
 * Language L:  additional convenience features
 
 Language L adds a number of convenience features to language M:
@@ -820,7 +862,7 @@ Language L adds a number of convenience features to language M:
   some /x/ of type /T/ such that ...)
 - unique existential quantification (there exists exactly one
   individual such that ...)
-- Skolem expressions (the unique individual who ...)
+- Descriptions / Skolem expressions (the unique individual who ...)
 - negated existential quantification (there is no /x/ such that ...)
 - /lone/ existential quantification (there is at most one /x/ such
   that ...)
@@ -828,6 +870,18 @@ Language L adds a number of convenience features to language M:
 These are all intended as idioms for concise expression of commonly
 used patterns; for each new construct, we specify a standard
 translation into language M.
+
+** Typed quantification
+** Unique quantification
+** Lone quantification
+** Definite descriptions / Skolem expressions
+On descriptions see Quine /Methods/ 274-282 (or so).
+
+#+begin_src ixml
+the = "℩" { #2129 turned Greek small letter iota }
+    | "the"
+    .
+#+end_src
 
 [Full definition to be supplied.]
 
@@ -871,7 +925,6 @@ The grammars defined here have two intended functions:
 ** To do
 Watch this space.
 
-- Create minimal test case exhibiting /vars/ problem, report.
   
 ** Questions to consider
 At the time this paper was last revised (May 2024 or later), several
@@ -919,6 +972,8 @@ we remembered to write down are:
   only unsigned integers are allowed.  And it's only the sentence
   about Frege being born in 1848 that motivates that.)
 
+- All negation to bind more tightly than the binary operators?
+  
 ** Done
 Temporary list of to-do items now completed.
 - Split all operators into symbolic and alphabetic forms.
@@ -927,3 +982,6 @@ Temporary list of to-do items now completed.
   but the current grammar allows ~born('Frege', 1848)~ to be
   parsed either as intended or as equivalent to
   ~b ∨ n('Frege', 1848)~, which is going too far.
+- Create minimal test case exhibiting /vars/ problem, report
+  to Markup Blitz.
+  
