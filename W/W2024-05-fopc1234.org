@@ -350,18 +350,18 @@ formula = basic-formula | compound-formula.
 Each logical operator defines a distinct type of compound formula.
 #+begin_src ixml :noweb-ref XS-Compound-formulas
 { Compound formulas }
-    not = NOT+, basic-formula.
-    and = basic-formula++(-AND), AND, (basic-formula | not).
-     or = basic-formula++(-OR),  OR,  (basic-formula | not).
+    not = NOT, (not | basic-formula).
+    and = (and | basic-formula), AND, (basic-formula | not).
+     or = (or  | basic-formula),  OR, (basic-formula | not).
 implies = basic-formula, IMPLIES, (basic-formula | not).
     iff = basic-formula, IFF, (basic-formula | not).
 #+end_src
 
-Note that /not/, /and/, and /or/ all allow multiple repetitions of the
-operator without parentheses.  Since /and/ and /or/ are associative,
-expressions like /A ∧ (B ∧ C)/ and /(A ∧ B) ∧ C/ always have the same
-truth value, so there is no reason to require parentheses to specify
-one structure or the other.
+We want /not/, /and/, and /or/ all to allow multiple repetitions of
+the operator without parentheses.  Since /and/ and /or/ are
+associative, expressions like /A ∧ (B ∧ C)/ and /(A ∧ B) ∧ C/ always
+have the same truth value, so there is no reason to require
+parentheses to specify one structure or the other.
 
 For conditionals and biconditionals, however, the left- and
 right-associative interpretations of expressions like /A implies B
@@ -376,9 +376,8 @@ parentheses in an expression like /¬(¬(¬p))/ are optional.  Similarly,
 the scope of a negation symbol is clear if it applies to the
 right-most operand of an /n/-ary or binary operator.  So /not/
 expressions are allowed in those positions.  As a result, the
-parentheses are necessary in =(¬p)∨q= and =¬(p∨q)= -- the
-expression =¬p∨q= is ungrammatical -- but no parentheses are needed
-in =p∨¬q=.
+parentheses are necessary in =(¬p)∨q= and =¬(p∨q)= -- the expression
+=¬p∨q= is ungrammatical -- but no parentheses are needed in =p∨¬q=.
 
 We might wish to consider adding other operators: /xor/ (or /aut/),
 /nor/, /nand/.  But since we do not want those operators in language
@@ -388,8 +387,15 @@ One minor technical point may be worth making: in general the grammar
 tries to retain information about how the input spells the operators,
 in case a downstream process wants to preserve those spellings in its
 output.  But since we record the operators in an attribute (/@op/),
-only one operator spelling can be recorded; the /n/-ary conjunction
-and disjunction can have several.  We choose to record the last.
+only one operator spelling can be recorded; this is why we use a
+(left-)recursive structure for conjunction and disjunction, instead of
+using the natural ixml formulation for /n/-ary operators, which would
+be:
+#+begin_src ixml
+    not = NOT+, basic-formula.
+    and = basic-formula++(-AND), AND, (basic-formula | not).
+     or = basic-formula++(-OR),  OR,  (basic-formula | not).
+#+end_src
 
 ** Logical Operators
 For each operator, we seek to allow a wide variety of different forms:
@@ -653,6 +659,14 @@ Note:
   parenthesis for the list of arguments.
 - The argument list must be surrounded by round parentheses; square
   brackets or other forms of brackets are not accepted.
+- The argument list may be empty.
+- Predicates with no arguments may be thus be written either with an
+  empty argument list (i.e. in the form "~p()~") or with no argument
+  list at all ("~p~").  The grammar currently renders these
+  differently: the form "~p~" is parsed as a propositional variable
+  (/prop-var/); the form "~p()~" is parsed as a /predicate/ named "p"
+  with no arguments.
+ 
 
 ** Quantification
 If /F/ is a formula, then /F/ preceded by a universal or existential

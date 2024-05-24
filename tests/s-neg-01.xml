@@ -1,7 +1,7 @@
-<fail xmlns:ixml='http://invisiblexml.org/NS' ixml:state='failed'>
-   <line>1</line>
-   <column>4</column>
-   <pos>3</pos>
-   <unexpected>(</unexpected>
-   <permitted>'&amp;', '-', '/', '/', '&lt;', '=', 'A', 'I', 'O', 'V', '\', 'a', 'i', 'o', 'v', '|', '→', '↔', '⇒', '⇔', '∧', '∨', '≡', '⊃', [Zs; #9; #A; #D], [Zs; #9]</permitted>
-</fail>
+<?xml version="1.0" encoding="utf-8"?>
+<ixml xmlns:ixml="http://invisiblexml.org/NS" ixml:state="failed">Failed to parse input:
+syntax error, found '('
+while expecting [#9..., #a, #d, '/', 'I', 'O', '\', 'i', 'o']
+at line 1, column 3:
+...(x)
+...</ixml>

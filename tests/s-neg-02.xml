@@ -1,7 +1,7 @@
-<fail xmlns:ixml='http://invisiblexml.org/NS' ixml:state='failed'>
-   <line>1</line>
-   <column>11</column>
-   <pos>10</pos>
-   <unexpected>"</unexpected>
-   <permitted>"'", '/', '`', '‘', '‹', '›', [L], [Nd], [Zs; #9; #A; #D]</permitted>
-</fail>
+<?xml version="1.0" encoding="utf-8"?>
+<ixml xmlns:ixml="http://invisiblexml.org/NS" ixml:state="failed">Failed to parse input:
+syntax error, found '"'
+while expecting [#9..., #a, #d, '/', "'", ')', '0'..., 'A', 'B'..., 'D', 'E', 'F', 'I', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'V', 'X', 'Y', '`', 'a', 'd', 'e', 'f', 'g', 'i', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', #2018, #2039, #203a]
+at line 1, column 10:
+..."Frege")
+...</ixml>

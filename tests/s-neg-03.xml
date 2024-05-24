@@ -1,7 +1,7 @@
-<fail xmlns:ixml='http://invisiblexml.org/NS' ixml:state='failed'>
-   <line>1</line>
-   <column>17</column>
-   <pos>16</pos>
-   <unexpected>1</unexpected>
-   <permitted>[L]</permitted>
-</fail>
+<?xml version="1.0" encoding="utf-8"?>
+<ixml xmlns:ixml="http://invisiblexml.org/NS" ixml:state="failed">Failed to parse input:
+syntax error, found '0'...
+while expecting ['A', 'B'..., 'D', 'E', 'F', 'I', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'V', 'X', 'Y', 'a', 'd', 'e', 'f', 'g', 'i', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y']
+at line 1, column 16:
+...1848›)
+...</ixml>

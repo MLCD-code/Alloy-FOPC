@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s-formulas>
+   <comment> Predicates </comment>
+   <formula>
+      <predicate name="P">
+         <var name="x"/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="Q">
+         <var name="x"/>
+         <var name="y"/>
+         <var name="z"/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="born">
+         <constant name="Frege"/>
+         <constant name="1848"/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="born">
+         <constant name="Frege"/>
+         <constant name="anno-1848"/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="born">
+         <constant name="Frege"/>
+         <constant name="١٨٤٨"/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="p"/>
+   </formula>
+
+   <formula>
+      <and op="/\">
+         <predicate name="Φ">
+            <var name="x"/>
+         </predicate>
+         <predicate name="Δ">
+            <var name="υ"/>
+            <var name="ζ"/>
+         </predicate>
+      </and>
+   </formula>
+
+   <formula>
+      <all op="all" vars="p">
+         <implies op="implies">
+            <predicate name="philosopher">
+               <var name="p"/>
+            </predicate>
+            <exist op="some" vars="d">
+               <predicate name="born">
+                  <var name="p"/>
+                  <var name="d"/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="∀" vars="p">
+         <implies op="⇒">
+            <predicate name="philosopher">
+               <var name="p"/>
+            </predicate>
+            <exist op="∃" vars="d">
+               <predicate name="born">
+                  <var name="p"/>
+                  <var name="d"/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="forall" vars="n">
+         <implies op="implies">
+            <predicate name="natural">
+               <var name="n"/>
+            </predicate>
+            <exist op="exists" vars="m">
+               <predicate name="next">
+                  <var name="n"/>
+                  <var name="m"/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="A" vars="n">
+         <implies op="implies">
+            <predicate name="natural">
+               <var name="n"/>
+            </predicate>
+            <exist op="E" vars="m">
+               <predicate name="next">
+                  <var name="n"/>
+                  <var name="m"/>
+               </predicate>
+            </exist>
+         </implies>
+      </all>
+   </formula>
+
+   <formula>
+      <implies op="→">
+         <not op="~">
+            <all op="ALL" vars="x">
+               <predicate name="P">
+                  <var name="x"/>
+               </predicate>
+            </all>
+         </not>
+         <exist op="EXISTS" vars="x">
+            <not op="~">
+               <predicate name="P">
+                  <var name="x"/>
+               </predicate>
+            </not>
+         </exist>
+      </implies>
+   </formula>
+
+   <comment> Some examples from Smullyan </comment>
+   <formula>
+      <iff op="≡">
+         <implies op="⇒">
+            <prop-var name="ψ"/>
+            <all op="∀" vars="x">
+               <predicate name="φ">
+                  <var name="x"/>
+               </predicate>
+            </all>
+         </implies>
+         <all op="∀" vars="y">
+            <implies op="⇒">
+               <prop-var name="ψ"/>
+               <predicate name="φ">
+                  <var name="y"/>
+               </predicate>
+            </implies>
+         </all>
+      </iff>
+   </formula>
+
+   <formula>
+      <iff op="iff">
+         <implies op="implies">
+            <prop-var name="psi"/>
+            <all vars="x">
+               <predicate name="phi">
+                  <var name="x"/>
+               </predicate>
+            </all>
+         </implies>
+         <all op="all" vars="y">
+            <implies op="onlyif">
+               <prop-var name="psi"/>
+               <predicate name="phi">
+                  <var name="y"/>
+               </predicate>
+            </implies>
+         </all>
+      </iff>
+   </formula>
+
+   <comment> R symmetric: </comment>
+   <formula>
+      <all op="A" vars="x">
+         <all op="A" vars="y">
+            <implies op="implies">
+               <predicate name="R">
+                  <var name="x"/>
+                  <var name="y"/>
+               </predicate>
+               <predicate name="R">
+                  <var name="y"/>
+                  <var name="x"/>
+               </predicate>
+            </implies>
+         </all>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="FORALL" vars="x y">
+         <implies op="implies">
+            <predicate name="R">
+               <var name="x"/>
+               <var name="y"/>
+            </predicate>
+            <predicate name="R">
+               <var name="y"/>
+               <var name="x"/>
+            </predicate>
+         </implies>
+      </all>
+   </formula>
+
+   <comment> R transitive: </comment>
+   <formula>
+      <all vars="x">
+         <all vars="y">
+            <all vars="z">
+               <implies op="implies">
+                  <and op="&amp;">
+                     <predicate name="R">
+                        <var name="x"/>
+                        <var name="y"/>
+                     </predicate>
+                     <predicate name="R">
+                        <var name="y"/>
+                        <var name="z"/>
+                     </predicate>
+                  </and>
+                  <predicate name="R">
+                     <var name="x"/>
+                     <var name="z"/>
+                  </predicate>
+               </implies>
+            </all>
+         </all>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="all" vars="x y z">
+         <implies op="implies">
+            <and op="&amp;">
+               <predicate name="R">
+                  <var name="x"/>
+                  <var name="y"/>
+               </predicate>
+               <predicate name="R">
+                  <var name="y"/>
+                  <var name="z"/>
+               </predicate>
+            </and>
+            <predicate name="R">
+               <var name="x"/>
+               <var name="z"/>
+            </predicate>
+         </implies>
+      </all>
+   </formula>
+
+   <comment> R reflexive </comment>
+   <formula>
+      <all op="∀" vars="x y">
+         <implies op="⇒">
+            <predicate name="R">
+               <var name="x"/>
+               <var name="y"/>
+            </predicate>
+            <predicate name="R">
+               <var name="x"/>
+               <var name="x"/>
+            </predicate>
+         </implies>
+      </all>
+   </formula>
+
+   <comment> Some examples from Quine </comment>
+   <formula>
+      <all op="all" vars="y">
+         <exist op="some" vars="x">
+            <or op="or">
+               <and op="and">
+                  <predicate name="F">
+                     <var name="y"/>
+                     <var name="y"/>
+                  </predicate>
+                  <predicate name="F">
+                     <var name="y"/>
+                     <var name="x"/>
+                  </predicate>
+               </and>
+               <predicate name="F">
+                  <var name="x"/>
+                  <var name="y"/>
+               </predicate>
+            </or>
+         </exist>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="all" vars="w">
+         <all op="all" vars="x">
+            <not op="-">
+               <and op="&amp;">
+                  <and op="&amp;">
+                     <predicate name="F">
+                        <var name="x"/>
+                        <var name="y"/>
+                     </predicate>
+                     <predicate name="F">
+                        <var name="x"/>
+                        <var name="w"/>
+                     </predicate>
+                  </and>
+                  <predicate name="F">
+                     <var name="w"/>
+                     <var name="x"/>
+                  </predicate>
+               </and>
+            </not>
+         </all>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="ALL" vars="w x">
+         <not op="-">
+            <and op="&amp;">
+               <and op="&amp;">
+                  <predicate name="F">
+                     <var name="x"/>
+                     <var name="y"/>
+                  </predicate>
+                  <predicate name="F">
+                     <var name="x"/>
+                     <var name="w"/>
+                  </predicate>
+               </and>
+               <predicate name="F">
+                  <var name="w"/>
+                  <var name="x"/>
+               </predicate>
+            </and>
+         </not>
+      </all>
+   </formula>
+
+   <formula>
+      <exist op="E" vars="x">
+         <all op="A" vars="w">
+            <and op="&amp;">
+               <not op="-">
+                  <predicate name="F">
+                     <var name="x"/>
+                     <var name="y"/>
+                  </predicate>
+               </not>
+               <or op="vel">
+                  <not op="~">
+                     <predicate name="F">
+                        <var name="x"/>
+                        <var name="w"/>
+                     </predicate>
+                  </not>
+                  <not op="not">
+                     <predicate name="F">
+                        <var name="w"/>
+                        <var name="x"/>
+                     </predicate>
+                  </not>
+               </or>
+            </and>
+         </all>
+      </exist>
+   </formula>
+</s-formulas>
