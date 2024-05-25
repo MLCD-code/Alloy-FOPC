@@ -4,15 +4,15 @@ ixml version "1.1".
 xs-formulas = os, formula++NL, os.
 { XS Formulas in general }
 formula = basic-formula | compound-formula.
--compound-formula = not | and | or | implies | iff.
+-compound-formula = and | or | implies | iff.
 { Compound formulas }
-    not = NOT, (not | basic-formula).
-    and = (and | basic-formula), AND, (basic-formula | not).
-     or = (or  | basic-formula),  OR, (basic-formula | not).
-implies = basic-formula, IMPLIES, (basic-formula | not).
-    iff = basic-formula, IFF, (basic-formula | not).
+    not = NOT, basic-formula.
+    and = (and | basic-formula), AND, basic-formula.
+     or = (or  | basic-formula),  OR, basic-formula.
+implies = basic-formula, IMPLIES, basic-formula.
+    iff = basic-formula, IFF, basic-formula.
 { XS Basic formulas }
--basic-formula = prop-var | prop-constant 
+-basic-formula = prop-var | prop-constant | not
                | -"(", os, -formula, os, -")"
                | -"[", os, -formula, os, -"]".
 

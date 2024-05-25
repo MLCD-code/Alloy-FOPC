@@ -5,20 +5,17 @@ ixml version "1.1".
 s-formulas = os, formula++NL, os.
 { S: Formulas in general }
 formula = basic-formula | compound-formula.
--compound-formula = 
-        not 
-      | and | or 
-      | implies | iff
-      .
+-compound-formula = and | or | implies | iff.
 { Compound formulas }
-    not = NOT, (not | basic-formula).
-    and = (and | basic-formula), AND, (basic-formula | not).
-     or = (or  | basic-formula),  OR, (basic-formula | not).
-implies = basic-formula, IMPLIES, (basic-formula | not).
-    iff = basic-formula, IFF, (basic-formula | not).
+    not = NOT, basic-formula.
+    and = (and | basic-formula), AND, basic-formula.
+     or = (or  | basic-formula),  OR, basic-formula.
+implies = basic-formula, IMPLIES, basic-formula.
+    iff = basic-formula, IFF, basic-formula.
 { Quantified formulas }
-all = universal-quantifier, bracketed-formula.
-exist = existential-quantifier, bracketed-formula.
+-quantified-formula = all | exist.
+all = universal-quantifier, os, bracketed-formula.
+exist = existential-quantifier, os, bracketed-formula.
 
 -universal-quantifier = 
         -"(", os, FORALL-sym, os, vars, os, -")"
@@ -37,13 +34,13 @@ exist = existential-quantifier, bracketed-formula.
         prop-var 
       | prop-constant 
       | predicate
+      | not
       | bracketed-formula
       .
 -bracketed-formula =  
         -"(", os, -formula, os, -")"
       | -"[", os, -formula, os, -"]"
-      | all 
-      | exist
+      | quantified-formula
       .
 
 { Predicates }

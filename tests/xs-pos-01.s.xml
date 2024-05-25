@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s-formulas>
+<s-formulas xmlns:ixml="http://invisiblexml.org/NS" ixml:state="ambiguous">
    <comment> Some basic formulas </comment>
    <comment> Propositional variables </comment>
    <formula>
@@ -55,15 +55,11 @@
 
    <comment> Parenthesized basic formulas </comment>
    <formula>
-      <prop-var name="q"/>
-   </formula>
-
-   <formula>
-      <prop-var name="Prop-2a"/>
-   </formula>
-
-   <formula>
-      <prop-var name="φ"/>
+      <all vars="q">
+         <all vars="Prop-2a">
+            <prop-var name="φ"/>
+         </all>
+      </all>
    </formula>
 
    <formula>

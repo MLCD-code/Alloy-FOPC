@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-05-24 Fri 18:21 -->
+<!-- 2024-05-25 Sat 08:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Five varieties of first-order predicate calculus</title>
@@ -222,63 +222,64 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgd32d0f2">1. Design goals and design decisions</a></li>
-<li><a href="#org3a950d2">2. Language XS:  sentential logic</a>
+<li><a href="#orgef1c356">1. Design goals and design decisions</a></li>
+<li><a href="#org2520b7a">2. Language XS:  sentential logic</a>
 <ul>
-<li><a href="#org3399037">2.1. Basics: Names, whitespace, comments</a>
+<li><a href="#org05e4e9a">2.1. Basics: Names, whitespace, comments</a>
 <ul>
-<li><a href="#org5091992">2.1.1. Names</a></li>
-<li><a href="#orgf3c14f9">2.1.2. Whitespace</a></li>
-<li><a href="#orgcbace33">2.1.3. Comments</a></li>
-<li><a href="#org8afbef5">2.1.4. Recapitulation (comments)</a></li>
+<li><a href="#orgd462fec">2.1.1. Names</a></li>
+<li><a href="#org8c4d570">2.1.2. Whitespace</a></li>
+<li><a href="#org33712ea">2.1.3. Comments</a></li>
+<li><a href="#orgd9e614b">2.1.4. Recapitulation (comments)</a></li>
 </ul>
 </li>
-<li><a href="#org2fedba4">2.2. Propositional variables and constants</a></li>
-<li><a href="#org0922a6f">2.3. Formulas</a></li>
-<li><a href="#org7b9f0d8">2.4. Logical Operators</a></li>
-<li><a href="#orga1c77c8">2.5. Recapitulation</a></li>
-<li><a href="#org19b1dba">2.6. Tests</a></li>
+<li><a href="#org0a9df24">2.2. Propositional variables and constants</a></li>
+<li><a href="#orgcb67701">2.3. Formulas</a></li>
+<li><a href="#org64fc2df">2.4. Logical Operators</a></li>
+<li><a href="#org73848f1">2.5. Recapitulation</a></li>
+<li><a href="#org1859eb0">2.6. Tests</a></li>
 </ul>
 </li>
-<li><a href="#orga0ca348">3. Language S:  first-order logic</a>
+<li><a href="#orgca3bf55">3. Language S:  first-order logic</a>
 <ul>
-<li><a href="#org7c7b022">3.1. Note on different uses of identifiers</a></li>
-<li><a href="#org5b4811e">3.2. Variables and constants</a></li>
-<li><a href="#org5cbcf8e">3.3. Predicates</a></li>
-<li><a href="#org017b0e6">3.4. Quantification</a></li>
-<li><a href="#orgc71d6f2">3.5. Formulas</a></li>
-<li><a href="#orgdf3776e">3.6. Recapitulation of language S</a></li>
-<li><a href="#org74dfa96">3.7. Tests for language S</a></li>
+<li><a href="#org2d16c84">3.1. Note on different uses of identifiers</a></li>
+<li><a href="#org9126b33">3.2. Variables and constants</a></li>
+<li><a href="#org0831ed0">3.3. Predicates</a></li>
+<li><a href="#orgbfd7e55">3.4. Quantification</a></li>
+<li><a href="#orge1f7377">3.5. Formulas</a></li>
+<li><a href="#org25c6a2a">3.6. Recapitulation of language S</a></li>
+<li><a href="#org906cbfc">3.7. Tests for language S</a></li>
 </ul>
 </li>
-<li><a href="#orgedaf78d">4. Language M:  first-order logic with identity and functions</a>
+<li><a href="#orgef6725c">4. Language M:  first-order logic with identity and functions</a>
 <ul>
-<li><a href="#orgac614fc">4.1. Identities</a></li>
-<li><a href="#org768298f">4.2. Functions</a></li>
-<li><a href="#org903f3ea">4.3. Recapitulation of language M</a></li>
-<li><a href="#orgbf52994">4.4. Tests for language M</a></li>
+<li><a href="#org5e6ac51">4.1. Identities</a></li>
+<li><a href="#org8fa3683">4.2. Functions</a></li>
+<li><a href="#org014915d">4.3. Recapitulation of language M</a></li>
+<li><a href="#orgf8fe928">4.4. Tests for language M</a></li>
 </ul>
 </li>
-<li><a href="#org6758265">5. Language L:  additional convenience features</a>
+<li><a href="#orgc8235aa">5. Language L:  additional convenience features</a>
 <ul>
-<li><a href="#org182d1a1">5.1. New forms of quantification</a>
+<li><a href="#orgc64de05">5.1. New forms of quantification</a>
 <ul>
-<li><a href="#orgb819bc1">5.1.1. Typed quantification</a></li>
-<li><a href="#org2e135f5">5.1.2. Unique existential quantification</a></li>
-<li><a href="#org24416f2">5.1.3. Negated existential quantification</a></li>
-<li><a href="#org0ddf2ae">5.1.4. Lone existential quantification</a></li>
+<li><a href="#orga339ae3">5.1.1. Typed quantification</a></li>
+<li><a href="#org089844d">5.1.2. Unique existential quantification</a></li>
+<li><a href="#orgc554a06">5.1.3. Negated existential quantification</a></li>
+<li><a href="#orge9fb1f6">5.1.4. Lone existential quantification</a></li>
 </ul>
 </li>
-<li><a href="#orgf834587">5.2. Definite descriptions / Skolem expressions</a></li>
-<li><a href="#org15d6fab">5.3. Recapitulation of language L</a></li>
+<li><a href="#org1e1c558">5.2. Definite descriptions / Skolem expressions</a></li>
+<li><a href="#org7b1e93b">5.3. Recapitulation of language L</a></li>
+<li><a href="#orgdc402e3">5.4. Test cases for language L</a></li>
 </ul>
 </li>
-<li><a href="#org343c752">6. Language XL: first-order logic plus set theory</a></li>
-<li><a href="#orgbce29c0">7. Concluding notes</a>
+<li><a href="#org38f5460">6. Language XL: first-order logic plus set theory</a></li>
+<li><a href="#org34b7a1b">7. Concluding notes</a>
 <ul>
-<li><a href="#org9dff2cc">7.1. To do</a></li>
-<li><a href="#org9f475d1">7.2. Questions to consider</a></li>
-<li><a href="#org4e0f063">7.3. Done</a></li>
+<li><a href="#orgdf36ef9">7.1. To do</a></li>
+<li><a href="#org46278df">7.2. Questions to consider</a></li>
+<li><a href="#orgb0149e6">7.3. Done</a></li>
 </ul>
 </li>
 </ul>
@@ -305,8 +306,8 @@ language of TPTP.</li>
 add tuples?</i></li>
 </ul>
 
-<div id="outline-container-orgd32d0f2" class="outline-2">
-<h2 id="orgd32d0f2"><span class="section-number-2">1.</span> Design goals and design decisions</h2>
+<div id="outline-container-orgef1c356" class="outline-2">
+<h2 id="orgef1c356"><span class="section-number-2">1.</span> Design goals and design decisions</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 One goal of the paper is to provide a more precise description of the
@@ -352,31 +353,31 @@ character.
 </div>
 </div>
 
-<div id="outline-container-org3a950d2" class="outline-2">
-<h2 id="org3a950d2"><span class="section-number-2">2.</span> Language XS:  sentential logic</h2>
+<div id="outline-container-org2520b7a" class="outline-2">
+<h2 id="org2520b7a"><span class="section-number-2">2.</span> Language XS:  sentential logic</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Language XS is for sentential logic.
 </p>
 </div>
 
-<div id="outline-container-org3399037" class="outline-3">
-<h3 id="org3399037"><span class="section-number-3">2.1.</span> Basics: Names, whitespace, comments</h3>
+<div id="outline-container-org05e4e9a" class="outline-3">
+<h3 id="org05e4e9a"><span class="section-number-3">2.1.</span> Basics: Names, whitespace, comments</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 The basic symbols of the language are Unicode characters.
 </p>
 </div>
 
-<div id="outline-container-org5091992" class="outline-4">
-<h4 id="org5091992"><span class="section-number-4">2.1.1.</span> Names</h4>
+<div id="outline-container-orgd462fec" class="outline-4">
+<h4 id="orgd462fec"><span class="section-number-4">2.1.1.</span> Names</h4>
 <div class="outline-text-4" id="text-2-1-1">
 <p>
 A name is a sequence of characters beginning with a letter and containing
 only letters, numeric digits, hyphens, and underscores.
 </p>
 <div class="org-src-container">
-<pre class="src src-ixml" id="org128f7c8">name = letter, namechar*.
+<pre class="src src-ixml" id="org82da722">name = letter, namechar*.
 -letter = [L].
 -namechar = letter; digit; ["-_"].
 -digit = [Nd].
@@ -386,7 +387,7 @@ only letters, numeric digits, hyphens, and underscores.
 <p>
 Example names:
 </p>
-<pre class="example" id="orga13997d">
+<pre class="example" id="org975bab0">
 p
 q
 Prop-2a
@@ -395,8 +396,8 @@ Prop-2a
 </div>
 </div>
 
-<div id="outline-container-orgf3c14f9" class="outline-4">
-<h4 id="orgf3c14f9"><span class="section-number-4">2.1.2.</span> Whitespace</h4>
+<div id="outline-container-org8c4d570" class="outline-4">
+<h4 id="org8c4d570"><span class="section-number-4">2.1.2.</span> Whitespace</h4>
 <div class="outline-text-4" id="text-2-1-2">
 <p>
 Whitespace is any member of Unicode class Zs (Separator, space), as
@@ -404,7 +405,7 @@ well as a few control characters.  Required space is one or more
 whitespace characters or comments; optional space is zero or more.
 </p>
 <div class="org-src-container">
-<pre class="src src-ixml" id="org410f09e">-whitespace = -[Zs; #9; #A; #D].
+<pre class="src src-ixml" id="orgbbaa065">-whitespace = -[Zs; #9; #A; #D].
 -RS = (whitespace; comment)+.
 -os = (whitespace; comment)*.
 { NL for required line breaks }
@@ -414,8 +415,8 @@ whitespace characters or comments; optional space is zero or more.
 </div>
 </div>
 
-<div id="outline-container-orgcbace33" class="outline-4">
-<h4 id="orgcbace33"><span class="section-number-4">2.1.3.</span> Comments</h4>
+<div id="outline-container-org33712ea" class="outline-4">
+<h4 id="org33712ea"><span class="section-number-4">2.1.3.</span> Comments</h4>
 <div class="outline-text-4" id="text-2-1-3">
 <p>
 A comment is a string of characters beginning with "&zwnj;/&zwnj;*"
@@ -546,7 +547,7 @@ With that development providing some confidence in the
 rule, we can write the comment rules for real now:
 </p>
 <div class="org-src-container">
-<pre class="src src-ixml" id="org09c9fcf">      comment = -"/*", comment-data, -"*/".
+<pre class="src src-ixml" id="org02f6370">      comment = -"/*", comment-data, -"*/".
 -comment-data = ("*"+, ~["/*"] 
                 | "/"*, (comment | ~["/*"]))*, 
                 "*"*.
@@ -598,7 +599,7 @@ An ad-hoc test grammar will allow us to run these test cases:
 <p>
 These tests can be run manually in a shell:
 </p>
-<pre class="example" id="orge12b838">
+<pre class="example" id="org426f7e8">
 for f in comments-*.txt ; \
     do markup-blitz.sh $f comment-tests.ixml ${f%.txt}.xml; \
     done
@@ -609,20 +610,20 @@ examples should produce XML results which look plausible,
 and the negative examples should all fail to parse.  A quick
 check can be done with
 </p>
-<pre class="example" id="org5a1b6d5">
+<pre class="example" id="org5398c3a">
 grep ixml:state comments-*.xml
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org8afbef5" class="outline-4">
-<h4 id="org8afbef5"><span class="section-number-4">2.1.4.</span> Recapitulation (comments)</h4>
+<div id="outline-container-orgd9e614b" class="outline-4">
+<h4 id="orgd9e614b"><span class="section-number-4">2.1.4.</span> Recapitulation (comments)</h4>
 <div class="outline-text-4" id="text-2-1-4">
 <p>
 We can sum up these low-level rules thus:
 </p>
 <div class="org-src-container">
-<pre class="src src-ixml" id="orgca3d260">
+<pre class="src src-ixml" id="orgd9ca49a">
 { Basics:  names, whitespace, comments }
 name = letter, namechar*.
 -letter = [L].
@@ -643,8 +644,8 @@ name = letter, namechar*.
 </div>
 </div>
 
-<div id="outline-container-org2fedba4" class="outline-3">
-<h3 id="org2fedba4"><span class="section-number-3">2.2.</span> Propositional variables and constants</h3>
+<div id="outline-container-org0a9df24" class="outline-3">
+<h3 id="org0a9df24"><span class="section-number-3">2.2.</span> Propositional variables and constants</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 A propositional variable is a name.
@@ -663,7 +664,7 @@ but we believe we have seen both forms in German typesetting.)
 </p>
 
 <div class="org-src-container">
-<pre class="src src-ixml" id="orgbc8fa45">{ XS Atomics:  propositional variables and constants }
+<pre class="src src-ixml" id="org61b7823">{ XS Atomics:  propositional variables and constants }
 prop-var = @name.
 prop-constant = quoted-name; quoted-string.
 -quoted-name = -#27, @name, -#27 
@@ -687,7 +688,7 @@ enclosed in double quotes, so as to make <code>"Socrates is a Greek."</code> and
 after all, why not?
 </p>
 <div class="org-src-container">
-<pre class="src src-ixml" id="org21431c9">@quoted-string
+<pre class="src src-ixml" id="org9729350">@quoted-string
       &gt; string = -#22, (~[#22; #A]; (#22, #22))*, -#22
                | -#60, -#60, ~[#22; #60; #A]*, -#27, -#27 
                | -#60, -#60, ~[#22; #60; #A]*, -#22 
@@ -721,8 +722,8 @@ have not bothered with similar escape mechanisms in the other forms.
 </div>
 </div>
 
-<div id="outline-container-org0922a6f" class="outline-3">
-<h3 id="org0922a6f"><span class="section-number-3">2.3.</span> Formulas</h3>
+<div id="outline-container-orgcb67701" class="outline-3">
+<h3 id="orgcb67701"><span class="section-number-3">2.3.</span> Formulas</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
 In language XS, a basic formula is a propositional variable, a propositional
@@ -732,7 +733,7 @@ and square brackets, to ease the reading of complex formulas.
 
 <div class="org-src-container">
 <pre class="src src-ixml">{ XS Basic formulas }
--basic-formula = prop-var | prop-constant 
+-basic-formula = prop-var | prop-constant | not
                | -"(", os, -formula, os, -")"
                | -"[", os, -formula, os, -"]".
 </pre>
@@ -745,7 +746,7 @@ compound formulas.
 <div class="org-src-container">
 <pre class="src src-ixml">{ XS Formulas in general }
 formula = basic-formula | compound-formula.
--compound-formula = not | and | or | implies | iff.
+-compound-formula = and | or | implies | iff.
 </pre>
 </div>
 
@@ -754,11 +755,11 @@ Each logical operator defines a distinct type of compound formula.
 </p>
 <div class="org-src-container">
 <pre class="src src-ixml">{ Compound formulas }
-    not = NOT, (not | basic-formula).
-    and = (and | basic-formula), AND, (basic-formula | not).
-     or = (or  | basic-formula),  OR, (basic-formula | not).
-implies = basic-formula, IMPLIES, (basic-formula | not).
-    iff = basic-formula, IFF, (basic-formula | not).
+    not = NOT, basic-formula.
+    and = (and | basic-formula), AND, basic-formula.
+     or = (or  | basic-formula),  OR, basic-formula.
+implies = basic-formula, IMPLIES, basic-formula.
+    iff = basic-formula, IFF, basic-formula.
 </pre>
 </div>
 
@@ -808,15 +809,15 @@ be:
 </p>
 <div class="org-src-container">
 <pre class="src src-ixml">not = NOT+, basic-formula.
-and = basic-formula++(-AND), AND, (basic-formula | not).
- or = basic-formula++(-OR),  OR,  (basic-formula | not).
+and = basic-formula++(-AND), AND, basic-formula.
+ or = basic-formula++(-OR),  OR,  basic-formula.
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org7b9f0d8" class="outline-3">
-<h3 id="org7b9f0d8"><span class="section-number-3">2.4.</span> Logical Operators</h3>
+<div id="outline-container-org64fc2df" class="outline-3">
+<h3 id="org64fc2df"><span class="section-number-3">2.4.</span> Logical Operators</h3>
 <div class="outline-text-3" id="text-2-4">
 <p>
 For each operator, we seek to allow a wide variety of different forms:
@@ -1092,8 +1093,8 @@ IFF-alpha = "iff" | "IFF"; "\equiv".
 </div>
 </div>
 </div>
-<div id="outline-container-orga1c77c8" class="outline-3">
-<h3 id="orga1c77c8"><span class="section-number-3">2.5.</span> Recapitulation</h3>
+<div id="outline-container-org73848f1" class="outline-3">
+<h3 id="org73848f1"><span class="section-number-3">2.5.</span> Recapitulation</h3>
 <div class="outline-text-3" id="text-2-5">
 <p>
 The entire XS grammar can now be summarized:
@@ -1118,8 +1119,8 @@ xs-formulas = os, formula++NL, os.
 </div>
 </div>
 
-<div id="outline-container-org19b1dba" class="outline-3">
-<h3 id="org19b1dba"><span class="section-number-3">2.6.</span> Tests</h3>
+<div id="outline-container-org1859eb0" class="outline-3">
+<h3 id="org1859eb0"><span class="section-number-3">2.6.</span> Tests</h3>
 <div class="outline-text-3" id="text-2-6">
 <p>
 Some simple positive tests for language XS follow.
@@ -1209,8 +1210,8 @@ now, this may suffice.
 </div>
 </div>
 
-<div id="outline-container-orga0ca348" class="outline-2">
-<h2 id="orga0ca348"><span class="section-number-2">3.</span> Language S:  first-order logic</h2>
+<div id="outline-container-orgca3bf55" class="outline-2">
+<h2 id="orgca3bf55"><span class="section-number-2">3.</span> Language S:  first-order logic</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Language S adds the following constructs to language XS:
@@ -1221,8 +1222,8 @@ Language S adds the following constructs to language XS:
 </ul>
 </div>
 
-<div id="outline-container-org7c7b022" class="outline-3">
-<h3 id="org7c7b022"><span class="section-number-3">3.1.</span> Note on different uses of identifiers</h3>
+<div id="outline-container-org2d16c84" class="outline-3">
+<h3 id="org2d16c84"><span class="section-number-3">3.1.</span> Note on different uses of identifiers</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 At thyis point, several classes of names must be distinguished:
@@ -1313,8 +1314,8 @@ constants marked.</li>
 </div>
 </div>
 
-<div id="outline-container-org5b4811e" class="outline-3">
-<h3 id="org5b4811e"><span class="section-number-3">3.2.</span> Variables and constants</h3>
+<div id="outline-container-org9126b33" class="outline-3">
+<h3 id="org9126b33"><span class="section-number-3">3.2.</span> Variables and constants</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 The definitions of <i>prop-var</i> and <i>prop-constant</i> from XS
@@ -1344,8 +1345,8 @@ a constant.
 </div>
 </div>
 
-<div id="outline-container-org5cbcf8e" class="outline-3">
-<h3 id="org5cbcf8e"><span class="section-number-3">3.3.</span> Predicates</h3>
+<div id="outline-container-org0831ed0" class="outline-3">
+<h3 id="org0831ed0"><span class="section-number-3">3.3.</span> Predicates</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 In language S, propositions can take the form of a predicate
@@ -1380,8 +1381,8 @@ with no arguments.</li>
 </div>
 </div>
 
-<div id="outline-container-org017b0e6" class="outline-3">
-<h3 id="org017b0e6"><span class="section-number-3">3.4.</span> Quantification</h3>
+<div id="outline-container-orgbfd7e55" class="outline-3">
+<h3 id="orgbfd7e55"><span class="section-number-3">3.4.</span> Quantification</h3>
 <div class="outline-text-3" id="text-3-4">
 <p>
 If <i>F</i> is a formula, then <i>F</i> preceded by a universal or existential
@@ -1396,8 +1397,8 @@ out with letters.
 <div class="org-src-container">
 <pre class="src src-ixml">{ Quantified formulas }
 -quantified-formula = all | exist.
-all = universal-quantifier, bracketed-formula.
-exist = existential-quantifier, bracketed-formula.
+all = universal-quantifier, os, bracketed-formula.
+exist = existential-quantifier, os, bracketed-formula.
 
 -universal-quantifier = 
         -"(", os, FORALL-sym, os, vars, os, -")"
@@ -1438,8 +1439,8 @@ the spelling of the quantification symbols.
 </div>
 </div>
 
-<div id="outline-container-orgc71d6f2" class="outline-3">
-<h3 id="orgc71d6f2"><span class="section-number-3">3.5.</span> Formulas</h3>
+<div id="outline-container-orge1f7377" class="outline-3">
+<h3 id="orge1f7377"><span class="section-number-3">3.5.</span> Formulas</h3>
 <div class="outline-text-3" id="text-3-5">
 <p>
 In language S, the set of basic formulas grows to include predicates.
@@ -1451,6 +1452,7 @@ And we give a separate name to bracketed formulas.
         prop-var 
       | prop-constant 
       | predicate
+      | not
       | bracketed-formula
       .
 </pre>
@@ -1463,8 +1465,7 @@ bracketed formulas.
 <pre class="src src-ixml">-bracketed-formula =  
         -"(", os, -formula, os, -")"
       | -"[", os, -formula, os, -"]"
-      | quanall 
-      | exist
+      | quantified-formula
       .
 </pre>
 </div>
@@ -1477,18 +1478,14 @@ was introduced elsewhere.</i>)
 <div class="org-src-container">
 <pre class="src src-ixml">{ S: Formulas in general }
 formula = basic-formula | compound-formula.
--compound-formula = 
-        not 
-      | and | or 
-      | implies | iff
-      .
+-compound-formula = and | or | implies | iff.
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgdf3776e" class="outline-3">
-<h3 id="orgdf3776e"><span class="section-number-3">3.6.</span> Recapitulation of language S</h3>
+<div id="outline-container-org25c6a2a" class="outline-3">
+<h3 id="org25c6a2a"><span class="section-number-3">3.6.</span> Recapitulation of language S</h3>
 <div class="outline-text-3" id="text-3-6">
 <p>
 The grammar of language S can be summarized:
@@ -1520,8 +1517,8 @@ s-formulas = os, formula++NL, os.
 </div>
 </div>
 
-<div id="outline-container-org74dfa96" class="outline-3">
-<h3 id="org74dfa96"><span class="section-number-3">3.7.</span> Tests for language S</h3>
+<div id="outline-container-org906cbfc" class="outline-3">
+<h3 id="org906cbfc"><span class="section-number-3">3.7.</span> Tests for language S</h3>
 <div class="outline-text-3" id="text-3-7">
 <p>
 All tests for language XS can also serve as tests for language S.
@@ -1629,8 +1626,8 @@ Summing it up:
 </div>
 </div>
 
-<div id="outline-container-orgedaf78d" class="outline-2">
-<h2 id="orgedaf78d"><span class="section-number-2">4.</span> Language M:  first-order logic with identity and functions</h2>
+<div id="outline-container-orgef6725c" class="outline-2">
+<h2 id="orgef6725c"><span class="section-number-2">4.</span> Language M:  first-order logic with identity and functions</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Vis-a-vis language S, language M adds:
@@ -1656,8 +1653,8 @@ denotes just one individual.
 </p>
 </div>
 
-<div id="outline-container-orgac614fc" class="outline-3">
-<h3 id="orgac614fc"><span class="section-number-3">4.1.</span> Identities</h3>
+<div id="outline-container-org5e6ac51" class="outline-3">
+<h3 id="org5e6ac51"><span class="section-number-3">4.1.</span> Identities</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 We add identities as a form of basic proposition.
@@ -1678,6 +1675,7 @@ This requires a fresh definition of basic propositions:
       | prop-constant 
       | predicate
       | identity
+      | not
       | bracketed-formula
       .
 </pre>
@@ -1685,8 +1683,8 @@ This requires a fresh definition of basic propositions:
 </div>
 </div>
 
-<div id="outline-container-org768298f" class="outline-3">
-<h3 id="org768298f"><span class="section-number-3">4.2.</span> Functions</h3>
+<div id="outline-container-org8fa3683" class="outline-3">
+<h3 id="org8fa3683"><span class="section-number-3">4.2.</span> Functions</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 The syntax of structures representing references to functions is
@@ -1732,8 +1730,8 @@ zero-argument function expression like "<code>f()</code>".
 </div>
 </div>
 
-<div id="outline-container-org903f3ea" class="outline-3">
-<h3 id="org903f3ea"><span class="section-number-3">4.3.</span> Recapitulation of language M</h3>
+<div id="outline-container-org014915d" class="outline-3">
+<h3 id="org014915d"><span class="section-number-3">4.3.</span> Recapitulation of language M</h3>
 <div class="outline-text-3" id="text-4-3">
 <p>
 The grammar of language M can be summarized:
@@ -1767,8 +1765,8 @@ m-formulas = os, formula++NL, os.
 </div>
 </div>
 
-<div id="outline-container-orgbf52994" class="outline-3">
-<h3 id="orgbf52994"><span class="section-number-3">4.4.</span> Tests for language M</h3>
+<div id="outline-container-orgf8fe928" class="outline-3">
+<h3 id="orgf8fe928"><span class="section-number-3">4.4.</span> Tests for language M</h3>
 <div class="outline-text-3" id="text-4-4">
 <p>
 Let us formulate a few examples as test cases for the grammar.
@@ -1788,8 +1786,8 @@ Let us formulate a few examples as test cases for the grammar.
 </div>
 </div>
 
-<div id="outline-container-org6758265" class="outline-2">
-<h2 id="org6758265"><span class="section-number-2">5.</span> Language L:  additional convenience features</h2>
+<div id="outline-container-orgc8235aa" class="outline-2">
+<h2 id="orgc8235aa"><span class="section-number-2">5.</span> Language L:  additional convenience features</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Language L adds a number of convenience features to language M:
@@ -1812,8 +1810,8 @@ translation into language M.
 </p>
 </div>
 
-<div id="outline-container-org182d1a1" class="outline-3">
-<h3 id="org182d1a1"><span class="section-number-3">5.1.</span> New forms of quantification</h3>
+<div id="outline-container-orgc64de05" class="outline-3">
+<h3 id="orgc64de05"><span class="section-number-3">5.1.</span> New forms of quantification</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 Most of these changes have to do with quantifiers: allowing
@@ -1842,11 +1840,11 @@ The new definitions are:
 <pre class="src src-ixml">{ Quantified formulas in L }
 -quantified-formula = all | exist | one | none | lone.
 
-all = universal-quantifier, bracketed-formula.
-exist = existential-quantifier, bracketed-formula.
-one = unique-existential-quantifier, bracketed-formula.
-none = negated-existential-quantifier, bracketed-formula.
-lone = lone-existential-quantifier, bracketed-formula.
+all = universal-quantifier, os, bracketed-formula.
+exist = existential-quantifier, os, bracketed-formula.
+one = unique-existential-quantifier, os, bracketed-formula.
+none = negated-existential-quantifier, os, bracketed-formula.
+lone = lone-existential-quantifier, os, bracketed-formula.
 
 -universal-quantifier = 
         -"(", FORALL, vars, os, type-spec?, -")"
@@ -1857,8 +1855,8 @@ lone = lone-existential-quantifier, bracketed-formula.
       .
 
 -existential-quantifier = 
-        -"(", EXIST, vars, os, type-spec?, -")". .
--EXISTS = os, EXIST-sym, os
+        -"(", EXIST, vars, os, type-spec?, -")". 
+-EXIST = os, EXIST-sym, os
       | os, EXIST-lex, RS
       .
 
@@ -1869,8 +1867,8 @@ lone = lone-existential-quantifier, bracketed-formula.
 </div>
 </div>
 
-<div id="outline-container-orgb819bc1" class="outline-4">
-<h4 id="orgb819bc1"><span class="section-number-4">5.1.1.</span> Typed quantification</h4>
+<div id="outline-container-orga339ae3" class="outline-4">
+<h4 id="orga339ae3"><span class="section-number-4">5.1.1.</span> Typed quantification</h4>
 <div class="outline-text-4" id="text-5-1-1">
 <p>
 In order to make some common kinds of statements more convenient, we
@@ -1879,7 +1877,7 @@ more or less as we can do in most programming languages.  To say, for
 example, that all tokens occur in some document and that every
 document contains at least one token, we can in language M write:
 </p>
-<pre class="example" id="org5190b9f">
+<pre class="example" id="org87e3082">
 (all k)(Token(k) 
        implies 
        (some d)(Document(d) and contains(d, k)))
@@ -1891,10 +1889,11 @@ document contains at least one token, we can in language M write:
 It often seems simpler and easier to follow if instead we
 write:
 </p>
-<pre class="example" id="orge56d683">
-(all k: Token)(some d: Document)(contains(d, k))
+<div class="org-src-container">
+<pre class="src src-data">(all k: Token)(some d: Document)(contains(d, k))
 (all d: Document)(some k: Token)(contains(d, k))
 </pre>
+</div>
 
 <p>
 In our usage,
@@ -1916,11 +1915,27 @@ is taken as that of the characteristic predicate of the type.
 @type = name.
 </pre>
 </div>
+
+<p>
+Some more examples and test cases:
+</p>
+<div class="org-src-container">
+<pre class="src src-data">(∀x:T)(P(x))
+(∃x:T)(P(x))
+(∀x: Root)(Object(x))
+(∀x: Root)(∀y: Root)(x = y)
+(∀x: A)(Object(x))
+(∀x: A)(∀y: A)(x = y)
+(all x : Type)(~Token(x) and ~Document(x))
+(all x : Token)(~Type(x) and ~Document(x))
+(all x : Document)(~Type(x) and ~Token(x))
+</pre>
+</div>
 </div>
 </div>
 
-<div id="outline-container-org2e135f5" class="outline-4">
-<h4 id="org2e135f5"><span class="section-number-4">5.1.2.</span> Unique existential quantification</h4>
+<div id="outline-container-org089844d" class="outline-4">
+<h4 id="org089844d"><span class="section-number-4">5.1.2.</span> Unique existential quantification</h4>
 <div class="outline-text-4" id="text-5-1-2">
 <p>
 Unique existential quantifiers assert the existence of exactly one
@@ -2031,11 +2046,24 @@ the properties given hold.
 over multiple variables is logically equivalent to the expansion of
 nested unique quantifications.
 </p>
-</div>
-</div>
 
-<div id="outline-container-org24416f2" class="outline-4">
-<h4 id="org24416f2"><span class="section-number-4">5.1.3.</span> Negated existential quantification</h4>
+<p>
+Some examples:
+</p>
+<div class="org-src-container">
+<pre class="src src-data">(∃₁ x)(Root(x))
+(one x)(A(x))
+(exists_1 x)(B(x))
+(all n : Node)(Root(n) or (one p : Node)(parent_child(p, n)))
+(all p : Point)(exist_1 x, y: ℕ)
+  (x = first(p) and y = second(p))
+(exists_1 n : ℕ)(all m : ℕ)[le(n, m)]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc554a06" class="outline-4">
+<h4 id="orgc554a06"><span class="section-number-4">5.1.3.</span> Negated existential quantification</h4>
 <div class="outline-text-4" id="text-5-1-3">
 <p>
 Experience with Alloy suggests that it's quite convenient to be able
@@ -2068,11 +2096,23 @@ negated existential quantifiers for single variables.  That is: is (no
 x, y : T)(P(x, y)) equivalent to (no x : T)(no y : T)(P(x, y)), or
 not?
 </p>
-</div>
-</div>
 
-<div id="outline-container-org0ddf2ae" class="outline-4">
-<h4 id="org0ddf2ae"><span class="section-number-4">5.1.4.</span> Lone existential quantification</h4>
+<p>
+Examples:
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* subtoken relation is acyclic, or equivalently
+   tc-subtoken relation is antisymmetric */
+(no x : Token)(tc-subtoken(x, x))
+
+/* there is no greatest natural number */
+(no n : ℕ)(all m : ℕ)[ge(n, m)]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge9fb1f6" class="outline-4">
+<h4 id="orge9fb1f6"><span class="section-number-4">5.1.4.</span> Lone existential quantification</h4>
 <div class="outline-text-4" id="text-5-1-4">
 <p>
 This is another borrowing from Alloy.  It specifies that there is at
@@ -2145,13 +2185,25 @@ The syntax:
 </tr>
 </tbody>
 </table>
+
+<p>
+Some examples:
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* the digraph is connected:  at most one 
+   node lacks incoming arcs */
+(lone n : Node)(no p : Node)
+    (parent_child(p, n))
+/* Every mark is in at most one document */
+(all m : Mark)(lone d : Document)(contains(d, m))
+</pre>
+</div>
 </div>
 </div>
 </div>
 
-
-<div id="outline-container-orgf834587" class="outline-3">
-<h3 id="orgf834587"><span class="section-number-3">5.2.</span> Definite descriptions / Skolem expressions</h3>
+<div id="outline-container-org1e1c558" class="outline-3">
+<h3 id="org1e1c558"><span class="section-number-3">5.2.</span> Definite descriptions / Skolem expressions</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 On descriptions see Quine <i>Methods</i> 274-282 (or so).
@@ -2163,11 +2215,18 @@ On descriptions see Quine <i>Methods</i> 274-282 (or so).
     .
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org15d6fab" class="outline-3">
-<h3 id="org15d6fab"><span class="section-number-3">5.3.</span> Recapitulation of language L</h3>
+<p>
+Some examples would be helpful.
+</p>
+<div class="org-src-container">
+<pre class="src src-data">/* watch this space */
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7b1e93b" class="outline-3">
+<h3 id="org7b1e93b"><span class="section-number-3">5.3.</span> Recapitulation of language L</h3>
 <div class="outline-text-3" id="text-5-3">
 <p>
 The grammar of language L can be summarized:
@@ -2181,7 +2240,13 @@ The grammar of language L can be summarized:
 m-formulas = os, formula++NL, os.
 &lt;&lt;S-Formulas&gt;&gt;
 &lt;&lt;XS-Compound-formulas&gt;&gt;
+
 &lt;&lt;L-Quantification&gt;&gt;
+&lt;&lt;Type-specification&gt;&gt;
+&lt;&lt;Unique-quantifier&gt;&gt;
+&lt;&lt;Negated-quantification&gt;&gt;
+&lt;&lt;Lone-quantification&gt;&gt;
+
 &lt;&lt;M-Basic-formulas&gt;&gt;
 &lt;&lt;Identities&gt;&gt;
 &lt;&lt;Bracketed-formulas&gt;&gt;
@@ -2201,10 +2266,27 @@ m-formulas = os, formula++NL, os.
 </div>
 </div>
 </div>
-</div>
 
-<div id="outline-container-org343c752" class="outline-2">
-<h2 id="org343c752"><span class="section-number-2">6.</span> Language XL: first-order logic plus set theory</h2>
+<div id="outline-container-orgdc402e3" class="outline-3">
+<h3 id="orgdc402e3"><span class="section-number-3">5.4.</span> Test cases for language L</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+We can collect all the examples given above and
+use them as positive test cases for language L.
+</p>
+<div class="org-src-container">
+<pre class="src src-data">&lt;&lt;Typed-01&gt;&gt;
+&lt;&lt;Typed-02&gt;&gt;
+&lt;&lt;Unique&gt;&gt;
+&lt;&lt;Negated-existentials&gt;&gt;
+&lt;&lt;Lone-quantifiers&gt;&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org38f5460" class="outline-2">
+<h2 id="org38f5460"><span class="section-number-2">6.</span> Language XL: first-order logic plus set theory</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Language XS adds sets <i>(and tuples? tbd)</i> to the universe of
@@ -2237,8 +2319,8 @@ easier to talk about.)/
 </div>
 </div>
 
-<div id="outline-container-orgbce29c0" class="outline-2">
-<h2 id="orgbce29c0"><span class="section-number-2">7.</span> Concluding notes</h2>
+<div id="outline-container-org34b7a1b" class="outline-2">
+<h2 id="org34b7a1b"><span class="section-number-2">7.</span> Concluding notes</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 The grammars defined here have two intended functions:
@@ -2264,8 +2346,8 @@ have caught a number of errors in the grammar.
 </p>
 </div>
 
-<div id="outline-container-org9dff2cc" class="outline-3">
-<h3 id="org9dff2cc"><span class="section-number-3">7.1.</span> To do</h3>
+<div id="outline-container-orgdf36ef9" class="outline-3">
+<h3 id="orgdf36ef9"><span class="section-number-3">7.1.</span> To do</h3>
 <div class="outline-text-3" id="text-7-1">
 <p>
 Watch this space.
@@ -2273,9 +2355,8 @@ Watch this space.
 </div>
 </div>
 
-
-<div id="outline-container-org9f475d1" class="outline-3">
-<h3 id="org9f475d1"><span class="section-number-3">7.2.</span> Questions to consider</h3>
+<div id="outline-container-org46278df" class="outline-3">
+<h3 id="org46278df"><span class="section-number-3">7.2.</span> Questions to consider</h3>
 <div class="outline-text-3" id="text-7-2">
 <p>
 At the time this paper was last revised (May 2024 or later), several
@@ -2337,7 +2418,16 @@ XS?</li>
 only unsigned integers are allowed.  And it's only the sentence
 about Frege being born in 1848 that motivates that.)</li>
 
-<li>All negation to bind more tightly than the binary operators?</li>
+<li><p>
+Are we sure we want to allow negation to bind more tightly than the
+binary operators?
+</p>
+
+<p>
+I got tired of having add parentheses, so I added negation as a
+'basic' formula.  We need to think about it more when we have more
+experience.
+</p></li>
 
 <li>In L, borrow Alloy's ability to specify that particular variables
 are disjoint?</li>
@@ -2345,8 +2435,8 @@ are disjoint?</li>
 </div>
 </div>
 
-<div id="outline-container-org4e0f063" class="outline-3">
-<h3 id="org4e0f063"><span class="section-number-3">7.3.</span> Done</h3>
+<div id="outline-container-orgb0149e6" class="outline-3">
+<h3 id="orgb0149e6"><span class="section-number-3">7.3.</span> Done</h3>
 <div class="outline-text-3" id="text-7-3">
 <p>
 Temporary list of to-do items now completed.
@@ -2368,7 +2458,7 @@ to Markup Blitz.</li>
 <div id="postamble" class="status">
 <p class="date">Date: 16 May 2024</p>
 <p class="author">Author: CMSMcQ and CH</p>
-<p class="date">Created: 2024-05-24 Fri 18:21</p>
+<p class="date">Created: 2024-05-25 Sat 08:58</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

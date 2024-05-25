@@ -334,7 +334,7 @@ and square brackets, to ease the reading of complex formulas.
 
 #+begin_src ixml :noweb-ref XS-Basic-formulas
 { XS Basic formulas }
--basic-formula = prop-var | prop-constant 
+-basic-formula = prop-var | prop-constant | not
                | -"(", os, -formula, os, -")"
                | -"[", os, -formula, os, -"]".
 #+end_src
@@ -344,17 +344,17 @@ compound formulas.
 #+begin_src ixml :noweb-ref XS-Formulas
 { XS Formulas in general }
 formula = basic-formula | compound-formula.
--compound-formula = not | and | or | implies | iff.
+-compound-formula = and | or | implies | iff.
 #+end_src
 
 Each logical operator defines a distinct type of compound formula.
 #+begin_src ixml :noweb-ref XS-Compound-formulas
 { Compound formulas }
-    not = NOT, (not | basic-formula).
-    and = (and | basic-formula), AND, (basic-formula | not).
-     or = (or  | basic-formula),  OR, (basic-formula | not).
-implies = basic-formula, IMPLIES, (basic-formula | not).
-    iff = basic-formula, IFF, (basic-formula | not).
+    not = NOT, basic-formula.
+    and = (and | basic-formula), AND, basic-formula.
+     or = (or  | basic-formula),  OR, basic-formula.
+implies = basic-formula, IMPLIES, basic-formula.
+    iff = basic-formula, IFF, basic-formula.
 #+end_src
 
 We want /not/, /and/, and /or/ all to allow multiple repetitions of
@@ -393,8 +393,8 @@ using the natural ixml formulation for /n/-ary operators, which would
 be:
 #+begin_src ixml
     not = NOT+, basic-formula.
-    and = basic-formula++(-AND), AND, (basic-formula | not).
-     or = basic-formula++(-OR),  OR,  (basic-formula | not).
+    and = basic-formula++(-AND), AND, basic-formula.
+     or = basic-formula++(-OR),  OR,  basic-formula.
 #+end_src
 
 ** Logical Operators
@@ -685,8 +685,8 @@ out with letters.
 #+begin_src ixml :noweb-ref Quantification
 { Quantified formulas }
 -quantified-formula = all | exist.
-all = universal-quantifier, bracketed-formula.
-exist = existential-quantifier, bracketed-formula.
+all = universal-quantifier, os, bracketed-formula.
+exist = existential-quantifier, os, bracketed-formula.
 
 -universal-quantifier = 
         -"(", os, FORALL-sym, os, vars, os, -")"
@@ -730,6 +730,7 @@ And we give a separate name to bracketed formulas.
         prop-var 
       | prop-constant 
       | predicate
+      | not
       | bracketed-formula
       .
 #+end_src
@@ -739,8 +740,7 @@ bracketed formulas.
 -bracketed-formula =  
         -"(", os, -formula, os, -")"
       | -"[", os, -formula, os, -"]"
-      | quanall 
-      | exist
+      | quantified-formula
       .
 #+end_src
 
@@ -750,11 +750,7 @@ was introduced elsewhere./)
 #+begin_src ixml :noweb-ref S-Formulas
 { S: Formulas in general }
 formula = basic-formula | compound-formula.
--compound-formula = 
-        not 
-      | and | or 
-      | implies | iff
-      .
+-compound-formula = and | or | implies | iff.
 #+end_src
 
 ** Recapitulation of language S
@@ -896,6 +892,7 @@ This requires a fresh definition of basic propositions:
       | prop-constant 
       | predicate
       | identity
+      | not
       | bracketed-formula
       .
 #+end_src
@@ -1010,11 +1007,11 @@ The new definitions are:
 { Quantified formulas in L }
 -quantified-formula = all | exist | one | none | lone.
 
-all = universal-quantifier, bracketed-formula.
-exist = existential-quantifier, bracketed-formula.
-one = unique-existential-quantifier, bracketed-formula.
-none = negated-existential-quantifier, bracketed-formula.
-lone = lone-existential-quantifier, bracketed-formula.
+all = universal-quantifier, os, bracketed-formula.
+exist = existential-quantifier, os, bracketed-formula.
+one = unique-existential-quantifier, os, bracketed-formula.
+none = negated-existential-quantifier, os, bracketed-formula.
+lone = lone-existential-quantifier, os, bracketed-formula.
 
 -universal-quantifier = 
         -"(", FORALL, vars, os, type-spec?, -")"
@@ -1025,8 +1022,8 @@ lone = lone-existential-quantifier, bracketed-formula.
       .
 
 -existential-quantifier = 
-        -"(", EXIST, vars, os, type-spec?, -")". .
--EXISTS = os, EXIST-sym, os
+        -"(", EXIST, vars, os, type-spec?, -")". 
+-EXIST = os, EXIST-sym, os
       | os, EXIST-lex, RS
       .
 
@@ -1051,10 +1048,10 @@ document contains at least one token, we can in language M write:
 #+end_example
 It often seems simpler and easier to follow if instead we
 write:
-#+begin_example
+#+begin_src data :noweb-ref Typed-01
 (all k: Token)(some d: Document)(contains(d, k))
 (all d: Document)(some k: Token)(contains(d, k))
-#+end_example
+#+end_src
 
 In our usage,
 "~(∀x:T)(P(x))~" is just short-hand for
@@ -1070,6 +1067,19 @@ is taken as that of the characteristic predicate of the type.
 #+begin_src ixml :noweb-ref Type-specification
 -type-spec = -":", os, type, os.
 @type = name.
+#+end_src
+
+Some more examples and test cases:
+#+begin_src data :noweb-ref Typed-02
+(∀x:T)(P(x))
+(∃x:T)(P(x))
+(∀x: Root)(Object(x))
+(∀x: Root)(∀y: Root)(x = y)
+(∀x: A)(Object(x))
+(∀x: A)(∀y: A)(x = y)
+(all x : Type)(~Token(x) and ~Document(x))
+(all x : Token)(~Type(x) and ~Document(x))
+(all x : Document)(~Type(x) and ~Token(x))
 #+end_src
 
 *** Unique existential quantification
@@ -1126,6 +1136,16 @@ the properties given hold.
 over multiple variables is logically equivalent to the expansion of
 nested unique quantifications.
 
+Some examples:
+#+begin_src data :noweb-ref Unique
+(∃₁ x)(Root(x))
+(one x)(A(x))
+(exists_1 x)(B(x))
+(all n : Node)(Root(n) or (one p : Node)(parent_child(p, n)))
+(all p : Point)(exist_1 x, y: ℕ)
+  (x = first(p) and y = second(p))
+(exists_1 n : ℕ)(all m : ℕ)[le(n, m)]
+#+end_src
 *** Negated existential quantification
 Experience with Alloy suggests that it's quite convenient to be able
 to say concisely that there is no individual with some specified
@@ -1150,6 +1170,15 @@ negated existential quantifiers for single variables.  That is: is (no
 x, y : T)(P(x, y)) equivalent to (no x : T)(no y : T)(P(x, y)), or
 not?
 
+Examples:
+#+begin_src data :noweb-ref Negated-existentials
+/* subtoken relation is acyclic, or equivalently
+   tc-subtoken relation is antisymmetric */
+(no x : Token)(tc-subtoken(x, x))
+
+/* there is no greatest natural number */
+(no n : ℕ)(all m : ℕ)[ge(n, m)]
+#+end_src
 *** Lone existential quantification
 This is another borrowing from Alloy.  It specifies that there is at
 most one individual with the specified property: such an individual
@@ -1178,6 +1207,15 @@ lone-existential-quantifier =
 |                         | ⇒ (x=z ∧ y=w))))                              |
 |-------------------------+-----------------------------------------------|
 
+Some examples:
+#+begin_src data :noweb-ref Lone-quantifiers
+/* the digraph is connected:  at most one 
+   node lacks incoming arcs */
+(lone n : Node)(no p : Node)
+    (parent_child(p, n))
+/* Every mark is in at most one document */
+(all m : Mark)(lone d : Document)(contains(d, m))
+#+end_src
 
 ** Definite descriptions / Skolem expressions
 On descriptions see Quine /Methods/ 274-282 (or so).
@@ -1188,6 +1226,10 @@ the = "℩" { #2129 turned Greek small letter iota }
     .
 #+end_src
 
+Some examples would be helpful.
+#+begin_src data :noweb-ref Skolem-expressions
+/* watch this space */
+#+end_src
 ** Recapitulation of language L
 The grammar of language L can be summarized:
 #+begin_src ixml :tangle l.ixml :noweb tangle
@@ -1199,7 +1241,13 @@ ixml version "1.1".
 m-formulas = os, formula++NL, os.
 <<S-Formulas>>
 <<XS-Compound-formulas>>
+
 <<L-Quantification>>
+<<Type-specification>>
+<<Unique-quantifier>>
+<<Negated-quantification>>
+<<Lone-quantification>>
+
 <<M-Basic-formulas>>
 <<Identities>>
 <<Bracketed-formulas>>
@@ -1217,6 +1265,16 @@ m-formulas = os, formula++NL, os.
 <<Basics>>
 #+end_src
 
+** Test cases for language L
+We can collect all the examples given above and
+use them as positive test cases for language L.
+#+begin_src data :tangle ../tests/l-pos-01.txt :noweb tangle
+<<Typed-01>>
+<<Typed-02>>
+<<Unique>>
+<<Negated-existentials>>
+<<Lone-quantifiers>>
+#+end_src
 * Language XL: first-order logic plus set theory
 
 Language XS adds sets /(and tuples? tbd)/ to the universe of
@@ -1261,7 +1319,6 @@ have caught a number of errors in the grammar.
 ** To do
 Watch this space.
 
-  
 ** Questions to consider
 At the time this paper was last revised (May 2024 or later), several
 questions seemed to merit further consideration.  They are not
@@ -1308,7 +1365,12 @@ we remembered to write down are:
   only unsigned integers are allowed.  And it's only the sentence
   about Frege being born in 1848 that motivates that.)
 
-- All negation to bind more tightly than the binary operators?
+- Are we sure we want to allow negation to bind more tightly than the
+  binary operators?
+
+  I got tired of having add parentheses, so I added negation as a
+  'basic' formula.  We need to think about it more when we have more
+  experience.
 
 - In L, borrow Alloy's ability to specify that particular variables
   are disjoint?
