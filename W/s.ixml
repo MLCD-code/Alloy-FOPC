@@ -48,7 +48,7 @@ exist = existential-quantifier, bracketed-formula.
 
 { Predicates }
 predicate = @name, -"(", os, arg**comma, os, -")".
--arg = var; constant.
+-arg = term.
 -comma = os, -",", os.
 { XS Atomics:  propositional variables and constants }
 prop-var = @name.
@@ -64,6 +64,8 @@ prop-constant = quoted-name; quoted-string.
              | -#2039, @name, -#203A 
                { single guillemets pointing out }
              .
+{ S-Terms:  terms for individuals }
+-term = var; constant.
 { S-Atomics:  terms for individuals }
 var = @name.
 constant = quoted-name; numeral.

@@ -641,6 +641,12 @@ var = @name.
 constant = quoted-name; numeral.
 @numeral > name = digit+.
 #+end_src
+In language S, we define a /term/ as a variable or
+a constant.
+#+begin_src ixml :noweb-ref S-Terms
+{ S-Terms:  terms for individuals }
+-term = var; constant.
+#+end_src
 
 ** Predicates
 In language S, propositions can take the form of a predicate
@@ -650,7 +656,7 @@ denoting individuals.
 #+begin_src ixml :noweb-ref Predicates
 { Predicates }
 predicate = @name, -"(", os, arg**comma, os, -")".
--arg = var; constant.
+-arg = term.
 -comma = os, -",", os.
 #+end_src
 
@@ -667,7 +673,6 @@ Note:
   (/prop-var/); the form "~p()~" is parsed as a /predicate/ named "p"
   with no arguments.
  
-
 ** Quantification
 If /F/ is a formula, then /F/ preceded by a universal or existential
 quantifier is a formula.  This is a universal or existential
@@ -679,6 +684,7 @@ Whitespace is optional after symbols, required after operators spelled
 out with letters.
 #+begin_src ixml :noweb-ref Quantification
 { Quantified formulas }
+-quantified-formula = all | exist.
 all = universal-quantifier, bracketed-formula.
 exist = existential-quantifier, bracketed-formula.
 
@@ -716,9 +722,8 @@ the spelling of the quantification symbols.
 #+end_src
   
 ** Formulas
-In language S, the set of basic formulas grows to include
-predicates.  Since quantified formulas require bracketing,
-they are defined as bracketed formulas.
+In language S, the set of basic formulas grows to include predicates.
+And we give a separate name to bracketed formulas.
 #+begin_src ixml :noweb-ref S-Basic-formulas
 { S: Basic formulas }
 -basic-formula = 
@@ -727,10 +732,14 @@ they are defined as bracketed formulas.
       | predicate
       | bracketed-formula
       .
+#+end_src
+Since quantified formulas require bracketing, they are defined as
+bracketed formulas.
+#+begin_src ixml :noweb-ref Bracketed-formulas
 -bracketed-formula =  
         -"(", os, -formula, os, -")"
       | -"[", os, -formula, os, -"]"
-      | all 
+      | quanall 
       | exist
       .
 #+end_src
@@ -760,9 +769,11 @@ s-formulas = os, formula++NL, os.
 <<XS-Compound-formulas>>
 <<Quantification>>
 <<S-Basic-formulas>>
+<<Bracketed-formulas>>
 
 <<Predicates>>
 <<XS-Atomics>>
+<<S-Terms>>
 <<S-Atomics>>
 <<Quoted-strings>>
 
@@ -855,19 +866,113 @@ Summing it up:
 
 Vis-a-vis language S, language M adds:
 - identity and the symbol "~=~"
-- functions
+- functions, or more precisely function-call expressions or structures,
+  e.g. ~f(x)~, denoting individuals
 
-Since the function syntax always uses parentheses, and functors are
-always constants, language M extends the mechanisms for referring to
-an individual: a specific individual can be referred to either by
-using a constant like "~'f'~" or "~‹f›~" or by using a zero-argument
-function expression like "~f()~".
+These often go together, but not always.  Quine's /Methods of Logic/
+and Smullyan's /First-order logic/ both include identity but have (as
+far as I can tell after some searching) no notation for functions.
+Prolog, on the other hand, has structures (which can be regarded,
+semantically, as calls to functions) but no built-in way to say that
+two constants 'a' and 'b' denote the same individual.  (Unification
+can do wonders for variables A and B, but atoms like 'a' and 'b'
+cannot be unified.)  Perhaps the only reason we think of them as
+belonging together is that identity appears to be essential to
+describing uniqueness and thus to saying that any function expression
+denotes just one individual.
 
-[Full definition to be supplied.]
+** Identities
+We add identities as a form of basic proposition.
+#+begin_src ixml :noweb-ref Identities
+{ Identities }
+identity = term, os, -"=", os, term.
+#+end_src
 
-** Identity as a basic formula
+This requires a fresh definition of basic propositions:
+#+begin_src ixml :noweb-ref M-Basic-formulas
+{ M: Basic formulas }
+-basic-formula = 
+        prop-var 
+      | prop-constant 
+      | predicate
+      | identity
+      | bracketed-formula
+      .
+#+end_src
 
 ** Functions
+The syntax of structures representing references to functions is
+identical to that of predicates: a name followed by a list of
+comma-separated arguments surrounded by parentheses.  They are
+distinguished only by position: predicates appear where formulas
+expressing propositions are expected, structures appear where
+expressions denoting individuals are expected.
+#+begin_src ixml :noweb-ref Structures
+{ Structures / function references }
+structure = functor, -"(", os, arg**comma, os, -")".
+@functor = @name.
+#+end_src
+
+Structures give us a new kind of term, so we need to
+extend the definition from that of language S:
+#+begin_src ixml :noweb-ref M-Terms
+{ M-Terms:  terms for individuals }
+-term = var; constant; structure.
+#+end_src
+
+Note that unless special steps are taken to create rules for types,
+all functions are required to be defined for every possible argument:
+they must be total over the universe of discourse.  (We can of course
+define an object named ›GARBAGE‹ and specify it as the value of the
+function for every inconvenient argument.  That is not guaranteed to
+produce beautiful results.)
+
+Note also that since the function syntax always uses parentheses, and
+functors are always constants, language M extends the mechanisms for
+referring to an individual: a specific individual can be referred to
+either by using a constant like "~'f'~" or "~‹f›~" or by using a
+zero-argument function expression like "~f()~".
+
+** Recapitulation of language M
+The grammar of language M can be summarized:
+#+begin_src ixml :tangle m.ixml :noweb tangle
+ixml version "1.1".
+
+{ m.ixml:  grammar for first-order logic
+  with identity and functions }
+m-formulas = os, formula++NL, os.
+<<S-Formulas>>
+<<XS-Compound-formulas>>
+<<Quantification>>
+<<M-Basic-formulas>>
+<<Identities>>
+<<Bracketed-formulas>>
+
+<<Predicates>>
+<<XS-Atomics>>
+<<M-Terms>>
+<<S-Atomics>>
+<<Structures>>
+<<Quoted-strings>>
+
+<<Logical-operators>>
+<<Quantifier-ops>>
+
+<<Basics>>
+#+end_src
+
+** Tests for language M
+Let us formulate a few examples as test cases for the grammar.
+#+begin_src data :tangle ../tests/m-pos-01.txt
+(x)(some y)(z)(f(x) = z iff z = y)
+~(all x, y)[(f('a') = x /\ f(a) = y) implies x=y]
+
+/* Group theory, per Jeffrey */
+(x)(y)(z)(plus(x, plus(y, z)) = plus(plus(x, y), z))
+(x)(plus(x, 0) = 0)
+(x)(plus(x, minus(x)) = 0)
+(forall x, y, z)(plus(x, y) = plus(y, z) implies x = y)
+#+end_src
 
 * Language L:  additional convenience features
 
@@ -885,9 +990,195 @@ These are all intended as idioms for concise expression of commonly
 used patterns; for each new construct, we specify a standard
 translation into language M.
 
-** Typed quantification
-** Unique quantification
-** Lone quantification
+** New forms of quantification
+Most of these changes have to do with quantifiers: allowing
+them to specify the 'type' of the variable on one hand, and
+allowing them to give more information about the number of
+individuals involved on the other.  So instead of two forms
+of quantification, we will have several:
+  + universal
+  + existential
+  + unique
+  + negated
+  + lone
+and for each of these, we'll have both typed and untyped varieties.
+This will require some changes to the way quantified formulas are
+defined, replacing the definitions from language S.
+
+The new definitions are:
+#+begin_src ixml :noweb-ref L-Quantification
+{ Quantified formulas in L }
+-quantified-formula = all | exist | one | none | lone.
+
+all = universal-quantifier, bracketed-formula.
+exist = existential-quantifier, bracketed-formula.
+one = unique-existential-quantifier, bracketed-formula.
+none = negated-existential-quantifier, bracketed-formula.
+lone = lone-existential-quantifier, bracketed-formula.
+
+-universal-quantifier = 
+        -"(", FORALL, vars, os, type-spec?, -")"
+      | -"(", os, one-var, os, type-spec?, -")"
+      .
+-FORALL = os, FORALL-sym, os
+      | os, FORALL-lex, RS
+      .
+
+-existential-quantifier = 
+        -"(", EXIST, vars, os, type-spec?, -")". .
+-EXISTS = os, EXIST-sym, os
+      | os, EXIST-lex, RS
+      .
+
+@vars = var ++ comma-space.
+@one-var > vars = var.
+-comma-space = os, -",", os, +" ".
+#+end_src
+
+*** Typed quantification
+In order to make some common kinds of statements more convenient, we
+would like to be able to associate variables with classes, or types,
+more or less as we can do in most programming languages.  To say, for
+example, that all tokens occur in some document and that every
+document contains at least one token, we can in language M write:
+#+begin_example
+(all k)(Token(k) 
+       implies 
+       (some d)(Document(d) and contains(d, k)))
+(all d)(Document(d) 
+       implies 
+       (some k)(Token(k) and contains(d, k)))
+#+end_example
+It often seems simpler and easier to follow if instead we
+write:
+#+begin_example
+(all k: Token)(some d: Document)(contains(d, k))
+(all d: Document)(some k: Token)(contains(d, k))
+#+end_example
+
+In our usage,
+"~(∀x:T)(P(x))~" is just short-hand for
+"~(∀x)(T(x) ⇒ P(x))~", and 
+"~(∃x:T)(P(x))~" is just short-hand for
+"~(∃x)(T(x) ∧ P(x))~".
+
+The definitions of /universal-quantifier/ and /existential-quantifier/
+given above allow for an optional type specification; the same will
+be true of the other new forms of quantification.  A type specification
+is just a colon followed by a name.  As illustrated above, this name
+is taken as that of the characteristic predicate of the type.
+#+begin_src ixml :noweb-ref Type-specification
+-type-spec = -":", os, type, os.
+@type = name.
+#+end_src
+
+*** Unique existential quantification
+Unique existential quantifiers assert the existence of exactly one
+individual such that some proposition holds.
+
+To say that every school has exactly one head teacher, one might say
+"~(∀ s : School)(∃₁ h : Head-teacher)(heads(h, s))~".
+
+Syntactically, it's similar to the other quantifiers already seen: it
+has both symbolic and alphanumeric forms, which have different
+requirements with respect to following whitespace.
+#+begin_src ixml :noweb-ref Unique-quantifier
+unique-existential-quantifier = 
+        -"(", EXISTS-ONE, vars, os, type-spec?, -")".
+-EXISTS-ONE = os, EXISTS-ONE-sym, os
+      | os, EXISTS-ONE-lex, RS
+      .
+@EXISTS-ONE-lex > op = "one" | "ONE"
+      | "∃_1" 
+      | "exists_1" | "EXISTS_1" 
+      | "exist_1" | "EXIST_1" 
+      | "E_1"
+      .  
+@EXISTS-ONE-sym > op = "∃₁" { #2203 + #2081 subscript one }.
+#+end_src
+
+For any variable quantified in this way, the declaration is
+short-hand for a conjunction of statements following the pattern
+established by Russell.  The table below shows the pattern
+of expansion for typed and untyped examples of one and two
+variables; for more variables, 
+|------------------------+-----------------------------------------------|
+| Shorthand              | Expansion                                     |
+|------------------------+-----------------------------------------------|
+| (∃₁x)(P(x))            | (∃x)(P(x) ∧ (∀y)(P(y) ⇒ x=y))                 |
+|------------------------+-----------------------------------------------|
+| (∃₁x:T)(P(x))          | (∃x)(T(x) ∧ P(x) ∧ (∀y)(T(y) ⇒ (P(y) ⇒ x=y))) |
+|------------------------+-----------------------------------------------|
+| (∃₁ x, y)(P(x, y))     | (∃x)(∃y)(P(x, y)                              |
+|                        | ∧ (∀ z, w)(P(z, w) ⇒ (x=z ∧ y=w)))            |
+|------------------------+-----------------------------------------------|
+| (∃₁ x, y : T)(P(x, y)) | (∃x)(∃y)(T(x) ∧ T(y)                          |
+|                        | ∧ P(x, y)                                     |
+|                        | ∧ (∀ z, w)((T(z) ∧ T(y))                      |
+|                        | ⇒ (P(z, w) ⇒ (x=z ∧ y=w))))                   |
+|------------------------+-----------------------------------------------|
+
+The final two examples in the table above can be read as saying that
+there is just one combination of values for /x/ and /y/ such that
+the properties given hold.
+
+/To show:/ that the expansion given for a single unique quantification
+over multiple variables is logically equivalent to the expansion of
+nested unique quantifications.
+
+*** Negated existential quantification
+Experience with Alloy suggests that it's quite convenient to be able
+to say concisely that there is no individual with some specified
+property.
+
+The formula "(no x)(P(x))" is strictly equivalent to "¬(∃x)(P(x))".
+And "(no x : T)(P(x))" is strictly equivalent to "¬(∃x)(T(x) ∧ P(x))".
+
+Because this quantifier is known to us only from Alloy, we
+offer only one way to spell it.  (Well, two, since we allow
+it to be in all caps.)
+#+begin_src ixml :noweb-ref Negated-quantification
+negated-existential-quantifier = 
+        -"(", NONE, vars, os, type-spec?, -")".
+-NONE = os, NONE-lex, RS.
+@NONE-lex > op = "no"; "NO".
+#+end_src
+
+/To do:/ Describe the expansion for multiple variables, typed and
+untyped, and explain whether it is or is not equivalent to nested
+negated existential quantifiers for single variables.  That is: is (no
+x, y : T)(P(x, y)) equivalent to (no x : T)(no y : T)(P(x, y)), or
+not?
+
+*** Lone existential quantification
+This is another borrowing from Alloy.  It specifies that there is at
+most one individual with the specified property: such an individual
+may or may not exist, and if they do, then they are unique.
+
+The syntax:
+#+begin_src ixml :noweb-ref Lone-quantification
+lone-existential-quantifier = 
+        -"(", LONE, vars, os, type-spec?, -")".
+-LONE = os, LONE-lex, RS.
+@LONE-lex > op = "lone"; "LONE".
+#+end_src
+
+|-------------------------+-----------------------------------------------|
+| Shorthand               | Expansion                                     |
+|-------------------------+-----------------------------------------------|
+| (lone x)(P(x))          | (∀x)(P(x) → (∀y)(P(y) ⇒ x=y))                 |
+|-------------------------+-----------------------------------------------|
+| (lone x: T)(P(x))       | (∀x)(T(x) ∧ P(x) → (∀y)((T(y) ∧ P(y)) ⇒ x=y)) |
+|-------------------------+-----------------------------------------------|
+| (lone x, y)(P(x, y))    | (∀ x, y)(P(x, y)                              |
+|                         | → (∀ z, w)(P(z, w) ⇒ (x=z ∧ y=w)))            |
+|-------------------------+-----------------------------------------------|
+| (lone x, y: T)(P(x, y)) | (∀ x, y)((T(x) ∧ T(y) ∧ P(x, y))              |
+|                         | ⇒ (∀ z, w)((T(z) ∧ T(y) ∧ P(z, w))            |
+|                         | ⇒ (x=z ∧ y=w))))                              |
+|-------------------------+-----------------------------------------------|
+
+
 ** Definite descriptions / Skolem expressions
 On descriptions see Quine /Methods/ 274-282 (or so).
 
@@ -897,7 +1188,34 @@ the = "℩" { #2129 turned Greek small letter iota }
     .
 #+end_src
 
-[Full definition to be supplied.]
+** Recapitulation of language L
+The grammar of language L can be summarized:
+#+begin_src ixml :tangle l.ixml :noweb tangle
+ixml version "1.1".
+
+{ l.ixml:  grammar for first-order logic
+  with identity and functions,  augmented
+  with convenience features. }
+m-formulas = os, formula++NL, os.
+<<S-Formulas>>
+<<XS-Compound-formulas>>
+<<L-Quantification>>
+<<M-Basic-formulas>>
+<<Identities>>
+<<Bracketed-formulas>>
+
+<<Predicates>>
+<<XS-Atomics>>
+<<M-Terms>>
+<<S-Atomics>>
+<<Structures>>
+<<Quoted-strings>>
+
+<<Logical-operators>>
+<<Quantifier-ops>>
+
+<<Basics>>
+#+end_src
 
 * Language XL: first-order logic plus set theory
 
@@ -935,7 +1253,11 @@ The grammars defined here have two intended functions:
   We may write pretty-printers, normalizers, and (of course)
   translations into specific target notations like ACL2
   or TPTP FOF or TFF.
-  
+
+At first glance, it may seem excessive to formulate test cases
+for such a simple collection of grammatical rules.  But the tests
+have caught a number of errors in the grammar.
+
 ** To do
 Watch this space.
 
@@ -987,6 +1309,9 @@ we remembered to write down are:
   about Frege being born in 1848 that motivates that.)
 
 - All negation to bind more tightly than the binary operators?
+
+- In L, borrow Alloy's ability to specify that particular variables
+  are disjoint?
   
 ** Done
 Temporary list of to-do items now completed.
@@ -998,4 +1323,5 @@ Temporary list of to-do items now completed.
   ~b ∨ n('Frege', 1848)~, which is going too far.
 - Create minimal test case exhibiting /vars/ problem, report
   to Markup Blitz.
+  
   

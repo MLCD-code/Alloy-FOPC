@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s-formulas>
+   <comment> Some basic formulas </comment>
+   <comment> Propositional variables </comment>
+   <formula>
+      <prop-var name="p"/>
+   </formula>
+
+   <formula>
+      <prop-var name="q"/>
+   </formula>
+
+   <formula>
+      <prop-var name="Prop-2a"/>
+   </formula>
+
+   <formula>
+      <prop-var name="φ"/>
+   </formula>
+
+   <formula>
+      <prop-var name="א"/>
+   </formula>
+
+   <comment> and </comment>
+   <comment> Propositional constants </comment>
+   <formula>
+      <prop-constant name="Prop-2a"/>
+   </formula>
+
+   <formula>
+      <prop-constant name="Frege-was-born-in-1848"/>
+   </formula>
+
+   <formula>
+      <prop-constant name="Russell-died-in-1970"/>
+   </formula>
+
+   <formula>
+      <prop-constant name="Prop-2b"/>
+   </formula>
+
+   <comment> Double-quoted strings as propositional constants </comment>
+   <formula>
+      <prop-constant string="Frege was born in 1848"/>
+   </formula>
+
+   <formula>
+      <prop-constant string="he is at his desk"/>
+   </formula>
+
+   <formula>
+      <prop-constant string="he is eating lunch"/>
+   </formula>
+
+   <comment> Parenthesized basic formulas </comment>
+   <formula>
+      <prop-var name="q"/>
+   </formula>
+
+   <formula>
+      <prop-var name="Prop-2a"/>
+   </formula>
+
+   <formula>
+      <prop-var name="φ"/>
+   </formula>
+
+   <formula>
+      <prop-constant name="Prop-2a"/>
+   </formula>
+
+   <comment> Compound formulas </comment>
+   <formula>
+      <implies op="onlyif">
+         <iff op="iff">
+            <prop-var name="p"/>
+            <and op="&amp;">
+               <prop-var name="q"/>
+               <prop-var name="r"/>
+            </and>
+         </iff>
+         <and op="&amp;&amp;">
+            <prop-var name="p"/>
+            <prop-var name="q"/>
+         </and>
+      </implies>
+   </formula>
+
+   <formula>
+      <iff op="iff">
+         <implies op="implies">
+            <prop-var name="p"/>
+            <and op="&amp;">
+               <prop-var name="q"/>
+               <prop-var name="r"/>
+            </and>
+         </implies>
+         <and op="∧">
+            <prop-var name="p"/>
+            <prop-var name="q"/>
+         </and>
+      </iff>
+   </formula>
+
+   <formula>
+      <implies op="implies">
+         <or op="∨">
+            <prop-var name="p"/>
+            <prop-var name="q"/>
+         </or>
+         <prop-var name="r"/>
+      </implies>
+   </formula>
+
+   <formula>
+      <or op="∨">
+         <prop-var name="p"/>
+         <implies op="implies">
+            <prop-var name="q"/>
+            <prop-var name="r"/>
+         </implies>
+      </or>
+   </formula>
+
+   <formula>
+      <implies op="implies">
+         <prop-var name="p"/>
+         <or op="or">
+            <prop-var name="q"/>
+            <prop-var name="r"/>
+         </or>
+      </implies>
+   </formula>
+
+   <formula>
+      <and op="and">
+         <prop-constant string="Jones is here"/>
+         <prop-constant string="Smith is away"/>
+      </and>
+   </formula>
+
+   <formula>
+      <implies op="⇒">
+         <iff op="⇔">
+            <or op="∨">
+               <and op="∧">
+                  <or op="∨">
+                     <prop-var name="p"/>
+                     <prop-var name="q"/>
+                  </or>
+                  <or op="∨">
+                     <prop-var name="p"/>
+                     <not op="-">
+                        <prop-var name="q"/>
+                     </not>
+                  </or>
+               </and>
+               <and op="∧">
+                  <not op="-">
+                     <prop-var name="p"/>
+                  </not>
+                  <prop-var name="q"/>
+               </and>
+            </or>
+            <prop-var name="q"/>
+         </iff>
+         <or op="∨">
+            <and op="∧">
+               <prop-var name="p"/>
+               <prop-var name="r"/>
+            </and>
+            <and op="∧">
+               <prop-var name="p"/>
+               <not op="~">
+                  <prop-var name="r"/>
+               </not>
+            </and>
+         </or>
+      </implies>
+   </formula>
+</s-formulas>
