@@ -425,7 +425,7 @@ For the record, a survey of some sources shows the following:
 
 ,* Notes:
 - The row labeled 'unnamed' is from Jeffrey's appendix on notation.
-- Quine 1941 is /Element logic/, revised edition.
+- Quine 1941 is /Elements of logic/, revised edition.
 - Smullyan is /First-order logic/.
 - Quine 1950 is /Methods of logic/. Conjunction is expressed by
   juxtaposition (and identifiers for propositions are in consequence
@@ -1089,6 +1089,8 @@ individual such that some proposition holds.
 To say that every school has exactly one head teacher, one might say
 "~(∀ s : School)(∃₁ h : Head-teacher)(heads(h, s))~".
 
+Note:  Hughes and Cresswell write this (∃¹) or (∃!).
+
 Syntactically, it's similar to the other quantifiers already seen: it
 has both symbolic and alphanumeric forms, which have different
 requirements with respect to following whitespace.
@@ -1218,17 +1220,94 @@ Some examples:
 #+end_src
 
 ** Definite descriptions / Skolem expressions
-On descriptions see Quine /Methods/ 274-282 (or so).
+Many treatments of logic discuss the problem of representing sentences
+like "The present king of France is bald" -- and in particular of
+representing terms like "the present king of France".  There then may
+follow a discussion of Russell's analysis of the sentence as the
+conjunction of (1) the claim that there is presently a king of France,
+(2) the claim that there is only one such individual, and finally
+(3) the claim that that individual is bald.  More formally:
+#+begin_example
+(∃x)(present-king-of-France(x)
+    ∧ (∀y)(present-king-of-France(y) ⇒ x = y)
+    ∧ bald(x))
+#+end_example
+This appears to be the consensus rendering of sentences involving
+references to an individual by their properties (using descriptions
+which are taken to identify some single individual) and not by their
+name.
 
-#+begin_src ixml
-the = "℩" { #2129 turned Greek small letter iota }
-    | "the"
-    .
+Some but not all treatments also introduce a more compact notation for
+such sentences.  The unique existential quantifier introduced above
+shortens the translation a bit:
+#+begin_example
+(∃₁x)(present-king-of-France(x)
+    ∧ bald(x))
+#+end_example
+A further abbreviation introduces an operator written as an inverted
+lowercase iota and uses the notation (℩x) to mean "the individual /x/
+such that ...".  Using this notation, we can write
+#+begin_example
+bald((℩x)(present-king-of-France(x)))
+#+end_example
+
+On this notation, see Quine /Methods/ 274-282, and Hughes and
+Cresswell 323-326.  Note, however, that while Russell and Quine use
+℩-expressions as terms, Hughes and Cresswell treat expressions of the
+form (℩xPx) as quantifiers binding /x/ in the following formula.
+Their rendering of the example would be something like (℩x
+present-king-of-France(x))(bald(x)) -- or more precisely (℩xφx)ψx,
+with notes in prose saying that φ means 'is the present king of
+France' and ψ means 'is bald'.
+
+Terms written in this way allow us to refer to specific individuals
+without giving them names, or without knowing what names may already
+have been assigned to them; they also allow us to get rid of
+existential quantifiers.  The same purpose is served in some contexts
+by the process called Skolemization (at least in discussions of logic
+programming).  In the Prolog theorem prover leanTAP, for example, the
+formula (∃x)(f(x)) ("there is some /x/ such that /f/ holds of /x/") is
+replaced with the formula f(f(ex)) ("/f/ holds of the individual for
+whom /f/ holds").  And similarly (∃x)(p(x, y)) is translated to
+p(p(ex,y), y).  In the notation declared here, we could write these as
+f((℩x)[f(x)]) and p((℩x)[p(x,y)], y).  Note, however, that the Prolog
+expressions do not claim uniqueness of the individual; that is one
+way in which Skolemization differs from definite description.
+
+It would be nice to find a way to write these expressions that fits
+with the style used elswhere but gets by with fewer parentheses than
+shown in the example above.  For now, however, we just accept Quine's
+convention of wrapping the inverted iota and variable in one pair of
+parentheses and the predicate that uniquely identifies x in a second.
+As the examples given above have shown, we allow the following formula
+to be enclosed in square brackets, not just round.
+#+begin_src ixml :noweb-ref Descriptions
+definite-description = IOTA, bracketed-formula.
+@IOTA > op = -"(", IOTA-lex, RS, var, -")"
+           | -"(", IOTA-sym, os, var, -")"
+           .
+IOTA-sym = "℩" { #2129 turned Greek small letter iota }.
+IOTA-lex = "the".
 #+end_src
 
-Some examples would be helpful.
-#+begin_src data :noweb-ref Skolem-expressions
-/* watch this space */
+We need to add definite descriptions as a kind of term.
+#+begin_src ixml :noweb-ref L-Terms
+{ L-Terms:  terms for individuals }
+-term = var; 
+        constant; 
+        structure; 
+        definite-description.
+#+end_src
+
+Some examples may help illustrate.
+#+begin_src data :noweb-ref Test-cases-desc
+/* Definite descriptions */
+bald((℩x)(present-king-of-France(x)))
+bald((the x)[present-king-of-France(x)])
+f((℩x)[f(x)])
+p( (℩x)[p(x,y)], y)
+‹Scott› = (the x)(wrote-Waverley(x))
+taught( (℩x)(philosopher(x) ∧ drank-hemlock(x)), 'Plato' )
 #+end_src
 ** Recapitulation of language L
 The grammar of language L can be summarized:
@@ -1254,9 +1333,10 @@ m-formulas = os, formula++NL, os.
 
 <<Predicates>>
 <<XS-Atomics>>
-<<M-Terms>>
+<<L-Terms>>
 <<S-Atomics>>
 <<Structures>>
+<<Descriptions>>
 <<Quoted-strings>>
 
 <<Logical-operators>>
@@ -1274,6 +1354,7 @@ use them as positive test cases for language L.
 <<Unique>>
 <<Negated-existentials>>
 <<Lone-quantifiers>>
+<<Test-cases-desc>>
 #+end_src
 * Language XL: first-order logic plus set theory
 
@@ -1374,6 +1455,11 @@ we remembered to write down are:
 
 - In L, borrow Alloy's ability to specify that particular variables
   are disjoint?
+
+- Accept (∃¹), (∃^1), and/or (∃!) as input forms for unique
+  existential quantifiers, following Hughes and Cresswell?
+
+- Find a form for iota-expressions that uses fewer parentheses?
   
 ** Done
 Temporary list of to-do items now completed.
@@ -1387,3 +1473,30 @@ Temporary list of to-do items now completed.
   to Markup Blitz.
   
   
+
+
+* References
+
+Beckert, Bernhard, and Joahim Posegga. "LeanTAP: Lean Tableau-based
+Deduction." /Journal of Automated Reasoning/ 15 (1995): 339–358.
+
+Hughes, G. E., and M. J. Cresswell.  /A new introduction to modal logic./
+London and New York:  Routledge, 1996 (rpt. 1998, 2001).
+
+Jackson, Daniel.  /Software abstractions: Logic, language, and
+analysis./ Revised edition.  Cambridge, Mass.:  MIT Press, 2012.
+
+Jeffrey, Richard C. /Formal logic: Its scope and limits./ New York:
+McGraw-Hill, 1967.
+
+Quine, /Elements of logic./  1941.
+
+Quine, W. V. /Methods of logic./ 1950.  Fourth edition.  Cambridge, Mass.:
+Harvard University Press, 1982.
+
+Smullyan, Raymond M. /First-order logic./ New York: Springer, 1968.
+Corrected repring New York: Dover, 1995.
+
+Sutcliffe, Geoff ... TPTP technical manual.
+
+Sutcliffe, Geoff, et al.  Paper on TFF.

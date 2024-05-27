@@ -1,0 +1,173 @@
+ixml version "1.1".
+
+{ m.ixml:  grammar for first-order logic
+  with identity and functions }
+m-formulas = os, formula++NL, os.
+{ S: Formulas in general }
+formula = basic-formula | compound-formula.
+-compound-formula = and | or | implies | iff.
+{ Compound formulas }
+    not = NOT, basic-formula.
+    and = (and | basic-formula), AND, basic-formula.
+     or = (or  | basic-formula),  OR, basic-formula.
+implies = basic-formula, IMPLIES, basic-formula.
+    iff = basic-formula, IFF, basic-formula.
+{ Quantified formulas }
+-quantified-formula = all | exist.
+all = universal-quantifier, os, bracketed-formula.
+exist = existential-quantifier, os, bracketed-formula.
+
+-universal-quantifier = 
+        -"(", os, FORALL-sym, os, vars, os, -")"
+      | -"(", os, FORALL-lex, RS, vars, os, -")"
+      | -"(", os, one-var, os, -")"
+      .
+-existential-quantifier = 
+        -"(", os, EXIST-sym, os, vars, os, -")"
+      | -"(", os, EXIST-lex, RS, vars, os, -")"
+      .
+@vars = var ++ comma-space.
+@one-var > vars = var.
+-comma-space = os, -",", os, +" ".
+{ M: Basic formulas }
+-basic-formula = 
+        prop-var 
+      | prop-constant 
+      | predicate
+      | identity
+      | not
+      | bracketed-formula
+      .
+{ Identities }
+identity = term, os, -"=", os, term.
+-bracketed-formula =  
+        -"(", os, -formula, os, -")"
+      | -"[", os, -formula, os, -"]"
+      | quantified-formula
+      .
+
+{ Predicates }
+predicate = @name, -"(", os, arg**comma, os, -")".
+-arg = term.
+-comma = os, -",", os.
+{ XS Atomics:  propositional variables and constants }
+prop-var = @name.
+prop-constant = quoted-name; quoted-string.
+-quoted-name = -#27, @name, -#27 
+               { #27 is typewriter apostrophe }
+             | -#60, @name, -#27 
+               { #60 is typewriter grave accent }
+             | -#2018, @name, -#2019 
+               { hi 6, hi 9 }
+             | -#203A, @name, -#2039 
+               { single guillemets pointing in }
+             | -#2039, @name, -#203A 
+               { single guillemets pointing out }
+             .
+{ M-Terms:  terms for individuals }
+-term = var; constant; structure.
+{ S-Atomics:  terms for individuals }
+var = @name.
+constant = quoted-name; numeral.
+@numeral > name = digit+.
+{ Structures / function references }
+structure = functor, -"(", os, arg**comma, os, -")".
+@functor = @name.
+@quoted-string
+      > string = -#22, (~[#22; #A]; (#22, #22))*, -#22
+               | -#60, -#60, ~[#22; #60; #A]*, -#27, -#27 
+               | -#60, -#60, ~[#22; #60; #A]*, -#22 
+               | -#201C, ~[#201C; #201D; #A]*, -#201D
+               | -#AB, ~[#AB; #BB; #A]*, -#BB
+               | -#BB, ~[#AB; #BB; #A]*, -#AB
+               .
+
+{ Logical operators }
+@NOT > op = NOT-sym, os
+          | NOT-alpha, RS
+          .
+NOT-alpha = "not" | "NOT".
+  NOT-sym = "¬" { #AC not sign }
+          | "-"
+          | "—" { #2014 em dash }
+          | "~" { #7E tilde }
+          | "⁓" { #2053 swung dash }
+          . 
+
+@AND > op = os, AND-sym, os
+          | RS, AND-alpha, RS
+          .
+AND-alpha = "and" | "AND"
+          | "\land" | "\and" 
+          | "\wedge"
+          .
+  AND-sym = "∧" { #2227 }
+          | "&"
+          | "&&"
+          | "/\" { emacs here wants a " }
+          .
+
+ @OR > op = os, OR-sym, os
+          | RS, OR-alpha, RS
+          .
+ OR-alpha = "or" | "OR" 
+          | "vel" | "VEL" 
+          | "\lor" | "\or" | "\vee"
+          .
+   OR-sym = "∨" { #2228 logical or }
+          | "|" 
+          | "||"
+          | "\/"
+          . 
+@IMPLIES > op = os, IMPLIES-sym, os
+              | RS, IMPLIES-alpha, RS. 
+IMPLIES-alpha = "implies" | "IMPLIES" 
+              | "only", os, "if" 
+              | "ONLY", os, "IF"
+              .
+  IMPLIES-sym = "⇒" { #21D2 right double arrow } 
+              | "⊃" { #2283 superset of }
+              | "→" { #2192 right arrow }
+              | "->"
+              | "=>"
+              .
+
+@IFF > op = os, IFF-sym, os
+          | RS, IFF-alpha, RS.
+IFF-alpha = "iff" | "IFF"; "\equiv".
+  IFF-sym = "⇔" { #21D4 left right double arrow }
+          | "↔" { #2194 left right arrow }
+          | "≡" { #2261 identical to }
+          | "<->"
+          | "<=>"
+          .
+{ Operators for quantifiers }
+@FORALL-lex > op = "all" | "ALL"
+      | "for", os, "all" | "FOR", os, "ALL"
+      | "A"
+      .
+@FORALL-sym > op = "∀" { #2200 for all }
+      .
+@EXIST-lex > op = "exists" | "EXISTS"
+      | "exist" | "EXIST"
+      | "some" | "SOME"
+      | "E"
+      .
+@EXIST-sym > op = "∃" { #2203 there exists }
+      .
+
+
+{ Basics:  names, whitespace, comments }
+name = letter, namechar*.
+-letter = [L].
+-namechar = letter; digit; ["-_"].
+-digit = [Nd].
+-whitespace = -[Zs; #9; #A; #D].
+-RS = (whitespace; comment)+.
+-os = (whitespace; comment)*.
+{ NL for required line breaks }
+-NL = (-[Zs; #9] | comment)*, #A, os.
+      comment = -"/*", comment-data, -"*/".
+-comment-data = ("*"+, ~["/*"] 
+                | "/"*, (comment | ~["/*"]))*, 
+                "*"*.

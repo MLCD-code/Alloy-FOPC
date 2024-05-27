@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<m-formulas>
+   <formula>
+      <all op="all" vars="k" type="Token">
+         <exist op="some" vars="d" type="Document">
+            <predicate name="contains">
+               <var name="d"/>
+               <var name="k"/>
+            </predicate>
+         </exist>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="all" vars="d" type="Document">
+         <exist op="some" vars="k" type="Token">
+            <predicate name="contains">
+               <var name="d"/>
+               <var name="k"/>
+            </predicate>
+         </exist>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="∀" vars="x" type="T">
+         <predicate name="P">
+            <var name="x"/>
+         </predicate>
+      </all>
+   </formula>
+
+   <formula>
+      <exist op="∃" vars="x" type="T">
+         <predicate name="P">
+            <var name="x"/>
+         </predicate>
+      </exist>
+   </formula>
+
+   <formula>
+      <all op="∀" vars="x" type="Root">
+         <predicate name="Object">
+            <var name="x"/>
+         </predicate>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="∀" vars="x" type="Root">
+         <all op="∀" vars="y" type="Root">
+            <identity>
+               <var name="x"/>
+               <var name="y"/>
+            </identity>
+         </all>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="∀" vars="x" type="A">
+         <predicate name="Object">
+            <var name="x"/>
+         </predicate>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="∀" vars="x" type="A">
+         <all op="∀" vars="y" type="A">
+            <identity>
+               <var name="x"/>
+               <var name="y"/>
+            </identity>
+         </all>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="all" vars="x" type="Type">
+         <and op="and">
+            <not op="~">
+               <predicate name="Token">
+                  <var name="x"/>
+               </predicate>
+            </not>
+            <not op="~">
+               <predicate name="Document">
+                  <var name="x"/>
+               </predicate>
+            </not>
+         </and>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="all" vars="x" type="Token">
+         <and op="and">
+            <not op="~">
+               <predicate name="Type">
+                  <var name="x"/>
+               </predicate>
+            </not>
+            <not op="~">
+               <predicate name="Document">
+                  <var name="x"/>
+               </predicate>
+            </not>
+         </and>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="all" vars="x" type="Document">
+         <and op="and">
+            <not op="~">
+               <predicate name="Type">
+                  <var name="x"/>
+               </predicate>
+            </not>
+            <not op="~">
+               <predicate name="Token">
+                  <var name="x"/>
+               </predicate>
+            </not>
+         </and>
+      </all>
+   </formula>
+
+   <formula>
+      <one>
+         <unique-existential-quantifier op="∃₁" vars="x"/>
+         <predicate name="Root">
+            <var name="x"/>
+         </predicate>
+      </one>
+   </formula>
+
+   <formula>
+      <one>
+         <unique-existential-quantifier op="one" vars="x"/>
+         <predicate name="A">
+            <var name="x"/>
+         </predicate>
+      </one>
+   </formula>
+
+   <formula>
+      <one>
+         <unique-existential-quantifier op="exists_1" vars="x"/>
+         <predicate name="B">
+            <var name="x"/>
+         </predicate>
+      </one>
+   </formula>
+
+   <formula>
+      <all op="all" vars="n" type="Node">
+         <or op="or">
+            <predicate name="Root">
+               <var name="n"/>
+            </predicate>
+            <one>
+               <unique-existential-quantifier op="one" vars="p" type="Node"/>
+               <predicate name="parent_child">
+                  <var name="p"/>
+                  <var name="n"/>
+               </predicate>
+            </one>
+         </or>
+      </all>
+   </formula>
+
+   <formula>
+      <all op="all" vars="p" type="Point">
+         <one>
+            <unique-existential-quantifier op="exist_1" vars="x y" type="ℕ"/>
+            <and op="and">
+               <identity>
+                  <var name="x"/>
+                  <structure functor="first">
+                     <var name="p"/>
+                  </structure>
+               </identity>
+               <identity>
+                  <var name="y"/>
+                  <structure functor="second">
+                     <var name="p"/>
+                  </structure>
+               </identity>
+            </and>
+         </one>
+      </all>
+   </formula>
+
+   <formula>
+      <one>
+         <unique-existential-quantifier op="exists_1" vars="n" type="ℕ"/>
+         <all op="all" vars="m" type="ℕ">
+            <predicate name="le">
+               <var name="n"/>
+               <var name="m"/>
+            </predicate>
+         </all>
+      </one>
+   </formula>
+
+   <comment> subtoken relation is acyclic, or equivalently
+   tc-subtoken relation is antisymmetric </comment>
+   <formula>
+      <none>
+         <negated-existential-quantifier op="no" vars="x" type="Token"/>
+         <predicate name="tc-subtoken">
+            <var name="x"/>
+            <var name="x"/>
+         </predicate>
+      </none>
+   </formula>
+
+   <comment> there is no greatest natural number </comment>
+   <formula>
+      <none>
+         <negated-existential-quantifier op="no" vars="n" type="ℕ"/>
+         <all op="all" vars="m" type="ℕ">
+            <predicate name="ge">
+               <var name="n"/>
+               <var name="m"/>
+            </predicate>
+         </all>
+      </none>
+   </formula>
+
+   <comment> the digraph is connected:  at most one 
+   node lacks incoming arcs </comment>
+   <formula>
+      <lone>
+         <lone-existential-quantifier op="lone" vars="n" type="Node"/>
+         <none>
+            <negated-existential-quantifier op="no" vars="p" type="Node"/>
+            <predicate name="parent_child">
+               <var name="p"/>
+               <var name="n"/>
+            </predicate>
+         </none>
+      </lone>
+   </formula>
+
+   <comment> Every mark is in at most one document </comment>
+   <formula>
+      <all op="all" vars="m" type="Mark">
+         <lone>
+            <lone-existential-quantifier op="lone" vars="d" type="Document"/>
+            <predicate name="contains">
+               <var name="d"/>
+               <var name="m"/>
+            </predicate>
+         </lone>
+      </all>
+   </formula>
+
+   <comment> Definite descriptions </comment>
+   <formula>
+      <predicate name="bald">
+         <definite-description op="℩x">
+            <predicate name="present-king-of-France">
+               <var name="x"/>
+            </predicate>
+         </definite-description>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="bald">
+         <definite-description op="thex">
+            <predicate name="present-king-of-France">
+               <var name="x"/>
+            </predicate>
+         </definite-description>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="f">
+         <definite-description op="℩x">
+            <predicate name="f">
+               <var name="x"/>
+            </predicate>
+         </definite-description>
+      </predicate>
+   </formula>
+
+   <formula>
+      <predicate name="p">
+         <definite-description op="℩x">
+            <predicate name="p">
+               <var name="x"/>
+               <var name="y"/>
+            </predicate>
+         </definite-description>
+         <var name="y"/>
+      </predicate>
+   </formula>
+
+   <formula>
+      <identity>
+         <constant name="Scott"/>
+         <definite-description op="thex">
+            <predicate name="wrote-Waverley">
+               <var name="x"/>
+            </predicate>
+         </definite-description>
+      </identity>
+   </formula>
+
+   <formula>
+      <predicate name="taught">
+         <constant name="Plato"/>
+         <definite-description op="℩x">
+            <and op="∧">
+               <predicate name="philosopher">
+                  <var name="x"/>
+               </predicate>
+               <predicate name="drank-hemlock">
+                  <var name="x"/>
+               </predicate>
+            </and>
+         </definite-description>
+      </predicate>
+   </formula>
+</m-formulas>

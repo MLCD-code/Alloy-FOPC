@@ -1,0 +1,37 @@
+(all k: Token)(some d: Document)(contains(d, k))
+(all d: Document)(some k: Token)(contains(d, k))
+(∀x:T)(P(x))
+(∃x:T)(P(x))
+(∀x: Root)(Object(x))
+(∀x: Root)(∀y: Root)(x = y)
+(∀x: A)(Object(x))
+(∀x: A)(∀y: A)(x = y)
+(all x : Type)(~Token(x) and ~Document(x))
+(all x : Token)(~Type(x) and ~Document(x))
+(all x : Document)(~Type(x) and ~Token(x))
+(∃₁ x)(Root(x))
+(one x)(A(x))
+(exists_1 x)(B(x))
+(all n : Node)(Root(n) or (one p : Node)(parent_child(p, n)))
+(all p : Point)(exist_1 x, y: ℕ)
+  (x = first(p) and y = second(p))
+(exists_1 n : ℕ)(all m : ℕ)[le(n, m)]
+/* subtoken relation is acyclic, or equivalently
+   tc-subtoken relation is antisymmetric */
+(no x : Token)(tc-subtoken(x, x))
+
+/* there is no greatest natural number */
+(no n : ℕ)(all m : ℕ)[ge(n, m)]
+/* the digraph is connected:  at most one 
+   node lacks incoming arcs */
+(lone n : Node)(no p : Node)
+    (parent_child(p, n))
+/* Every mark is in at most one document */
+(all m : Mark)(lone d : Document)(contains(d, m))
+/* Definite descriptions */
+bald((℩x)(present-king-of-France(x)))
+bald((the x)[present-king-of-France(x)])
+f((℩x)[f(x)])
+p( (℩x)[p(x,y)], y)
+‹Scott› = (the x)(wrote-Waverley(x))
+taught( (℩x)(philosopher(x) ∧ drank-hemlock(x)), 'Plato' )
