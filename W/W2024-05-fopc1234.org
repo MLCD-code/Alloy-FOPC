@@ -1,6 +1,6 @@
-#+title: Five varieties of first-order predicate calculus
+#+title: Four varieties of first-order predicate calculus
 #+author: CMSMcQ and CH
-#+date: 16 May 2024
+#+date: 16-28 May 2024
 
 This document describes several languages for the expression of
 logical formulas, each containing the preceding.  For convenient
@@ -16,6 +16,9 @@ relative sizes:
   unique existential quantification, and skolem functions.  It is at
   least roughly comparable to the TFF (typed first-order formulas)
   language of TPTP.
+
+There are also some design notes for a possible fifth language:
+
 - *XL* (extra-large) adds sets and set operations.  /Open question:
   add tuples?/
 
@@ -42,14 +45,23 @@ Because different people seem to have different intuitions about which
 logical operators should bind more tightly and which less tightly, we
 do not attempt an elaborate set of operator priorities.  We allow (A
 and (B and C)) to be writte (A and B and C), and similarly for (A or
-(B or C)), but otherwise all nested compound expressions must be
-parenthesized.  (This is a change from the grammar we worked on in
+(B or C)), and we allow unparenthesized negations as operands of
+binary operators, but otherwise all nested compound expressions must
+be parenthesized.  (This is a change from the grammar we worked on in
 2021 and 2022.)
 
-To avoid possible confusion over the scope of quantifiers, the same
-rule applies to quantifications: we can write ∃x P(x), or (∃x)P(x),
-but if the quantifier's scope includes an operator, parentheses are
-needed:  ∃x (P(x) ∧ Q(x)).
+To avoid possible confusion over the scope of quantifiers, any
+quantifier must be parenthesized and must be followed by a bracketed
+expression explicitly delimiting the scope.  This has the disadvantage
+that expressions like "∃x P(x)" are not possible but must be written
+more clumsily as "(∃x)(P(x))".  It has on the other hand the advantage
+that there can be no confusion over whether the /x/ in "Q(x)" is bound
+or free, in "∃x P(x) ∧ Q(x)".  That sequence of characters is not a
+formula and it need not be assigned any structural interpretation.
+The two formulas nearest to the form given are "(∃x)(P(x)) ∧ Q(x)" and
+"(∃x)(P(x) ∧ Q(x))" -- or, using square brackets around the formula
+governed by the quantifier, "(∃x)[P(x)] ∧ Q(x)" and "(∃x)[P(x) ∧
+Q(x)]".
 
 We assume that for applications of logic to a domain (what Quine calls
 post-foundational systems), it is important for identifiers to be
@@ -1357,27 +1369,45 @@ use them as positive test cases for language L.
 <<Test-cases-desc>>
 #+end_src
 * Language XL: first-order logic plus set theory
+It may be desirable to add another language to those defined here:
+Language XL includes sets /(and tuples? tbd)/ in the universe of
+discourse.
 
-Language XS adds sets /(and tuples? tbd)/ to the universe of
-discourse.  Concretely it adds:
+A severely minimal version of XL would add:
 - the ability to declare variables as denoting sets of a given type
+  (the equivalent of the Alloy declaration ~names:  set Name~)
+- symbols for standard set operations (membership, complementation,
+  union, intersection, subset relation, set difference)
+- standard symbols for the empty set and the universal set
+
+If we wish to have close equivalents to everything or most things in
+Alloy, we will also add:
 - syntax for tuples
 - the ability to declare variables as denoting tuples in a given
   relation (with symbols allowing the user to distinguish total
   from partial functions, injections, and bijections) 
-- symbols for standard set operations (membership, complementation,
-  union, intersection, subset relation, set difference)
 - set comprehensions
+- sequences as mappings from a prefix of the natural numbers to items
+- natural numbers (or integers more generally)
+- standard names for functions which return the domain and range of
+  relations
+- ... and more.
 
-/(The inclusion of tuples, set comprehensions, and various forms of
-functions and relations is uncertain.  Our initial instinct was to
-exclude them for simplicity and reliability, since the ground has
-proved so treacherous for so many.  But it may be that once sets are
-added, we have tuples and relations whether we want them or not.  And
-in that case, we might as well have set comprehensions to make them
-easier to talk about.)/
+An even larger language would result from adding additional constructs
+present in languages like Z.
 
-[Full definition to be supplied.]
+The inclusion of tuples, set comprehensions, and various forms of
+functions and relations is uncertain.  It may be desirable to exclude
+them for simplicity and reliability, since the ground has proved so
+treacherous for so many.  But it may be that once sets are added, we
+have tuples and relations whether we want them or not.  And in that
+case, we might as well have set comprehensions to make them easier to
+talk about.
+
+At the time this document was drafted, there seems to be no urgent
+need for a definition of language XL; the uncertainty about what it
+should contain is perhaps a consequence of the fact that we don't have
+a concrete use in mind for it.
 
 * Concluding notes
 The grammars defined here have two intended functions:
@@ -1393,12 +1423,12 @@ The grammars defined here have two intended functions:
   translations into specific target notations like ACL2
   or TPTP FOF or TFF.
 
-At first glance, it may seem excessive to formulate test cases
-for such a simple collection of grammatical rules.  But the tests
-have caught a number of errors in the grammar.
+At first glance, it may seem excessive to formulate test cases for
+such a simple collection of grammatical rules.  But the tests have
+caught a number of errors in the grammar.
 
-** To do
-Watch this space.
+# ** To do
+# Watch this space.
 
 ** Questions to consider
 At the time this paper was last revised (May 2024 or later), several
@@ -1410,12 +1440,12 @@ we remembered to write down are:
 
 - Q. Should subscripts be allowed in identifiers?
 
-  A. They already are.  The only effective way to allow subscripts is
-  to provide some convenient typographic shorthand for them; the
-  obvious choice is to separate the base name from the subscript with
-  an underscore: thus /x/ with a subscribt of 1 can be written
-  ~x\zwnj{}_1~, which can in HTML or on paper be formatted as /x_1/.
-  But this is already allowed.
+  A. In some sense, they already are.  The only effective way to allow
+  subscripts is to provide some convenient typographic shorthand for
+  them; the obvious choice is to separate the base name from the
+  subscript with an underscore: thus /x/ with a subscribt of 1 can be
+  written ~x\zwnj{}_1~, which can in HTML or on paper be formatted as
+  /x_1/.  But this is already allowed.
 
   Perhaps underscore should be allowed in identifiers /only/ with the
   meaning 'subscript'?  And thus only when followed by decimal digits?
@@ -1435,12 +1465,12 @@ we remembered to write down are:
   desired form with consistent spelling (and optionally
   pretty-printing).
 
-- Add /xor/ (aka /aut/), /nand/, /nor/?
+- Add /xor/ (aka /aut/), /nand/, /nor/ to language L?
   
-- Eliminate propositional terms in S through XL / allow them only in
-  XS?
+- Eliminate propositional variables and propositional constants in S
+  through XL / allow them only in XS?
 
-- Allow marking variables with "~$~"?
+- Allow variables to begin with "~$~"?
 
 - Allow other forms of numbers as individual constants? (Currently
   only unsigned integers are allowed.  And it's only the sentence
@@ -1460,6 +1490,16 @@ we remembered to write down are:
   existential quantifiers, following Hughes and Cresswell?
 
 - Find a form for iota-expressions that uses fewer parentheses?
+
+- All TLA+-style quantification of the form "∀ /x/ : /p/" and "∃ /x/ ∈
+  /S/ : /p/"?  That is: allow quantifiers to be separated from the
+  governed proposition not by parentheses but by a colon?  And allow
+  variable and type to be separated not by colon but by "∈"?
+
+  Note that the current form of typed quantifiers would need to
+  change, since otherwise "~all x : P~" would require more lookahead
+  than we would like and would be easy to misread, even if not
+  strictly speaking ambiguous.
   
 ** Done
 Temporary list of to-do items now completed.
@@ -1477,7 +1517,7 @@ Temporary list of to-do items now completed.
 
 * References
 
-Beckert, Bernhard, and Joahim Posegga. "LeanTAP: Lean Tableau-based
+Beckert, Bernhard, and Joachim Posegga. "LeanTAP: Lean Tableau-based
 Deduction." /Journal of Automated Reasoning/ 15 (1995): 339–358.
 
 Hughes, G. E., and M. J. Cresswell.  /A new introduction to modal logic./
@@ -1489,7 +1529,8 @@ analysis./ Revised edition.  Cambridge, Mass.:  MIT Press, 2012.
 Jeffrey, Richard C. /Formal logic: Its scope and limits./ New York:
 McGraw-Hill, 1967.
 
-Quine, /Elements of logic./  1941.
+Quine, Willard Van Orman.  /Elementary logic./ 1941. Revised
+Edition. Cambridge, Mass.: Harvard University Press, 1980.
 
 Quine, W. V. /Methods of logic./ 1950.  Fourth edition.  Cambridge, Mass.:
 Harvard University Press, 1982.
@@ -1500,3 +1541,7 @@ Corrected repring New York: Dover, 1995.
 Sutcliffe, Geoff ... TPTP technical manual.
 
 Sutcliffe, Geoff, et al.  Paper on TFF.
+
+Sutcliffe, G., Kotelnikov, E.: TFX: the TPTP extended typed first-order form. In: Konev, B., Urban, J., Rümmer, P. (eds.) Proceedings of the 6th Workshop on Practical Aspects of Automated Reasoning (PAAR), Oxford, UK. CEUR Workshop Proceedings, vol. 2162, pp. 72–87 (2018). http://ceur-ws.org/Vol-2162/#paper-07
+
+Sutcliffe, G., Schulz, S., Claessen, K., Baumgartner, P.: The TPTP typed first-order form with arithmetic. In: Bjørner, N., Voronkov, A. (eds.) LPAR 2012. LNCS, vol. 7180, pp. 406–419. Springer, Heidelberg (2012). https://doi.org/10.1007/978-3-642-28717-6_32
