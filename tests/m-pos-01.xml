@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ixml xmlns:ixml="http://invisiblexml.org/NS" ixml:state="failed">Failed to parse input:
+syntax error, found #9...
+while expecting '&gt;'
+at line 1, column 22:
+... z iff z = y)
+~(all x, y)[(f('a') = x /\ f(a) = y) implies x=y]
+...</ixml>

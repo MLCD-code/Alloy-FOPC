@@ -1,0 +1,8 @@
+(x)(some y)(z)(f(x) = z iff z = y)
+~(all x, y)[(f('a') = x /\ f(a) = y) implies x=y]
+
+/* Group theory, per Jeffrey */
+(x)(y)(z)(plus(x, plus(y, z)) = plus(plus(x, y), z))
+(x)(plus(x, 0) = 0)
+(x)(plus(x, minus(x)) = 0)
+(forall x, y, z)(plus(x, y) = plus(y, z) implies x = y)

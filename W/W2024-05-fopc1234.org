@@ -1500,6 +1500,9 @@ we remembered to write down are:
   change, since otherwise "~all x : P~" would require more lookahead
   than we would like and would be easy to misread, even if not
   strictly speaking ambiguous.
+
+- We lean towards adding curly braces and angle brackets as possible
+  brackets.
   
 ** Done
 Temporary list of to-do items now completed.
